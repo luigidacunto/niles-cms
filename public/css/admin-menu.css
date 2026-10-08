@@ -1,0 +1,62 @@
+/* Menu laterale del pannello: sezioni collassabili + ricerca (vedi public/js/admin-menu.js). */
+.nav-sidebar .nav-header.niles-sezione {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    cursor: pointer;
+    user-select: none;
+}
+.nav-sidebar .nav-header.niles-sezione:hover { color: #fff; }
+.nav-sidebar .nav-header.niles-sezione:focus-visible { outline: 2px solid #6ea8fe; outline-offset: -2px; }
+.nav-sidebar .nav-header.niles-sezione[hidden],
+.nav-sidebar .nav-item[hidden] { display: none; }
+.niles-freccia { font-size: .65rem; transition: transform .15s; opacity: .7; }
+.nav-header.niles-chiusa .niles-freccia { transform: rotate(-90deg); }
+
+.niles-menu-search {
+    position: relative;
+    padding: .6rem .5rem .2rem;
+}
+.niles-menu-search input {
+    width: 100%;
+    padding: .35rem 1.8rem .35rem 1.9rem;
+    border: 1px solid rgba(255, 255, 255, .2);
+    border-radius: .25rem;
+    background: rgba(255, 255, 255, .1);
+    color: #fff;
+    font-size: .9rem;
+}
+.niles-menu-search input::placeholder { color: rgba(255, 255, 255, .55); }
+.niles-menu-search input:focus { outline: none; border-color: #6ea8fe; background: rgba(255, 255, 255, .16); }
+.niles-menu-search .niles-lente {
+    position: absolute;
+    left: 1.1rem;
+    top: 50%;
+    margin-top: -.1rem;
+    transform: translateY(-50%);
+    font-size: .75rem;
+    color: rgba(255, 255, 255, .6);
+    pointer-events: none;
+}
+.niles-menu-search .niles-azzera {
+    position: absolute;
+    right: .9rem;
+    top: 50%;
+    margin-top: -.1rem;
+    transform: translateY(-50%);
+    border: 0;
+    background: none;
+    color: rgba(255, 255, 255, .7);
+    font-size: 1.2rem;
+    line-height: 1;
+    cursor: pointer;
+}
+.niles-menu-search .niles-azzera:hover { color: #fff; }
+.niles-nessun-risultato { padding: .5rem 1rem; color: rgba(255, 255, 255, .6); font-size: .85rem; list-style: none; }
+.niles-nessun-risultato[hidden] { display: none; }
+
+/* Barra laterale ridotta a sole icone: la ricerca non serve. */
+.sidebar-collapse:not(.sidebar-open) .main-sidebar:not(:hover) .niles-menu-search { display: none; }
+
+/* Respiro in fondo a ogni pagina del pannello: sulle pagine lunghe il pulsante finale non resta a filo del bordo finestra. */
+.content-wrapper > .content { padding-bottom: 2.5rem; }

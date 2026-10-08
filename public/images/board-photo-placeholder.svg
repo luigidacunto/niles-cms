@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 300 400" role="img" aria-label="Foto non disponibile">
+  <rect width="300" height="400" fill="#e5e7eb"/>
+  <g fill="#9ca3af">
+    <circle cx="150" cy="150" r="60"/>
+    <path d="M150 230c-70 0-120 45-120 110v60h240v-60c0-65-50-110-120-110z"/>
+  </g>
+</svg>

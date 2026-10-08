@@ -1,0 +1,47 @@
+# ===== COMMON (every project) =====
+
+# OS
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Editor
+*.swp
+*.swo
+
+# Secrets / local env
+.env
+.env.*
+!.env.example
+*.local
+
+# Per-installation legacy URL redirects (comitato/dominio specifico) — vedi legacy-redirects.example.php
+/legacy-redirects.php
+
+# Cartelle nascoste alla radice (.idea/, .venv/, .pytest_cache/ e simili): file di lavoro locali, mai
+# versionati. La regola è ancorata alla radice di proposito: le cartelle nascoste dentro al codice del
+# framework sono gestite dal suo .gitignore.
+/.*/
+
+# ===== END COMMON =====
+
+# ===== LARAVEL =====
+
+/vendor/
+/node_modules/
+/public/build
+/public/hot
+/public/storage
+/storage/*.key
+/storage/pail
+/bootstrap/cache/*.php
+!/bootstrap/cache/.gitignore
+/.phpunit.cache
+/.phpunit.result.cache
+Homestead.json
+Homestead.yaml
+auth.json
+npm-debug.log
+yarn-error.log
+
+# ===== END LARAVEL =====
