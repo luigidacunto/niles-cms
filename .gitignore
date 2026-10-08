@@ -22,6 +22,8 @@ desktop.ini
 # versionati. La regola è ancorata alla radice di proposito: le cartelle nascoste dentro al codice del
 # framework sono gestite dal suo .gitignore.
 /.*/
+# Eccezione: la configurazione di GitHub (Dependabot, workflow, modelli) va versionata.
+!/.github/
 
 # ===== END COMMON =====
 
