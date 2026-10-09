@@ -26,7 +26,9 @@
 @stop
 
 @section('auth_footer')
+    @include('partials.demo-credenziali')
     <p class="my-0">
+        Non ti arriva l'email o non riesci a leggere il codice?
         <a href="{{ route('admin.login.password') }}">Accedi con password</a>
     </p>
 @stop

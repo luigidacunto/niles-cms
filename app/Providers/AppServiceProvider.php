@@ -7,6 +7,8 @@ use App\Models\Corso;
 use App\Models\SicurezzaForm;
 use App\Support\AreaSoci;
 use Illuminate\Cache\RateLimiting\Limit;
+use Illuminate\Support\Facades\Event;
+use JeroenNoten\LaravelAdminLte\Events\BuildingMenu;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Support\Facades\View;
@@ -52,6 +54,19 @@ class AppServiceProvider extends ServiceProvider
         Gate::define('manage-privacy-policies', fn (Admin $admin) => $admin->role === 'admin');
         // Template delle email di sistema (testo inviato a nome del comitato): solo admin.
         Gate::define('manage-email-templates', fn (Admin $admin) => $admin->role === 'admin');
+
+        // Demo: voce fissa nella barra in alto del pannello (le pagine admin estendono tutte adminlte::page).
+        Event::listen(BuildingMenu::class, function (BuildingMenu $event) {
+            if (config('app.demo')) {
+                $event->menu->add([
+                    'text' => 'Versione dimostrativa: le modifiche non vengono salvate',
+                    'url' => '#',
+                    'icon' => 'fas fa-flask',
+                    'topnav' => true,
+                    'classes' => 'font-weight-bold text-danger',
+                ]);
+            }
+        });
 
         // Dati del template di pagina "corsi" (pages.template='corsi'): corsi con iscrizioni aperte.
         View::composer('pages.templates.corsi', fn ($view) => $view->with(

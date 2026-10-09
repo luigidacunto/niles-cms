@@ -77,7 +77,7 @@ class FirstInstallSeederTest extends TestCase
         $this->assertSame(Page::where('slug', 'servizi')->value('id'), Page::where('slug', 'corsi-di-formazione')->value('parent_id'));
 
         $principi = Page::where('slug', 'principi-e-valori-umanitari')->first();
-        $this->assertFalse($principi->published); // le sezioni nascono in bozza: le attiva il comitato
+        $this->assertTrue($principi->published); // il menu nasce visibile, con il testo introduttivo standard
         $this->assertSame(Category::where('slug', 'principi-e-valori')->value('id'), $principi->category_id);
         $this->assertNotEmpty($principi->body);
         $this->assertNotEmpty($principi->excerpt);
@@ -86,6 +86,48 @@ class FirstInstallSeederTest extends TestCase
         $innovazione = Page::where('slug', 'innovazione')->first();
         $this->assertFalse($innovazione->published);
         $this->assertFalse($innovazione->in_menu);
+    }
+
+    public function test_il_menu_nasce_visibile_con_le_voci_standard(): void
+    {
+        (new FirstInstallSeeder)->run();
+
+        $albero = Page::menuTree();
+        $this->assertSame(
+            ['Chi Siamo', 'Cosa Facciamo', 'Volontariato', 'Sostienici', 'Servizi', 'Contatti'],
+            $albero->pluck('title')->all()
+        );
+
+        $figli = fn (string $titolo) => $albero->firstWhere('title', $titolo)->children->pluck('title')->all();
+        $this->assertSame(['Storia e Principi', 'Statuto', 'Struttura Organizzativa'], $figli('Chi Siamo'));
+        $this->assertSame(['Diventa Volontario'], $figli('Volontariato'));
+        $this->assertSame(['Dona il 5x1000'], $figli('Sostienici'));
+        $this->assertSame(['Corsi di Formazione'], $figli('Servizi'));
+        $this->assertSame(['Contattaci', 'Dove Trovarci'], $figli('Contatti'));
+        $this->assertCount(6, $figli('Cosa Facciamo'));
+
+        // Pagine che non tutti i comitati hanno: presenti ma in bozza.
+        foreach (['corpo-infermiere-volontarie', 'diventa-infermiera-volontaria', 'donazioni'] as $slug) {
+            $this->assertFalse((bool) Page::where('slug', $slug)->value('published'), $slug);
+        }
+
+        // Testi standard: niente riferimenti locali; i dati del comitato sono segnaposto da completare.
+        foreach (['storia-e-principi', 'statuto', 'corpo-infermiere-volontarie', 'diventa-volontario', 'diventa-infermiera-volontaria'] as $slug) {
+            $body = Page::where('slug', $slug)->value('body');
+            $this->assertNotEmpty($body, $slug);
+            $this->assertDoesNotMatchRegularExpression('/arezzo|aretin|criarezzo|\/storage\//i', $body, $slug);
+        }
+        $this->assertStringContainsString('Da completare', Page::where('slug', 'contattaci')->value('body'));
+        $this->assertStringContainsString('Da completare', Page::where('slug', 'dona-il-5x1000')->value('body'));
+
+        // Ordine coerente: nessun duplicato tra fratelli.
+        foreach (Page::all()->groupBy('parent_id') as $gruppo) {
+            $this->assertSame(
+                $gruppo->count(),
+                $gruppo->pluck('order')->unique()->count(),
+                $gruppo->map(fn ($p) => $p->slug.':'.$p->order)->implode(', ')
+            );
+        }
     }
 
     public function test_un_secondo_lancio_non_tocca_le_personalizzazioni(): void

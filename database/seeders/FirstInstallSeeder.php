@@ -105,33 +105,44 @@ class FirstInstallSeeder extends Seeder
 
     /**
      * Struttura del menu principale e pagine di sistema (`pages.system = true`: dal pannello non si
-     * eliminano né si spostano, resta editabile il testo introduttivo, si disabilitano mettendole in bozza).
-     * I segnaposto del menu nascono in bozza (`published = false`): si collega il contenuto e si pubblica
-     * dal pannello.
+     * eliminano né si spostano, resta editabile il testo, si disabilitano mettendole in bozza).
+     *
+     * Il menu nasce già visibile e navigabile: ogni voce ha un testo standard (uguale per tutti i comitati, in
+     * `contenuti/`) oppure un segnaposto «Da completare» che indica a chi installa cosa scrivere. Partono in bozza
+     * solo le pagine che non tutti i comitati hanno: Corpo Infermiere Volontarie, Diventa Infermiera Volontaria,
+     * Donazioni, Innovazione. Menu a sei voci, nell'ordine usato in produzione: Chi Siamo, Cosa Facciamo,
+     * Volontariato, Sostienici, Servizi, Contatti (due livelli al massimo: il menu non mostra il terzo).
      */
     private function pagine(): void
     {
         $committee = config('app.public_name');
 
-        $this->pagina('Trasparenza', null, 0, [
+        // Fuori dal menu: Trasparenza (linkata dal footer) e Archivi (pagine inattive, gli archivi sono rotte fisse).
+        $this->pagina('Trasparenza', null, 6, [
             'excerpt' => 'Documenti e informazioni che il Comitato pubblica per obbligo di legge e per trasparenza verso soci e cittadini.',
             'body' => '<p>In questa sezione trovi i documenti che '.e($committee).' pubblica in adempimento '
                 .'agli obblighi di trasparenza (in particolare la Legge 124/2017) e per rendere conto del proprio operato.</p>',
-            'published' => true, 'in_menu' => false, 'system' => true,
+            'in_menu' => false, 'system' => true,
         ]);
 
         $chiSiamo = $this->pagina('Chi Siamo', null, 0);
+        $this->pagina('Storia e Principi', $chiSiamo, 0, ['body' => $this->testo('storia-e-principi')]);
+        $this->pagina('Statuto', $chiSiamo, 1, ['body' => $this->testo('statuto')]);
         $this->pagina('Struttura Organizzativa', $chiSiamo, 2, [
             'excerpt' => 'Gli organi del Comitato: presidente, vice presidente, consiglio direttivo.',
             'body' => '<p>Di seguito la struttura organizzativa del Comitato.</p>',
-            'published' => true, 'system' => true,
+            'system' => true,
+        ]);
+        // Non tutti i comitati hanno il Corpo: in bozza, lo attiva chi lo ha.
+        $this->pagina('Corpo Infermiere Volontarie', $chiSiamo, 3, [
+            'body' => $this->testo('corpo-infermiere-volontarie'), 'published' => false,
         ]);
 
         $cosaFacciamo = $this->pagina('Cosa Facciamo', null, 1);
 
         // [titolo, slug categoria notizie, ordine, excerpt, body, pubblicata?, nel menu?]. Pubblicata/nel menu
-        // di default: false/true. Nascono tutte in bozza: ogni comitato attiva (pubblica) quelle che usa;
-        // `innovazione` resta anche fuori dal menu (sezione prevista dallo schema CRI ma non usata da tutti). Testo introduttivo generico CRI: il materiale specifico del
+        // di default: true/true. `innovazione` è prevista dallo schema CRI ma non usata da tutti: nasce in bozza e
+        // fuori dal menu, la attiva chi la usa. Testo introduttivo generico CRI: il materiale specifico del
         // comitato si carica dal pannello. Il feed delle notizie e l'archivio sono automatici.
         $sezioni = [
             'principi-e-valori-umanitari' => ['Principi e Valori Umanitari', 'principi-e-valori', 0,
@@ -194,40 +205,68 @@ class FirstInstallSeeder extends Seeder
                 'slug' => $slug,
                 'excerpt' => $excerpt,
                 'body' => $body,
-                'published' => $s[5] ?? false,
+                'published' => $s[5] ?? true,
                 'in_menu' => $s[6] ?? true,
                 'system' => true,
                 'category_id' => Category::where('slug', $slugCategoria)->value('id'),
             ]);
         }
 
-        // "Corsi di Formazione": pagina di sistema con template `corsi` (elenco dei corsi con iscrizioni aperte).
-        $servizi = $this->pagina('Servizi', $cosaFacciamo, 5);
-        $this->pagina('Corsi di Formazione', $servizi, 4, [
+        // Servizi: voce di primo livello con la sola pagina "Corsi di Formazione" (template `corsi`, elenco dei corsi con
+        // iscrizioni aperte); gli altri servizi del comitato si aggiungono a mano.
+        $servizi = $this->pagina('Servizi', null, 4);
+        $this->pagina('Corsi di Formazione', $servizi, 0, [
             'excerpt' => 'I corsi aperti alla popolazione: scopri le prossime date e iscriviti online.',
             'body' => '<p>Di seguito i corsi con iscrizioni aperte. Scegli quello che ti interessa e compila il modulo di iscrizione.</p>',
-            'published' => true, 'system' => true, 'template' => 'corsi',
+            'system' => true, 'template' => 'corsi',
         ]);
 
         $volontariato = $this->pagina('Volontariato', null, 2);
-        $this->pagina('Diventa Volontario', $volontariato, 0);
-        $this->pagina('Formazione Volontari', $volontariato, 1);
+        $this->pagina('Diventa Volontario', $volontariato, 0, ['body' => $this->testo('diventa-volontario')]);
+        // Non tutti i comitati hanno le Infermiere Volontarie: in bozza, la attiva chi le ha.
+        $this->pagina('Diventa Infermiera Volontaria', $volontariato, 1, [
+            'body' => $this->testo('diventa-infermiera-volontaria'), 'published' => false,
+        ]);
 
-        // Donazioni: pagina di sistema con blocco `embed_html` (script/form delle piattaforme di donazione,
-        // reso senza sanitizer, editabile solo da admin).
         $sostienici = $this->pagina('Sostienici', null, 3);
-        $this->pagina('Dona il 5x1000', $sostienici, 0);
+        $this->pagina('Dona il 5x1000', $sostienici, 0, [
+            'excerpt' => 'A te non costa nulla, per noi vale molto.',
+            'body' => '<p><strong>Dona il tuo 5x1000 a '.e($committee).'.</strong></p>'
+                .'<p>A te non costa nulla, per noi vale molto. Scegliere di donare il 5x1000 a '.e($committee).' aiuta a '
+                .'sostenere le attività svolte sul territorio a favore dei più vulnerabili e l\'acquisto di mezzi e '
+                .'attrezzature per il soccorso sanitario.</p>'
+                .'<p><strong>I volontari di '.e($committee).' sono ogni giorno a fianco di chi ha bisogno.</strong></p>'
+                .'<p><strong>Codice Fiscale:</strong> <em>[Da completare: codice fiscale del Comitato]</em></p>',
+        ]);
+        // Donazioni: pagina di sistema con blocco `embed_html` (script/form delle piattaforme di donazione, reso
+        // senza sanitizer, editabile solo da admin). Spenta: la attiva il comitato che raccoglie donazioni online.
         $this->pagina('Donazioni', $sostienici, 1, [
             'excerpt' => 'Sostieni le attività del Comitato con una donazione.',
             'body' => '<p>Con il tuo contributo aiuti il Comitato a garantire soccorso, assistenza e vicinanza alle persone più vulnerabili del territorio. Ogni donazione, anche piccola, fa la differenza.</p>',
-            'system' => true,
+            'system' => true, 'published' => false,
         ]);
 
-        $archivi = $this->pagina('Archivi', null, 4);
-        $this->pagina('Notizie', $archivi, 0);
+        // Archivi: pagine inattive e fuori dal menu (archivi notizie e comunicati sono rotte fisse nel footer).
+        $archivi = $this->pagina('Archivi', null, 7, ['published' => false, 'in_menu' => false]);
+        $this->pagina('Notizie', $archivi, 0, ['published' => false, 'in_menu' => false]);
 
         $contatti = $this->pagina('Contatti', null, 5);
-        $this->pagina('Dove Trovarci', $contatti, 0);
+        $this->pagina('Contattaci', $contatti, 0, [
+            'excerpt' => 'I recapiti e gli orari del Comitato.',
+            'body' => '<p><em>[Da completare]</em> Indicare in questa pagina i recapiti del Comitato: indirizzo della sede, '
+                .'telefono, email, PEC e orari di apertura degli uffici.</p>',
+        ]);
+        $this->pagina('Dove Trovarci', $contatti, 1, [
+            'excerpt' => 'Dove si trova la sede del Comitato.',
+            'body' => '<p><em>[Da completare]</em> Indicare l\'indirizzo della sede e come raggiungerla. Una mappa si può '
+                .'incorporare con il blocco HTML della pagina (modificabile solo dagli amministratori).</p>',
+        ]);
+    }
+
+    /** Testo standard di una pagina, in `database/seeders/contenuti/` (HTML uguale per tutti i comitati, senza riferimenti locali). */
+    private function testo(string $nome): string
+    {
+        return trim(file_get_contents(__DIR__.'/contenuti/'.$nome.'.html'));
     }
 
     /** Crea una pagina (slug da `$extra['slug']` o dal titolo); `system` e `category_id` non sono fillable. */
@@ -237,7 +276,7 @@ class FirstInstallSeeder extends Seeder
             'slug' => Str::slug($titolo),
             'title' => $titolo,
             'body' => '',
-            'published' => false,
+            'published' => true,
             'in_menu' => true,
             'parent_id' => $genitore?->id,
             'order' => $ordine,
@@ -346,10 +385,12 @@ class FirstInstallSeeder extends Seeder
                 .'necessari.</p>'],
         ];
 
+        $ordine = 8; // dopo le voci del menu (0-5), Trasparenza (6) e Archivi (7)
         foreach ($policies as $slug => [$titolo, $excerpt, $body]) {
+            $posizione = $ordine++; // fuori dalla fn freccia: dentro, l'incremento non si propagherebbe
             Page::unguarded(fn () => Page::create([
                 'slug' => $slug, 'title' => $titolo, 'excerpt' => $excerpt, 'body' => $body,
-                'published' => true, 'in_menu' => false, 'system' => true,
+                'published' => true, 'in_menu' => false, 'system' => true, 'order' => $posizione,
             ]));
         }
     }

@@ -87,6 +87,12 @@
 </head>
 <body class="min-h-screen flex flex-col bg-[#efefef] text-[#4b4b51]" x-data="{ mobileNavOpen: false }">
 
+    @if (config('app.demo'))
+        <div class="bg-yellow-400 text-black text-center text-sm font-semibold px-4 py-2 leading-snug">
+            Versione dimostrativa di NILES — contenuti di esempio, nulla viene salvato né inviato.
+        </div>
+    @endif
+
     @unless (app()->isProduction())
         {{-- Ambiente non di produzione (staging / locale): fascia sempre visibile così un visitatore
              capisce che non è il sito ufficiale. Sparisce solo con APP_ENV=production. --}}

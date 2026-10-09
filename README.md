@@ -32,42 +32,89 @@ non nel codice.
 
 Versioni minime provate (con versioni precedenti il funzionamento non è garantito):
 
-- PHP 8.4 con le estensioni standard di Laravel più `gd`
+- PHP 8.4 con le estensioni `ctype`, `curl`, `dom`, `fileinfo`, `filter`, `gd`, `iconv`, `json`, `libxml`, `mbstring`,
+  `openssl`, `pcre`, `pdo_mysql`, `phar`, `session`, `simplexml`, `tokenizer`, `xml`, `xmlreader`, `xmlwriter`, `zip`
+  e `zlib` (la maggior parte è già inclusa in una normale installazione)
 - MariaDB 10.11 (MySQL è supportato, ma provato in misura minore), con un database e un utente dedicati
 - [Composer](https://getcomposer.org/) 2.10, installato dal sito ufficiale (i pacchetti delle distribuzioni sono spesso troppo vecchi e con PHP 8.4 stampano molti avvisi)
 - Node.js 24 e npm 11 (solo per compilare gli asset)
 
-## Installazione
+## Installazione su un server
+
+Procedura per un server Linux in produzione. Per provare l'applicazione in locale vedi [Sviluppo in locale](#sviluppo-in-locale).
+
+1. **Database**: crea un database vuoto (charset `utf8mb4`) e un utente dedicato con tutti i permessi su quel database.
+2. **Sito web**: configura il dominio con HTTPS e imposta come radice dei documenti la cartella `public/` del progetto
+   (non la cartella principale: il resto del codice non deve essere raggiungibile dal web). Il sito gira con PHP-FPM
+   in PHP 8.4. Non servono cron né worker di coda.
+3. **Codice e dipendenze**:
+
+   ```bash
+   git clone https://github.com/luigidacunto/niles-cms.git
+   cd niles-cms
+   composer install --no-dev --optimize-autoloader
+   cp .env.example .env
+   php artisan key:generate
+   ```
+
+   Il ramo `main` contiene la versione stabile; le versioni rilasciate sono nella pagina Releases del repository.
+   Se sul server sono installate più versioni di PHP, `php` e `composer` possono usare una versione diversa da
+   quella attesa: verifica con `php -v` e `composer diagnose` (voce «PHP binary path») e, se serve, usa
+   `php8.4` in modo esplicito (`php8.4 /usr/local/bin/composer install ...`, `php8.4 artisan ...`).
+4. **Configurazione**: modifica il file `.env`. Obbligatori: `APP_ENV=production`, `APP_DEBUG=false`, `APP_URL`
+   (indirizzo pubblico con `https://`), `APP_PUBLIC_NAME` (nome del sito), `DB_*` (database creato al passo 1),
+   `MAIL_*` (senza un vero server SMTP imposta `MAIL_MAILER=log`: le email finiscono in
+   `storage/logs/laravel.log`, ma solo con `LOG_LEVEL=debug`) e, per il primo amministratore,
+   `INITIAL_ADMIN_EMAIL` e `INITIAL_ADMIN_PASSWORD`. Tutte le variabili sono commentate in
+   [`.env.example`](.env.example). Dopo ogni modifica al `.env` va rilanciato `php artisan config:cache`.
+5. **Asset, database e contenuti iniziali**:
+
+   ```bash
+   npm ci
+   npm run build
+   php artisan migrate --force
+   php artisan db:seed --force
+   php artisan storage:link
+   php artisan config:cache
+   php artisan route:cache
+   php artisan view:cache
+   ```
+
+   `db:seed` crea il primo amministratore e i contenuti di base (menu, categorie, pagine di sistema, tipologie di
+   corso, informative e testi delle email). Se `INITIAL_ADMIN_PASSWORD` non è impostata, la password casuale viene
+   mostrata una sola volta al termine del comando: annotala. Il menu nasce già completo e navigabile, con testi
+   standard uguali per tutti i comitati (Storia e Principi, Statuto, Diventa Volontario, Cosa Facciamo, 5x1000) e
+   segnaposto «Da completare» da riempire (Contatti, Dove Trovarci, codice fiscale per il 5x1000). Le pagine che
+   non tutti i comitati hanno (Corpo Infermiere Volontarie, Diventa Infermiera Volontaria, Donazioni, Innovazione)
+   nascono in bozza: ogni comitato attiva dal pannello quelle che usa.
+6. **Permessi**: le cartelle `storage/` e `bootstrap/cache/` devono essere scrivibili dall'utente con cui gira PHP.
+7. **Primo accesso**: apri `https://<dominio>/admin/login/password` e accedi con le credenziali del primo
+   amministratore (l'accesso con codice via email è sulla pagina `/admin/login`). Poi compila **Dati del comitato**
+   dal pannello: denominazione, contatti, loghi, coordinate bancarie e metodi di pagamento.
+
+Gli aggiornamenti si fanno con [`scripts/deploy.sh`](scripts/deploy.sh) (`git pull`, dipendenze, build, migrazioni e
+cache) e i backup con [`scripts/backup.sh`](scripts/backup.sh); ciascuno può adattarli al proprio ambiente di
+pubblicazione. Prima di un aggiornamento in produzione conviene un backup del database.
+
+## Sviluppo in locale
 
 ```bash
-git clone <url-del-repository> niles
-cd niles
-
+git clone https://github.com/luigidacunto/niles-cms.git
+cd niles-cms
 composer install
 cp .env.example .env
 php artisan key:generate
-```
-
-Configura nel file `.env` il database (`DB_*`), l'indirizzo del sito (`APP_URL`), il nome pubblico
-(`APP_PUBLIC_NAME`) e l'invio delle email (`MAIL_*`; con `MAIL_MAILER=log` le email finiscono nel log). Poi:
-
-```bash
+# configura DB_* nel .env, poi:
 php artisan migrate
 php artisan db:seed
 php artisan storage:link
 npm ci
 npm run build
+php artisan serve
 ```
 
-Per provarlo in locale: `php artisan serve` (sito su `http://localhost:8000`, pannello su `/admin`).
-
-Il seeder crea il primo amministratore con le credenziali indicate nel `.env` prima di `db:seed`:
-`INITIAL_ADMIN_EMAIL` e `INITIAL_ADMIN_PASSWORD`. Se la password non è impostata ne viene generata una casuale,
-mostrata una sola volta al termine del comando (email di partenza: `administrator@example.it`): annotala e
-cambiala al primo accesso.
-
-Gli script [`scripts/deploy.sh`](scripts/deploy.sh) e [`scripts/backup.sh`](scripts/backup.sh) automatizzano
-aggiornamento e backup su un server Linux; ciascuno può adattarli al proprio ambiente di pubblicazione.
+Il sito è su `http://localhost:8000` e il pannello su `/admin`. Per lo sviluppo con ricarica automatica degli
+asset usa `npm run dev` al posto della build.
 
 ## Test
 

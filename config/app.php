@@ -34,7 +34,7 @@ return [
     |
     */
 
-    'version' => '1.0.0',
+    'version' => '1.0.1',
 
     /*
     | Controllo aggiornamenti: la dashboard del pannello (solo amministratori) confronta la versione
@@ -54,6 +54,14 @@ return [
         'email' => env('INITIAL_ADMIN_EMAIL', 'administrator@example.it'),
         'password' => env('INITIAL_ADMIN_PASSWORD'),
     ],
+
+    /*
+    | Modalità dimostrativa (NILES_DEMO=true): il sito si può provare ma nessuna scrittura viene salvata
+    | (vedi App\Http\Middleware\BlockWritesInDemo). `accounts` è un elenco facoltativo di account di prova
+    | da mostrare nelle pagine di login, separati da «|» (es. "Editor: editor@example.test / password").
+    */
+    'demo' => (bool) env('NILES_DEMO', false),
+    'demo_accounts' => array_values(array_filter(array_map('trim', explode('|', (string) env('NILES_DEMO_ACCOUNTS', ''))))),
 
     /*
     |--------------------------------------------------------------------------

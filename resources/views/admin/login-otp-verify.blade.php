@@ -26,6 +26,7 @@
 @stop
 
 @section('auth_footer')
+    @include('partials.demo-credenziali')
     <p class="my-0">
         <a href="{{ route('admin.login') }}">Richiedi un nuovo codice</a>
     </p>

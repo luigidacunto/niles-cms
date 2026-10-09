@@ -45,6 +45,7 @@
 @stop
 
 @section('auth_footer')
+    @include('partials.demo-credenziali')
     <p class="my-0">
         <a href="{{ route('admin.login') }}">Accedi con codice via email</a>
     </p>

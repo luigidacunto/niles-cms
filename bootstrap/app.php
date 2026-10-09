@@ -29,6 +29,8 @@ return Application::configure(basePath: dirname(__DIR__))
             \App\Http\Middleware\GateStagingToAdmins::class,
             \App\Http\Middleware\EnsureMemberActive::class,
             \Illuminate\Routing\Middleware\SubstituteBindings::class,
+            // Demo: dopo i binding così i 404 su risorse inesistenti restano 404. No-op salvo NILES_DEMO=true.
+            \App\Http\Middleware\BlockWritesInDemo::class,
         ]);
 
         // Due login: /soci/* (area soci) e tutto il resto (admin).
