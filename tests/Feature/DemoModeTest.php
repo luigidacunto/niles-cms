@@ -39,6 +39,17 @@ class DemoModeTest extends TestCase
         $this->assertSame(0, Category::count());
     }
 
+    public function test_demo_shows_a_visible_notice_after_a_refused_write(): void
+    {
+        config(['app.demo' => true]);
+
+        $this->actingAs($this->admin(), 'admin')
+            ->from(route('admin.categories.create'))
+            ->followingRedirects()
+            ->post(route('admin.categories.store'), ['name' => 'Prova'])
+            ->assertSee('Modifica non salvata: questa è una versione dimostrativa');
+    }
+
     public function test_demo_blocks_public_forms(): void
     {
         config(['app.demo' => true]);

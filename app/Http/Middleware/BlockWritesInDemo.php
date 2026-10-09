@@ -41,7 +41,7 @@ class BlockWritesInDemo
         $indietro = back()->withInput();
 
         return $request->is('admin', 'admin/*')
-            ? $indietro->with('status', $messaggio)
+            ? $indietro->with('status', $messaggio)->with('demo_bloccato', true) // i moduli non mostrano 'status': la barra in alto sì
             : $indietro->withErrors(['demo' => $messaggio]);
     }
 }

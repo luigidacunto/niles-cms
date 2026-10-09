@@ -58,12 +58,16 @@ class AppServiceProvider extends ServiceProvider
         // Demo: voce fissa nella barra in alto del pannello (le pagine admin estendono tutte adminlte::page).
         Event::listen(BuildingMenu::class, function (BuildingMenu $event) {
             if (config('app.demo')) {
+                // Dopo una scrittura rifiutata la voce diventa un avviso in evidenza (i moduli non mostrano il flash).
+                $rifiutata = session()->has('demo_bloccato');
                 $event->menu->add([
-                    'text' => 'Versione dimostrativa: le modifiche non vengono salvate',
+                    'text' => $rifiutata
+                        ? 'Modifica non salvata: questa è una versione dimostrativa'
+                        : 'Versione dimostrativa: le modifiche non vengono salvate',
                     'url' => '#',
                     'icon' => 'fas fa-flask',
                     'topnav' => true,
-                    'classes' => 'font-weight-bold text-danger',
+                    'classes' => $rifiutata ? 'font-weight-bold text-white bg-danger rounded px-2' : 'font-weight-bold text-danger',
                 ]);
             }
         });
