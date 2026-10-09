@@ -40,7 +40,28 @@
                 </p>
                 <div class="form-row">
                     <div class="form-group col-md-6">
-                        <label>Orizzontale <small class="text-muted">consigliato circa 700&times;220px (rapporto largo/alto ~3:1), PNG con margine trasparente sopra/sotto attorno al simbolo (non un ritaglio a filo) — è quello che viene ingrandito e centrato automaticamente nell'intestazione</small></label>
+                        <details class="mb-2">
+                            <summary class="text-info font-weight-bold" style="cursor:pointer">Come preparare il logo orizzontale</summary>
+                            <div class="callout callout-info mt-2 mb-2">
+                                <p class="mb-2">
+                                    L'intestazione ingrandisce l'immagine al doppio dell'altezza e ne mostra solo la parte
+                                    centrale: il margine vuoto attorno al logo viene ritagliato via. Per questo un logo
+                                    disegnato fino ai bordi risulterebbe tagliato.
+                                </p>
+                                <ul class="mb-0">
+                                    <li>Formato: PNG con sfondo trasparente, circa 700&times;220 px (rapporto 3:1&ndash;3,2:1).</li>
+                                    <li>
+                                        Simbolo e scritte nell'area centrale, lasciando libero almeno il
+                                        <strong>30% in alto, il 20% in basso e l'8% a destra e a sinistra</strong>
+                                        (su 700&times;220 px: 66 px sopra, 44 px sotto, 56 px per lato; area utile circa 588&times;110 px).
+                                        Per il logo di riferimento sono circa il 33% sopra, il 22% sotto e il 10% per lato.
+                                    </li>
+                                    <li>Un logo molto più largo che alto (oltre 5:1) va ridotto in larghezza, non allungato.</li>
+                                    <li>Non togliere mai pixel al logo dell'ente: aggiungi il margine vuoto attorno, non ritagliarlo.</li>
+                                </ul>
+                            </div>
+                        </details>
+                        <label>Orizzontale <small class="text-muted">PNG trasparente, circa 700&times;220 px</small></label>
                         @if ($info->logo_orizzontale_url)
                             <div class="mb-2">
                                 <img src="{{ $info->logo_orizzontale_url }}" alt="" style="max-height:70px" class="d-block mb-1">
@@ -50,7 +71,25 @@
                         <input type="file" name="logo_orizzontale" accept="image/*" class="form-control-file">
                     </div>
                     <div class="form-group col-md-6">
-                        <label>Verticale <small class="text-muted">non ancora mostrato sul sito pubblico — consigliato circa 500&times;500px (quadrato), PNG con sfondo trasparente</small></label>
+                        <details class="mb-2">
+                            <summary class="text-info font-weight-bold" style="cursor:pointer">Come preparare il logo verticale</summary>
+                            <div class="callout callout-info mt-2 mb-2">
+                                <p class="mb-2">
+                                    Non è ancora mostrato sul sito pubblico: caricalo comunque, nel formato giusto, per averlo
+                                    pronto. L'immagine viene solo ridimensionata, mai ritagliata.
+                                </p>
+                                <ul class="mb-0">
+                                    <li>Formato: PNG con sfondo trasparente, quadrato, circa 500&times;500 px.</li>
+                                    <li>
+                                        Logo (simbolo e scritte) centrato, con un margine vuoto di circa
+                                        <strong>17% per lato, 24% in alto e 9% in basso</strong>
+                                        (su 500&times;500 px: 85 px per lato, 120 px sopra, 45 px sotto; area utile circa 330&times;335 px).
+                                    </li>
+                                    <li>Non togliere mai pixel al logo dell'ente: aggiungi il margine vuoto attorno, non ritagliarlo.</li>
+                                </ul>
+                            </div>
+                        </details>
+                        <label>Verticale <small class="text-muted">PNG trasparente, circa 500&times;500 px, non ancora mostrato sul sito</small></label>
                         @if ($info->logo_verticale_url)
                             <div class="mb-2">
                                 <img src="{{ $info->logo_verticale_url }}" alt="" style="max-height:70px" class="d-block mb-1">

@@ -8,6 +8,9 @@ per girare anche su qualsiasi tipo di hosting.
 
 > Progetto indipendente, non è un prodotto ufficiale della Croce Rossa Italiana, ma è sviluppato da un volontario ormai di lunga data.
 
+**Demo online**: <https://demo.niles.luigidacunto.com> — sito e pannello di prova con contenuti inventati. Le credenziali sono
+indicate nella pagina di accesso del pannello (`/admin/login`); le modifiche non vengono salvate.
+
 ## Funzionalità
 
 - **Sito pubblico**: notizie con categorie e tag, pagine istituzionali, menu configurabile, archivi,
