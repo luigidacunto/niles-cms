@@ -71,6 +71,18 @@ class Page extends Model
         return (bool) $this->system;
     }
 
+    /** Voci del menu: pubblicate e con «Mostra nel menu» attivo, nell'ordine del menu. */
+    public function scopeForMenu(Builder $query): void
+    {
+        $query->published()->inMenu()->orderBy('order')->orderBy('title');
+    }
+
+    /** Figlie che compaiono nel menu: le stesse che la pagina elenca in fondo (vedi pages/show). */
+    public function menuChildren(): HasMany
+    {
+        return $this->children()->forMenu();
+    }
+
     /**
      * Percorso dalla radice alla pagina, per il breadcrumb dinamico: nessun breadcrumb scritto a mano per
      * pagina, il layout pubblico chiama questo metodo per qualunque pagina stia mostrando. La profondità è di
@@ -95,9 +107,8 @@ class Page extends Model
      */
     public static function menuTree(): Collection
     {
-        return static::published()->inMenu()->whereNull('parent_id')
-            ->orderBy('order')->orderBy('title')
-            ->with(['children' => fn ($query) => $query->published()->inMenu()->orderBy('order')->orderBy('title')])
+        return static::forMenu()->whereNull('parent_id')
+            ->with(['children' => fn ($query) => $query->forMenu()])
             ->get();
     }
 

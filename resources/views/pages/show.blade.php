@@ -13,19 +13,7 @@
 @section('content')
 
     <div class="max-w-[70rem] mx-auto px-4 py-10">
-        {{-- Breadcrumb dinamico: risale la catena dei genitori, nessun percorso scritto a mano per pagina
-             (vedi Page::breadcrumbTrail()). --}}
-        <nav aria-label="breadcrumb" class="text-sm text-gray-500 mb-6">
-            <a href="{{ url('/') }}" class="hover:text-[#cc0000]">Home</a>
-            @foreach ($page->breadcrumbTrail() as $crumb)
-                <span class="mx-1">/</span>
-                @if ($crumb->is($page))
-                    <span class="text-gray-700">{{ $crumb->title }}</span>
-                @else
-                    <a href="{{ route('pages.show', $crumb) }}" class="hover:text-[#cc0000]">{{ $crumb->title }}</a>
-                @endif
-            @endforeach
-        </nav>
+        @include('partials.breadcrumb', ['page' => $page])
 
         {{-- Titolo + accento rosso corto sotto, stile CRI (niente hero/banner sulle pagine di contenuto,
              solo breadcrumb + titolo + testo — verificato su cri.it, le pagine interne sono sobrie). --}}
@@ -57,6 +45,19 @@
         @endif
 
         <x-attachments-list :attachments="$page->attachments" />
+
+        {{-- Pagina padre: in fondo elenca da sola le figlie visibili nel menu (pubblicate e «Mostra nel menu»), così
+             anche una voce senza testo ha un senso. $figlie è vuota per le pagine senza figlie. --}}
+        @if ($figlie->isNotEmpty())
+            <div class="mt-12">
+                <x-section-title>Approfondisci</x-section-title>
+                <div class="flex flex-col gap-3">
+                    @foreach ($figlie as $figlia)
+                        <x-child-link :href="route('pages.show', $figlia)" :title="$figlia->title" :excerpt="$figlia->excerpt" />
+                    @endforeach
+                </div>
+            </div>
+        @endif
 
         {{-- Condivisione: solo sulle pagine di contenuto vere, non su quelle di sistema
              (privacy, cookie policy, struttura organizzativa…). --}}

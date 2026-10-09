@@ -5,20 +5,7 @@
 @section('content')
 
     <div class="max-w-[70rem] mx-auto px-4 py-10">
-        <nav aria-label="breadcrumb" class="text-sm text-gray-500 mb-6">
-            @foreach ($page->breadcrumbTrail() as $crumb)
-                @if ($loop->first)
-                    <a href="{{ url('/') }}" class="hover:text-[#cc0000]">Home</a>
-                    <span class="mx-1">/</span>
-                @endif
-                @if ($loop->last)
-                    <span class="text-gray-700">{{ $crumb->title }}</span>
-                @else
-                    <a href="{{ route('pages.show', $crumb) }}" class="hover:text-[#cc0000]">{{ $crumb->title }}</a>
-                    <span class="mx-1">/</span>
-                @endif
-            @endforeach
-        </nav>
+        @include('partials.breadcrumb', ['page' => $page])
 
         <div class="mb-8">
             <h1 class="text-2xl sm:text-3xl font-semibold text-gray-900">{{ $page->title ?? 'Struttura Organizzativa' }}</h1>

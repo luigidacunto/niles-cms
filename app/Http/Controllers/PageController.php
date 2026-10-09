@@ -21,7 +21,7 @@ class PageController extends Controller
             ? $this->categoryPosts($page)->limit(self::FEED_LIMIT)->get()
             : collect();
 
-        return view('pages.show', ['page' => $page, 'news' => $news]);
+        return view('pages.show', ['page' => $page, 'news' => $news, 'figlie' => $page->menuChildren()->get()]);
     }
 
     /**
