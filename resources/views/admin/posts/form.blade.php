@@ -46,10 +46,10 @@
                         <div class="form-group">
                             <label>Slug</label>
                             @if ($isAdmin)
-                                <input name="slug" value="{{ old('slug', $post->slug) }}" class="form-control">
-                                <small class="text-muted">Lascia vuoto per generarlo dal titolo.</small>
+                                <input name="slug" id="slug" value="{{ old('slug', $post->slug) }}" class="form-control" @unless ($editing) data-live @endunless>
+                                <small class="text-muted">Si genera da solo dal titolo: è fortemente consigliato lasciarlo così. Modificalo solo se serve davvero (cambiarlo su un post già online ne rompe i vecchi link).</small>
                             @else
-                                <input value="{{ $post->slug ?? 'si genera automaticamente dal titolo' }}" class="form-control" disabled>
+                                <input id="slug" value="{{ $post->slug }}" class="form-control" disabled data-live>
                                 <small class="text-muted">Generato automaticamente dal titolo, non modificabile.</small>
                             @endif
                         </div>

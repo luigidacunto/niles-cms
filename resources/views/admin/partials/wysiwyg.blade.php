@@ -30,6 +30,22 @@
             updateExcerptCount();
         }
 
+        // Slug in tempo reale dal titolo (post e pagine). Solo anteprima: l'unicità (suffisso -2…) la
+        // risolve il server al salvataggio. Il campo con data-live viene riscritto a ogni modifica del
+        // titolo; l'admin lo ha attivo solo in creazione e finché non lo tocca a mano.
+        var $slug = $('#slug[data-live]');
+        if ($slug.length) {
+            var slugify = function (s) {
+                return s.normalize('NFD').replace(/[̀-ͯ]/g, '').toLowerCase()
+                    .replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '');
+            };
+            var $title = $('input[name="title"]');
+            var sync = function () { $slug.val(slugify($title.val())); };
+            $title.on('input blur', sync);
+            $slug.on('input', function () { $title.off('input blur', sync); });
+            if ($slug.prop('disabled') || !$slug.val()) { sync(); }
+        }
+
         var pickerUrl = @json(route('admin.documents.picker'));
         var snContext = null;
 
