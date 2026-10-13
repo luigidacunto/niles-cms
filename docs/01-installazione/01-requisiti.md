@@ -39,7 +39,7 @@ upload_max_filesize = 20M
 post_max_size = 25M
 ```
 
-Con valori più bassi i caricamenti grandi falliscono senza un messaggio chiaro. Vedi anche [Immagini e file](../configurazione-iniziale/immagini-e-file.md).
+Con valori più bassi i caricamenti grandi falliscono senza un messaggio chiaro. Vedi anche [Immagini e file](../02-configurazione-iniziale/02-immagini-e-file.md).
 
 ## Come controllare le versioni
 
@@ -70,3 +70,24 @@ rm composer-setup.php
 ```
 
 Poi `composer --version` deve mostrare la 2.10 o successiva.
+
+### Node.js
+
+Node.js serve solo per compilare gli stili e gli script del sito (`npm run build`), a ogni installazione e a ogni aggiornamento. I pacchetti
+`nodejs` delle distribuzioni sono spesso troppo vecchi: installa la versione 24 (con npm 11) da una di queste vie. Le istruzioni sempre
+aggiornate, per ogni sistema, sono su [nodejs.org/en/download](https://nodejs.org/en/download).
+
+- **Su Debian e Ubuntu, per tutto il server** (richiede `sudo`), con il repository ufficiale NodeSource
+  ([istruzioni](https://github.com/nodesource/distributions)):
+
+  ```bash
+  curl -fsSL https://deb.nodesource.com/setup_24.x | sudo -E bash -
+  sudo apt-get install -y nodejs
+  ```
+
+- **Senza permessi di amministratore** (per esempio su un server con pannello, dove si lavora con l'utente del sito): `nvm`, che installa
+  Node nella cartella personale dell'utente ([istruzioni di nvm](https://github.com/nvm-sh/nvm)). Dopo aver installato `nvm` e riaperto
+  la shell: `nvm install 24`.
+
+Poi `node -v` deve mostrare la versione 24 (o successiva) e `npm -v` la 11.
+

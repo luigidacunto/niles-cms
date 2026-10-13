@@ -3,7 +3,7 @@
 Il file `.env`, nella cartella principale del progetto, contiene le impostazioni che dipendono dal server e dall'installazione:
 indirizzi, database, posta, statistiche. Si crea copiando il modello `.env.example` (`cp .env.example .env`), che contiene tutte le
 variabili con commenti. I dati del comitato (denominazione, contatti, IBAN, loghi) **non** si impostano qui ma dal pannello, in
-[Dati del comitato](../configurazione-iniziale/dati-del-comitato.md).
+[Dati del comitato](../03-pannello/01-contenuti/04-dati-del-comitato.md).
 
 > **Dopo ogni modifica al `.env` esegui `php artisan config:cache`**: senza, il sito continua a usare i valori vecchi.
 
@@ -37,18 +37,19 @@ provider del dominio o un servizio di invio):
 MAIL_MAILER=smtp
 MAIL_HOST=smtp.esempio.it
 MAIL_PORT=587
-MAIL_USERNAME="utente-smtp"
-MAIL_PASSWORD="password-smtp"
+MAIL_USERNAME="<UTENTE-SMTP>"
+MAIL_PASSWORD="<PASSWORD-SMTP>"
 MAIL_FROM_ADDRESS="noreply@esempio.it"
 MAIL_FROM_NAME="${APP_PUBLIC_NAME}"
 ```
 
+- I valori tra `<` e `>` sono segnaposto: sostituiscili con i dati del tuo server di posta (togliendo anche i simboli).
 - Porta 587: lascia `MAIL_SCHEME` vuoto (o `null`). Porta 465: imposta `MAIL_SCHEME=smtps`.
 - L'indirizzo `MAIL_FROM_ADDRESS` deve appartenere a un dominio autorizzato dal server SMTP, altrimenti molti provider scartano
   i messaggi.
 - I testi delle email e le chiavi CAPTCHA non stanno nel `.env` ma nel pannello:
-  [Informative privacy ed email](../configurazione-iniziale/informative-privacy-ed-email.md) e
-  [Sicurezza dei moduli pubblici](../configurazione-iniziale/sicurezza-moduli.md).
+  [Informative privacy ed email](../03-pannello/04-amministrazione/06-template-email.md) e
+  [Sicurezza dei moduli pubblici](../03-pannello/04-amministrazione/04-sicurezza-moduli.md).
 
 Dopo aver configurato la posta, l'accesso con il codice via email (`/admin/login`) funziona; l'accesso con la password
 (`/admin/login/password`) resta sempre disponibile.
@@ -62,7 +63,7 @@ Dopo aver configurato la posta, l'accesso con il codice via email (`/admin/login
 ## Statistiche (facoltative)
 
 Senza queste righe non viene caricata nessuna statistica. Il `.env` indica **quale strumento** usare; dal pannello, in
-[Dati del comitato](../configurazione-iniziale/dati-del-comitato.md), si possono poi solo accendere o spegnere i due
+[Dati del comitato](../03-pannello/01-contenuti/04-dati-del-comitato.md), si possono poi solo accendere o spegnere i due
 strumenti, e solo se sono definiti qui.
 
 ```ini
@@ -96,9 +97,6 @@ code usano il database, quindi non servono Redis né servizi aggiuntivi).
 
 ## Installazioni particolari
 
-- **Sito di prova pubblico** (`NILES_DEMO=true`): il pannello e il sito funzionano, ma nessuna modifica viene salvata; in alto
-  compare un avviso e le credenziali di prova sono mostrate nelle pagine di accesso, con l'elenco facoltativo in
-  `NILES_DEMO_ACCOUNTS` (account separati da `|`). Richiede anche `MAIL_MAILER=log` e `NILES_UPDATE_CHECK=false`.
 - **Sito di anteprima** (`STAGING_GATE_PUBLIC=true`): il sito pubblico è visibile solo a chi ha già fatto l'accesso al pannello
   nello stesso browser. Serve per verificare un aggiornamento prima di pubblicarlo. Ha effetto solo se `APP_ENV` non è
   `production` (per esempio `staging`): su un sito in produzione viene ignorata.

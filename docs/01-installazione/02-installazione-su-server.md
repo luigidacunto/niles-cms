@@ -1,7 +1,7 @@
 # Installazione su un server
 
 Procedura per mettere NILES online su un server Linux, con un dominio e HTTPS. Tempo previsto: circa mezz'ora. Prima di
-iniziare controlla i [requisiti](requisiti.md): PHP 8.4, MariaDB, Composer 2.10, Node 24, Git.
+iniziare controlla i [requisiti](01-requisiti.md): PHP 8.4, MariaDB, Composer 2.10, Node 24, Git.
 
 Negli esempi il dominio è `esempio.it` e il progetto sta in `/var/www/niles`: adatta i nomi al tuo server. Tutti i comandi
 vanno lanciati con l'utente con cui gira il sito: vedi la sezione seguente.
@@ -41,17 +41,19 @@ certificato (passo 6) si fanno con un utente amministratore (`sudo`) o dal panne
 
 ## 1. Database
 
-Crea un database vuoto e un utente dedicato, con una password lunga e casuale. Da riga di comando:
+Crea un database vuoto e un utente dedicato. Da riga di comando:
 
 ```sql
 CREATE DATABASE niles CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
-CREATE USER 'niles'@'localhost' IDENTIFIED BY 'una-password-lunga-e-casuale';
+CREATE USER 'niles'@'localhost' IDENTIFIED BY '<PASSWORD-DATABASE>';
 GRANT ALL PRIVILEGES ON niles.* TO 'niles'@'localhost';
 FLUSH PRIVILEGES;
 ```
 
-Con un pannello come HestiaCP o cPanel si fa dalla sezione Database, con le stesse impostazioni (charset `utf8mb4`).
-Annota nome del database, utente e password: servono al passo 3.
+Al posto di `<PASSWORD-DATABASE>` scrivi una password lunga e casuale, senza apici (`'`), togliendo anche i simboli `<` e `>`. Con un
+pannello come HestiaCP o cPanel si fa dalla sezione Database, con le stesse impostazioni (charset `utf8mb4`).
+
+Annota nome del database, utente e password: servono al passo 3, dove la stessa password va scritta nel `.env`.
 
 ## 2. Codice e dipendenze
 
@@ -68,7 +70,7 @@ Il ramo `main` contiene la versione stabile; le versioni pubblicate sono nella p
 installare una versione precisa: `git checkout v1.0.2` (sostituisci con la versione indicata in Releases) prima del `composer install`.
 
 **Verifica:** il comando finisce senza errori e crea la cartella `vendor/`. Se compaiono errori sulla versione di PHP, vedi
-[più versioni di PHP](requisiti.md#più-versioni-di-php-sullo-stesso-server).
+[più versioni di PHP](01-requisiti.md#più-versioni-di-php-sullo-stesso-server).
 
 ## 3. Configurazione
 
@@ -87,22 +89,24 @@ APP_URL=https://esempio.it
 
 DB_DATABASE=niles
 DB_USERNAME=niles
-DB_PASSWORD="una-password-lunga-e-casuale"
+DB_PASSWORD="<PASSWORD-DATABASE>"
 
 INITIAL_ADMIN_EMAIL=nome@esempio.it
-INITIAL_ADMIN_PASSWORD="una-password-iniziale-lunga"
+INITIAL_ADMIN_PASSWORD="<PASSWORD-PRIMO-AMMINISTRATORE>"
 
 MAIL_MAILER=log
 ```
 
+- I valori tra `<` e `>` sono **segnaposto da sostituire** (togliendo anche i simboli): `<PASSWORD-DATABASE>` è la password scelta al
+  passo 1; `<PASSWORD-PRIMO-AMMINISTRATORE>` è la password con cui entrerai la prima volta, da cambiare poi dal pannello.
 - `APP_URL` è l'indirizzo pubblico completo, con `https://`.
 - Le password che contengono caratteri speciali (`# $ = ?` o spazi) vanno **tra virgolette doppie**.
 - `INITIAL_ADMIN_*` sono le credenziali del primo amministratore. Se non le imposti, viene usato l'indirizzo
   `administrator@example.it` e una password casuale, mostrata una sola volta al passo 4.
 - `MAIL_MAILER=log` va bene per iniziare: le email di sistema non vengono spedite. Per l'invio vero vedi
-  [Configurazione del file .env](configurazione-env.md).
+  [Configurazione del file .env](03-configurazione-env.md).
 
-Tutte le variabili sono spiegate in [Configurazione del file .env](configurazione-env.md).
+Tutte le variabili sono spiegate in [Configurazione del file .env](03-configurazione-env.md).
 
 ## 4. Asset, database e contenuti iniziali
 
@@ -129,11 +133,13 @@ php artisan storage:link
 php artisan config:cache
 php artisan route:cache
 php artisan view:cache
-chmod -R ug+rwX storage bootstrap/cache
 ```
 
-Le cartelle `storage/` e `bootstrap/cache/` devono essere scrivibili dall'utente con cui gira PHP-FPM. Se i comandi sopra
-sono stati lanciati dallo stesso utente del sito, di solito basta così.
+Le cartelle `storage/` e `bootstrap/cache/` devono essere scrivibili dall'utente con cui gira PHP-FPM. Se tutti i comandi
+sono stati lanciati dallo stesso utente del sito, i permessi sono già corretti e non serve altro.
+
+**Verifica:** `ls -ld storage bootstrap/cache` mostra come proprietario l'utente del sito. Se il proprietario è un altro
+(per esempio `root`), correggilo con `sudo chown -R utente:gruppo storage bootstrap/cache`; non usare `chmod 777`.
 
 > Ogni volta che modifichi il file `.env` rilancia `php artisan config:cache`: senza, il sito continua a usare i valori vecchi.
 
@@ -156,7 +162,7 @@ certificato HTTPS (per esempio con Let's Encrypt) e usa PHP-FPM 8.4 per il domin
 3. Apri `https://esempio.it/admin/login/password` e accedi con l'email e la password del primo amministratore.
    L'accesso con il codice via email, sulla pagina `/admin/login`, funziona solo dopo aver configurato un vero server di posta.
 
-Da qui prosegui con [Primo accesso al pannello](../configurazione-iniziale/primo-accesso.md).
+Da qui prosegui con [Primo accesso al pannello](../02-configurazione-iniziale/01-primo-accesso.md).
 
 ## Problemi più comuni
 
@@ -164,8 +170,9 @@ Da qui prosegui con [Primo accesso al pannello](../configurazione-iniziale/primo
 |---|---|
 | Si vede l'elenco dei file o un errore invece della home | La radice del sito non è `public/`: correggila nel pannello o nella configurazione del server web. |
 | «500» o pagina bianca | Guarda `storage/logs/laravel.log`. Di solito mancano i permessi su `storage/` e `bootstrap/cache/`, oppure i comandi sono stati lanciati da `root` e i file appartengono a `root`: `chown -R utente:gruppo storage bootstrap/cache`. |
-| `composer` o `artisan` segnalano la versione di PHP sbagliata | Il comando `php` del terminale non è quello di PHP-FPM: usa `php8.4 artisan ...` e `php8.4 /usr/local/bin/composer ...` (vedi i [requisiti](requisiti.md)). |
+| `composer` o `artisan` segnalano la versione di PHP sbagliata | Il comando `php` del terminale non è quello di PHP-FPM: usa `php8.4 artisan ...` e `php8.4 /usr/local/bin/composer ...` (vedi i [requisiti](01-requisiti.md)). |
 | Le modifiche al `.env` non hanno effetto | Rilancia `php artisan config:cache`. |
 | Le immagini caricate non si vedono | Manca il collegamento: `php artisan storage:link`, poi controlla che esista `public/storage`. |
+| `php artisan migrate` si ferma con `SQLSTATE[HY000] [2002]` («connessione rifiutata») o con «Access denied» | I valori `DB_*` del `.env` non corrispondono al database creato al passo 1 (host, nome, utente o password), oppure il database non esiste. Correggi il `.env`, rilancia `php artisan config:cache` e poi `php artisan migrate --force`. |
 | La password del database non viene accettata | Contiene caratteri speciali e non è tra virgolette doppie nel `.env`. |
-| Il codice di accesso via email non arriva | Con `MAIL_MAILER=log` le email non vengono spedite: accedi con la password da `/admin/login/password`, oppure configura la posta in [Configurazione del file .env](configurazione-env.md). |
+| Il codice di accesso via email non arriva | Con `MAIL_MAILER=log` le email non vengono spedite: accedi con la password da `/admin/login/password`, oppure configura la posta in [Configurazione del file .env](03-configurazione-env.md). |
