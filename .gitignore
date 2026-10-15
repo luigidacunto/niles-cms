@@ -47,3 +47,6 @@ npm-debug.log
 yarn-error.log
 
 # ===== END LARAVEL =====
+
+# Pacchetto di release (scripts/build-release.sh)
+/dist/
