@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\DocumentCategory;
+use App\Support\AreaSoci;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
 
@@ -17,6 +18,7 @@ class CategoriaRiservataController extends Controller
     public function index(Request $request)
     {
         $this->authorizeRiservati($request);
+        AreaSoci::categoriaDocumenti(); // la categoria di sistema viene creata al primo uso se manca
 
         return view('admin.riservati.categorie.index', [
             'categories' => DocumentCategory::soci()->withCount(['documents', 'members'])

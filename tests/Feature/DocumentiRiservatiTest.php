@@ -181,6 +181,23 @@ class DocumentiRiservatiTest extends TestCase
         $this->delete(route('admin.categorie-riservate.destroy', $categoria))->assertStatus(422);
     }
 
+    public function test_senza_categoria_di_sistema_viene_creata_al_primo_uso(): void
+    {
+        $this->assertSame(0, DocumentCategory::soci()->count());
+
+        $this->actingAs($this->admin(), 'admin')->get(route('admin.documenti-riservati.create'))->assertOk()->assertSee('Senza categoria');
+
+        $this->assertTrue(DocumentCategory::soci()->firstOrFail()->isGenerale());
+    }
+
+    public function test_la_categoria_di_sistema_non_si_elimina_nemmeno_da_codice(): void
+    {
+        $generale = AreaSoci::categoriaDocumenti();
+
+        $this->assertFalse($generale->delete());
+        $this->assertNotNull(DocumentCategory::find($generale->id));
+    }
+
     public function test_assegnazione_categorie_dalla_scheda_del_socio(): void
     {
         $salute = $this->categoria('Salute');

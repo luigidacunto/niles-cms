@@ -11,7 +11,6 @@ use App\Models\EmailTemplate;
 use App\Models\Page;
 use App\Models\PrivacyPolicy;
 use App\Models\TipologiaCorso;
-use App\Support\AreaSoci;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Str;
 
@@ -514,8 +513,6 @@ class FirstInstallSeeder extends Seeder
      */
     private function areaSoci(): void
     {
-        AreaSoci::categoriaDocumenti();
-
         $nome = CommitteeInfo::current()->denominazione ?: config('app.public_name');
 
         ComunicazioneSoci::create([

@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Models\Document;
 use App\Models\DocumentCategory;
+use App\Support\AreaSoci;
 use App\Support\DocumentStore;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
@@ -88,6 +89,8 @@ class DocumentoRiservatoController extends Controller
 
     private function categorie()
     {
+        AreaSoci::categoriaDocumenti(); // «Senza categoria» esiste sempre, anche su installazioni senza il seeder dell'area soci
+
         return DocumentCategory::soci()->orderByRaw('slug = ? desc', [DocumentCategory::SLUG_GENERALE])->orderBy('order')->orderBy('name')->get();
     }
 

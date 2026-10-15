@@ -56,7 +56,8 @@ class FirstInstallSeederTest extends TestCase
         $this->assertSame(9, Category::count());
         $this->assertSame(5, TipologiaCorso::count());
         $this->assertTrue(DocumentCategory::where('slug', 'organigramma')->where('selectable', false)->exists());
-        $this->assertDatabaseHas('document_categories', ['slug' => 'riservati-soci', 'scope' => 'soci']);
+        // «Senza categoria» dei documenti riservati non si semina: nasce al primo uso (AreaSoci::categoriaDocumenti()).
+        $this->assertDatabaseMissing('document_categories', ['slug' => 'riservati-soci']);
         $this->assertDatabaseHas('comunicazioni_soci', ['slug' => 'benvenuto-nell-area-soci']);
         $this->assertSame(['corsi-popolazione', 'soci'], PrivacyPolicy::where('is_default', true)->orderBy('tipo')->pluck('tipo')->all());
         $this->assertSame(

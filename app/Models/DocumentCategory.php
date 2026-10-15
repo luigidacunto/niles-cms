@@ -24,6 +24,12 @@ class DocumentCategory extends Model
         'selectable' => 'boolean',
     ];
 
+    protected static function booted(): void
+    {
+        // La categoria di sistema «Senza categoria» non si elimina mai (nemmeno da codice): nasce da sola al primo uso.
+        static::deleting(fn (self $category) => ! $category->isGenerale());
+    }
+
     public function documents(): HasMany
     {
         return $this->hasMany(Document::class);
