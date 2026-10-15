@@ -170,7 +170,13 @@
                         </li>
                         <li class="list-group-item d-flex justify-content-between align-items-center">
                             <span>Stato</span>
-                            <span id="niles-stato" class="badge"></span>
+                            <span>
+                                <span id="niles-stato" class="badge"></span>
+                                @if ($aggiornamentoDalPannello)
+                                    {{-- Compare solo se c'è una versione più recente (vedi lo script sotto). --}}
+                                    <a id="niles-aggiorna" href="{{ route('admin.aggiornamento.index') }}" class="btn btn-xs btn-primary ml-1 d-none">Aggiorna</a>
+                                @endif
+                            </span>
                         </li>
                     @endif
                 </ul>
@@ -264,6 +270,8 @@
                             pillola(disp, 'badge-secondary', d.versione);
                             pillola(document.getElementById('niles-stato'), colori[d.livello] || 'badge-warning',
                                 'Aggiornamento ' + d.livello, d.url, 'Vai alla release ' + d.versione);
+                            var aggiorna = document.getElementById('niles-aggiorna');
+                            if (aggiorna) { aggiorna.classList.remove('d-none'); }
                         } else {
                             nonDisponibile();
                         }

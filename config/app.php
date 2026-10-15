@@ -34,7 +34,7 @@ return [
     |
     */
 
-    'version' => '1.1.2',
+    'version' => '1.1.3',
 
     /*
     | Controllo aggiornamenti: la dashboard del pannello (solo amministratori) confronta la versione
@@ -45,6 +45,13 @@ return [
         'enabled' => (bool) env('NILES_UPDATE_CHECK', true),
         'repository' => 'luigidacunto/niles-cms',
     ],
+
+    /*
+    | Aggiornamento dal pannello (pulsante «Aggiorna» nella dashboard, pagina /admin/aggiornamento). Si attiva da
+    | solo sulle installazioni fatte con scripts/niles-installer.php (hosting senza riga di comando, che scrive
+    | NILES_WEB_UPDATE=true); altrove si aggiorna da riga di comando (vedi scripts/deploy.sh). Mai in modalità demo.
+    */
+    'web_update' => (bool) env('NILES_WEB_UPDATE', false),
 
     /*
     | Primo amministratore creato da FirstInstallSeeder (solo se non esiste alcun admin).

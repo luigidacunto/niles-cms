@@ -49,6 +49,9 @@ class FirstInstallSeeder extends Seeder
         $this->informativePrivacy();
         $this->templateEmail();
         $this->areaSoci();
+
+        // I contenuti di base sono già aggiornati alla versione corrente: i seeder di aggiornamento presenti non servono.
+        app(\App\Support\SeederRegistry::class)->segnaTuttiEseguiti();
     }
 
     private function amministratore(): void

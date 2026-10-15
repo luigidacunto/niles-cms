@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\Admin\AdminUsersController;
+use App\Http\Controllers\Admin\AggiornamentoController;
 use App\Http\Controllers\Admin\AuthController;
 use App\Http\Controllers\Admin\CategoryController;
 use App\Http\Controllers\Admin\CommitteeInfoController;
@@ -50,6 +51,13 @@ Route::prefix('admin')->name('admin.')->group(function () {
         Route::get('/', [DashboardController::class, 'index'])->name('dashboard');
         // JSON per la dashboard (chiamata in async): esito del confronto con l'ultima versione pubblicata.
         Route::get('aggiornamenti', [DashboardController::class, 'aggiornamenti'])->middleware('admin.role')->name('aggiornamenti');
+
+        // Aggiornamento dal pannello (installazioni senza riga di comando: NILES_WEB_UPDATE=true, 404 altrimenti).
+        Route::middleware('admin.role')->prefix('aggiornamento')->name('aggiornamento.')->group(function () {
+            Route::get('/', [AggiornamentoController::class, 'index'])->name('index');
+            Route::post('passo', [AggiornamentoController::class, 'passo'])->name('passo');
+            Route::get('copia/{nome}', [AggiornamentoController::class, 'copia'])->name('copia');
+        });
 
         Route::middleware('admin.role')->prefix('utenti')->name('users.')->group(function () {
             Route::get('/', [AdminUsersController::class, 'index'])->name('index');

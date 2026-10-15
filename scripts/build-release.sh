@@ -15,13 +15,14 @@ OUT="${NILES_BUILD_DIR:-dist}"   # cartella di lavoro e di destinazione (ricreat
 STAGE="$OUT/niles"
 VERSIONE=$(grep -oP "'version'\s*=>\s*'\K[^']+" config/app.php | head -n1)
 
-# Esclusi dal pacchetto: sviluppo, test, documentazione, strumenti per i server con SSH.
-ESCLUSI='^(\.github/|tests/|docs/|scripts/|phpunit\.xml$|package(-lock)?\.json$|vite\.config\.js$|\.editorconfig$|\.gitattributes$|CONTRIBUTING\.md$|SECURITY\.md$)'
+# Esclusi dal pacchetto: sviluppo, test, documentazione, strumenti per i server con SSH. Di scripts/ resta solo l'installer,
+# che nella versione nuova applica l'aggiornamento dal pannello (vedi App\Support\WebUpdate).
+ESCLUSI='^(\.github/|tests/|docs/|scripts/(?!niles-installer\.php$)|phpunit\.xml$|package(-lock)?\.json$|vite\.config\.js$|\.editorconfig$|\.gitattributes$|CONTRIBUTING\.md$|SECURITY\.md$)'
 
 echo "==> NILES $VERSIONE: preparazione in $STAGE"
 rm -rf "$OUT"
 mkdir -p "$STAGE"
-git ls-files -z | grep -zvE "$ESCLUSI" | tar --null -T - -cf - | tar -xf - -C "$STAGE"
+git ls-files -z | grep -zvP "$ESCLUSI" | tar --null -T - -cf - | tar -xf - -C "$STAGE"
 
 echo "==> Dipendenze di produzione"
 composer install --working-dir="$STAGE" --no-dev --optimize-autoloader --no-scripts --no-interaction --prefer-dist

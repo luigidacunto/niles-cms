@@ -40,6 +40,7 @@ class DashboardController extends Controller
             'canDocs' => $canDocs,
             'versione' => config('app.version'),
             'verificaAggiornamenti' => $admin->role === 'admin' && config('app.update_check.enabled'),
+            'aggiornamentoDalPannello' => $admin->role === 'admin' && \App\Support\WebUpdate::attivo(),
             'stats' => [
                 'posts' => $scopePosts(Post::query())->count(),
                 'postsPublished' => $scopePosts(Post::where('published', true))->count(),

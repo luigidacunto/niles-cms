@@ -14,8 +14,16 @@ declare(strict_types=1);
  * Le funzioni `niles*()` non dipendono dal framework (che a inizio installazione non c'è ancora).
  */
 
-const NILES_ZIP_URL = 'https://github.com/luigidacunto/niles-cms/releases/latest/download/niles.zip';
-const NILES_SHA_URL = 'https://github.com/luigidacunto/niles-cms/releases/latest/download/niles.zip.sha256';
+const NILES_REPO = 'luigidacunto/niles-cms';
+
+/** Cartelle di codice sostituite in blocco durante un aggiornamento (le altre voci del pacchetto si copiano sopra). */
+const NILES_CODE_PATHS = ['app', 'bootstrap', 'config', 'database', 'lang', 'resources', 'routes', 'vendor', 'scripts', 'public/build'];
+
+/** URL di un allegato della release: l'ultima, oppure una versione precisa (es. '1.2.0'). */
+function nilesReleaseUrl(string $file, ?string $versione = null): string
+{
+    return 'https://github.com/'.NILES_REPO.'/releases/'.($versione === null ? 'latest/download/' : 'download/v'.$versione.'/').$file;
+}
 
 // ---------------------------------------------------------------------------------------------------------------
 // Funzioni pure (coperte da tests/Unit/NilesInstallerTest.php)
@@ -64,6 +72,8 @@ function nilesBuildEnv(array $c): string
         'CACHE_STORE' => 'database',
         // Nessun worker su un hosting condiviso: la coda (non usata dall'applicazione) resta sincrona.
         'QUEUE_CONNECTION' => 'sync',
+        // Installazione fatta dall'installer, quindi senza riga di comando: abilita l'aggiornamento dal pannello.
+        'NILES_WEB_UPDATE' => 'true',
     ];
     if (! empty($c['smtp'])) {
         $s = $c['smtp'];
@@ -213,27 +223,28 @@ function nilesDownload(string $url, string $dest): ?string
     return 'né curl né allow_url_fopen disponibili: caricare a mano niles.zip accanto a questo file';
 }
 
-/** Procura niles.zip (locale o scaricato), ne verifica l'hash e lo estrae in $dir. Ritorna null se ok, altrimenti il motivo. */
-function nilesFetchAndExtract(string $dir): ?string
+/**
+ * Procura il pacchetto in $zip (già presente: usato così com'è; altrimenti scaricato da $urlZip con il suo checksum),
+ * ne verifica l'hash (se c'è il file $sha) e i nomi delle voci. Ritorna null se ok, altrimenti il motivo.
+ */
+function nilesPrepare(string $zip, string $sha, string $urlZip, string $urlSha): ?string
 {
     @set_time_limit(0);
-    $zip = $dir.'/niles.zip';
-    $sha = $dir.'/niles.zip.sha256';
     if (! is_file($zip)) {
-        if ($err = nilesDownload(NILES_ZIP_URL, $zip.'.part')) {
+        if ($err = nilesDownload($urlZip, $zip.'.part')) {
             @unlink($zip.'.part');
 
             return $err;
         }
         rename($zip.'.part', $zip);
-        if ($err = nilesDownload(NILES_SHA_URL, $sha)) {
+        if ($err = nilesDownload($urlSha, $sha)) {
             return 'impossibile scaricare il checksum: '.$err;
         }
     }
     if (is_file($sha)) {
         $atteso = nilesParseSha((string) file_get_contents($sha));
         if ($atteso === null || ! hash_equals($atteso, hash_file('sha256', $zip))) {
-            return 'il checksum del pacchetto non corrisponde: file danneggiato o alterato, non viene installato';
+            return 'il checksum del pacchetto non corrisponde: file danneggiato o alterato, non viene usato';
         }
     }
     $z = new ZipArchive();
@@ -244,18 +255,211 @@ function nilesFetchAndExtract(string $dir): ?string
         if (! nilesZipEntrySafe((string) $z->getNameIndex($i))) {
             $z->close();
 
-            return 'il pacchetto contiene percorsi non ammessi: non viene installato';
+            return 'il pacchetto contiene percorsi non ammessi: non viene usato';
         }
     }
-    $ok = $z->extractTo($dir);
     $z->close();
-    if (! $ok) {
-        return 'estrazione non riuscita (spazio o permessi insufficienti?)';
+
+    return null;
+}
+
+/**
+ * Estrae una parte del pacchetto in $dest, entro $budget secondi (almeno un blocco), ripartendo da dove si era arrivati
+ * (posizione nel file $stato). Ritorna ['fatto' => bool, 'i' => estratte, 'n' => totale] oppure il motivo dell'errore.
+ * Alla fine rimuove il file di stato (non lo zip: lo cancella il chiamante).
+ */
+function nilesExtractStep(string $zip, string $dest, string $stato, float $budget): array|string
+{
+    @set_time_limit(0);
+    $z = new ZipArchive();
+    if ($z->open($zip) !== true) {
+        return 'il pacchetto non è un file zip valido';
+    }
+    $n = $z->numFiles;
+    $i = is_file($stato) ? (int) file_get_contents($stato) : 0;
+    $t0 = microtime(true);
+    do {
+        $nomi = [];
+        for ($j = $i; $j < min($i + 300, $n); $j++) {
+            $nomi[] = $z->getNameIndex($j);
+        }
+        if ($nomi && ! $z->extractTo($dest, $nomi)) {
+            $z->close();
+
+            return 'estrazione non riuscita (spazio o permessi insufficienti?)';
+        }
+        $i += count($nomi);
+        @mkdir(dirname($stato), 0755, true);
+        file_put_contents($stato, (string) $i);
+    } while ($i < $n && microtime(true) - $t0 < $budget);
+    $z->close();
+    if ($i >= $n) {
+        @unlink($stato);
+    }
+
+    return ['fatto' => $i >= $n, 'i' => $i, 'n' => $n];
+}
+
+/** Prima installazione: procura il pacchetto (niles.zip accanto a questo file, o ultima release), lo estrae in $dir e lo rimuove. */
+function nilesFetchAndExtract(string $dir): ?string
+{
+    $zip = $dir.'/niles.zip';
+    $sha = $dir.'/niles.zip.sha256';
+    if ($err = nilesPrepare($zip, $sha, nilesReleaseUrl('niles.zip'), nilesReleaseUrl('niles.zip.sha256'))) {
+        return $err;
+    }
+    $r = nilesExtractStep($zip, $dir, $dir.'/.niles-extract', PHP_INT_MAX);
+    if (is_string($r)) {
+        return $r;
     }
     @unlink($zip);
     @unlink($sha);
 
     return null;
+}
+
+// ---------------------------------------------------------------------------------------------------------------
+// Aggiornamento (usato anche dall'applicazione: vedi App\Support\WebUpdate)
+// ---------------------------------------------------------------------------------------------------------------
+
+function nilesRrmdir(string $d): void
+{
+    if (is_link($d) || is_file($d)) {
+        @unlink($d);
+
+        return;
+    }
+    foreach (is_dir($d) ? (scandir($d) ?: []) : [] as $f) {
+        if ($f !== '.' && $f !== '..') {
+            nilesRrmdir($d.'/'.$f);
+        }
+    }
+    @rmdir($d);
+}
+
+/** Copia ricorsiva sovrascrivendo i file esistenti (non cancella nulla di ciò che c'è già in $dst). */
+function nilesCopyTree(string $src, string $dst): void
+{
+    @mkdir($dst, 0755, true);
+    foreach (scandir($src) ?: [] as $f) {
+        if ($f === '.' || $f === '..') {
+            continue;
+        }
+        is_dir("$src/$f") && ! is_link("$src/$f") ? nilesCopyTree("$src/$f", "$dst/$f") : copy("$src/$f", "$dst/$f");
+    }
+}
+
+/**
+ * Sostituisce le cartelle di codice della radice $root con quelle già estratte in $staging: le vecchie vanno in $old
+ * (rinomine, quindi in un istante). Se qualcosa fallisce rimette tutto com'era e solleva l'eccezione.
+ * Ritorna le voci sostituite (per un eventuale ripristino successivo con nilesSwapBack).
+ *
+ * @return list<string>
+ */
+function nilesSwapCode(string $root, string $staging, string $old): array
+{
+    $fatte = [];
+    try {
+        foreach (NILES_CODE_PATHS as $rel) {
+            if (! file_exists("$staging/$rel")) {
+                continue;
+            }
+            if (file_exists("$root/$rel")) {
+                @mkdir(dirname("$old/$rel"), 0755, true);
+                if (! @rename("$root/$rel", "$old/$rel")) {
+                    throw new RuntimeException("impossibile spostare $rel (permessi insufficienti?)");
+                }
+            }
+            if (! @rename("$staging/$rel", "$root/$rel")) {
+                file_exists("$old/$rel") && rename("$old/$rel", "$root/$rel");   // ripristina questa voce, poi le altre
+                throw new RuntimeException("impossibile mettere al suo posto $rel");
+            }
+            $fatte[] = $rel;
+        }
+    } catch (Throwable $e) {
+        nilesSwapBack($root, $staging, $old, $fatte);
+        throw $e;
+    }
+
+    return $fatte;
+}
+
+/** Annulla nilesSwapCode: rimette al loro posto le cartelle vecchie (le nuove tornano in $staging). */
+function nilesSwapBack(string $root, string $staging, string $old, array $fatte): void
+{
+    foreach (array_reverse($fatte) as $rel) {
+        @mkdir(dirname("$staging/$rel"), 0755, true);
+        @rename("$root/$rel", "$staging/$rel");
+        file_exists("$old/$rel") && @rename("$old/$rel", "$root/$rel");
+    }
+}
+
+/** Contenuto del file di manutenzione (Laravel lo include in public/index.php prima di tutto il resto). */
+function nilesMaintenancePhp(): string
+{
+    return "<?php\nhttp_response_code(503);\nheader('Retry-After: 60');\nheader('Content-Type: text/html; charset=utf-8');\n"
+        ."echo '<!doctype html><meta charset=\"utf-8\"><meta name=\"viewport\" content=\"width=device-width,initial-scale=1\"><title>Aggiornamento in corso</title>"
+        ."<body style=\"font:18px system-ui;text-align:center;margin-top:20vh\"><h1>Aggiornamento in corso</h1><p>Il sito torna online tra pochi istanti.</p></body>';\nexit;\n";
+}
+
+/** Token monouso creato dal pannello: ['hash' => sha256, 'scade' => timestamp] oppure null se assente, scaduto o non coincidente. */
+function nilesTokenValid(string $root, string $token): ?array
+{
+    $d = json_decode((string) @file_get_contents($root.'/storage/app/private/update/token.json'), true);
+    if (! is_array($d) || ($d['scade'] ?? 0) < time() || ! hash_equals((string) ($d['hash'] ?? ''), hash('sha256', $token))) {
+        return null;
+    }
+
+    return $d;
+}
+
+/**
+ * Applica l'aggiornamento già preparato in storage/app/private/update/staging: manutenzione → sostituzione delle cartelle →
+ * migrazioni e seeder con il codice nuovo → pulizia → fine manutenzione. Se le migrazioni falliscono rimette il codice vecchio.
+ * Ritorna ['versione', 'log', 'avvisi'] oppure solleva un'eccezione (il sito torna online con il codice di prima).
+ */
+function nilesApplyUpdate(string $root): array
+{
+    @set_time_limit(0);
+    $upd = $root.'/storage/app/private/update';
+    $staging = $upd.'/staging';
+    $old = $root.'/.update-old';
+    $manut = $root.'/storage/framework/maintenance.php';
+    $log = '';
+
+    if (! is_file("$staging/artisan") || ! is_file("$staging/vendor/autoload.php") || ! preg_match("/'version'\s*=>\s*'([^']+)'/", (string) @file_get_contents("$staging/config/app.php"), $m)) {
+        throw new RuntimeException('il pacchetto preparato è incompleto: ripetere la preparazione dal pannello');
+    }
+    $versione = $m[1];
+
+    // Se il sito è già in manutenzione (`artisan down` o file creato a mano) si lascia com'è, anche a fine aggiornamento.
+    $giaInManutenzione = is_file($manut);
+    $giaInManutenzione || file_put_contents($manut, nilesMaintenancePhp());
+    $fatte = [];
+    try {
+        nilesRrmdir($old);                                            // resta solo l'ultimo aggiornamento
+        $fatte = nilesSwapCode($root, $staging, $old);
+        $log .= 'Cartelle sostituite: '.implode(', ', $fatte)."\n";
+        nilesCopyTree($staging, $root);                               // il resto del pacchetto (file di radice, public, storage)
+        $log .= "File di radice e public aggiornati\n";
+
+        [$out, $avvisi] = nilesRunArtisan($root, [['migrate', ['--force' => true], true], ['niles:seeders', [], false], ['optimize:clear', [], false]]);
+        $log .= $out;
+    } catch (Throwable $e) {
+        nilesSwapBack($root, $staging, $old, $fatte);
+        $giaInManutenzione || @unlink($manut);
+        throw new RuntimeException($e->getMessage().($fatte ? ' — il codice precedente è stato ripristinato.' : ''));
+    }
+
+    @file_put_contents($root.'/storage/installed', json_encode(['versione' => $versione, 'data' => date('c')]));
+    nilesRrmdir($staging);
+    @unlink($upd.'/niles.zip');
+    @unlink($upd.'/niles.zip.sha256');
+    @unlink($upd.'/token.json');
+    @unlink($upd.'/extract.state');
+    $giaInManutenzione || @unlink($manut);
+
+    return ['versione' => $versione, 'log' => $log, 'avvisi' => $avvisi];
 }
 
 /** Connessione al database e controllo che sia utilizzabile. Ritorna [PDO|null, errore|null]. */
@@ -279,7 +483,33 @@ function nilesCheckDb(array $db): array
     }
 }
 
-/** Avvia Laravel dentro questo processo ed esegue migrazioni, seeder e collegamento di storage. Ritorna [log, versione]. */
+/**
+ * Avvia Laravel dentro questo processo ed esegue i comandi `[nome, argomenti, bloccante]` (niente `exec` su questi hosting).
+ * Un comando bloccante fallito solleva l'eccezione, uno non bloccante diventa un avviso. Ritorna [log, avvisi, versione].
+ */
+function nilesRunArtisan(string $dir, array $comandi): array
+{
+    require_once $dir.'/vendor/autoload.php';
+    $app = require $dir.'/bootstrap/app.php';
+    $kernel = $app->make(Illuminate\Contracts\Console\Kernel::class);
+    $kernel->bootstrap();
+    $log = '';
+    $avvisi = [];
+    foreach ($comandi as [$cmd, $args, $bloccante]) {
+        $code = $kernel->call($cmd, $args);
+        $log .= "> $cmd\n".$kernel->output()."\n";
+        if ($code !== 0) {
+            if ($bloccante) {
+                throw new RuntimeException("Il comando «$cmd» è fallito.\n\n$log");
+            }
+            $avvisi[] = "il comando «$cmd» non è andato a buon fine (vedi i dettagli tecnici)";
+        }
+    }
+
+    return [$log, $avvisi, (string) $app->make('config')->get('app.version')];
+}
+
+/** Prima installazione: migrazioni, seeder e collegamento di storage. Ritorna [log, versione]. */
 function nilesRunLaravel(string $dir, string $adminEmail, string $adminPassword): array
 {
     // Variabili d'ambiente di processo: Dotenv non le sovrascrive e la password non finisce in `.env`.
@@ -287,35 +517,23 @@ function nilesRunLaravel(string $dir, string $adminEmail, string $adminPassword)
         putenv("$k=$v");
         $_ENV[$k] = $_SERVER[$k] = $v;
     }
-    require $dir.'/vendor/autoload.php';
-    $app = require $dir.'/bootstrap/app.php';
-    $kernel = $app->make(Illuminate\Contracts\Console\Kernel::class);
-    $kernel->bootstrap();
-    $log = '';
-    foreach ([['migrate', ['--force' => true]], ['db:seed', ['--force' => true]], ['storage:link', []]] as [$cmd, $args]) {
-        $code = $kernel->call($cmd, $args);
-        $log .= "> $cmd\n".$kernel->output()."\n";
-        if ($code !== 0 && $cmd !== 'storage:link') {
-            throw new RuntimeException("Il comando «$cmd» è fallito.\n\n$log");
-        }
-    }
+    [$log, , $versione] = nilesRunArtisan($dir, [['migrate', ['--force' => true], true], ['db:seed', ['--force' => true], true], ['storage:link', [], false]]);
 
-    return [$log, (string) $app->make('config')->get('app.version')];
+    return [$log, $versione];
 }
 
 // ---------------------------------------------------------------------------------------------------------------
 // Pagine
 // ---------------------------------------------------------------------------------------------------------------
 
-function nilesPage(string $titolo, string $corpo, int $passo = 0): never
+function nilesPage(string $titolo, string $corpo, int $passo = 0, string $intestazione = 'Installazione di NILES', array $passi = ['Requisiti', 'Dati', 'Fine']): never
 {
-    $passi = ['Requisiti', 'Dati', 'Fine'];
     $nav = '';
     foreach ($passi as $i => $p) {
         $nav .= '<span class="'.($i + 1 === $passo ? 'on' : '').'">'.($i + 1).'. '.h($p).'</span>';
     }
     echo '<!doctype html><html lang="it"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="robots" content="noindex">'
-        .'<title>Installazione di NILES</title><style>'
+        .'<title>'.h($intestazione).'</title><style>'
         .'body{font:15px/1.5 system-ui,sans-serif;background:#f4f4f4;color:#222;margin:0}main{max-width:720px;margin:24px auto;background:#fff;padding:24px 28px;border-radius:8px;box-shadow:0 1px 4px #0002}'
         .'h1{font-size:22px;margin:0 0 4px}h2{font-size:17px;margin:22px 0 6px}nav{margin:8px 0 18px}nav span{display:inline-block;margin-right:14px;color:#888}nav .on{color:#c00;font-weight:700}'
         .'table{border-collapse:collapse;width:100%}td{border-bottom:1px solid #eee;padding:5px 6px;vertical-align:top}td:nth-child(2){font-weight:700;width:90px}'
@@ -326,7 +544,7 @@ function nilesPage(string $titolo, string $corpo, int $passo = 0): never
         // Velo con rotella durante le operazioni lunghe: la pagina non deve mai sembrare ferma (si finirebbe per cliccare altrove).
         .'#occupato{position:fixed;inset:0;background:#fffe;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px;z-index:9;text-align:center;padding:20px}'
         .'#occupato[hidden]{display:none}.rot{width:56px;height:56px;border:6px solid #ddd;border-top-color:#c00;border-radius:50%;animation:g 1s linear infinite}@keyframes g{to{transform:rotate(360deg)}}'
-        .'</style></head><body><main><h1>Installazione di NILES</h1><nav>'.$nav.'</nav>'.($titolo !== '' ? '<h2>'.h($titolo).'</h2>' : '').$corpo.'</main>'
+        .'</style></head><body><main><h1>'.h($intestazione).'</h1>'.($nav !== '' ? '<nav>'.$nav.'</nav>' : '').($titolo !== '' ? '<h2>'.h($titolo).'</h2>' : '').$corpo.'</main>'
         .'<div id="occupato" hidden><div class="rot"></div><b id="occ-msg"></b><span id="occ-t"></span></div>'
         .'<script>let occTimer;function occupato(m){const o=document.getElementById("occupato"),t0=Date.now();document.getElementById("occ-msg").textContent=m;o.hidden=false;'
         .'const f=()=>{const s=Math.floor((Date.now()-t0)/1000);document.getElementById("occ-t").textContent="Trascorsi "+Math.floor(s/60)+":"+String(s%60).padStart(2,"0")};f();occTimer=setInterval(f,1000)}'
@@ -419,14 +637,54 @@ function nilesScreenDone(string $url, string $email, string $log, bool $installe
 // Flusso
 // ---------------------------------------------------------------------------------------------------------------
 
+/** Aggiornamento: il file è già installato, quindi serve un token monouso creato dal pannello (pagina «Aggiornamento»). */
+function nilesUpdateMain(string $dir): never
+{
+    $intestazione = 'Aggiornamento di NILES';
+    $tokenFile = $dir.'/storage/app/private/update/token.json';
+    $token = (string) ($_REQUEST['t'] ?? '');
+
+    if ($token === '' || ! nilesTokenValid($dir, $token)) {
+        if (! is_file($tokenFile)) {
+            @unlink(__FILE__);   // nessun aggiornamento in attesa: il file non serve più
+        }
+        nilesPage('', nilesBox('avv', 'NILES è già installato. Per aggiornarlo usare il pulsante «Aggiorna» nel pannello di amministrazione: questo indirizzo da solo non fa nulla.'), 0, $intestazione, []);
+    }
+
+    if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['azione'] ?? '') === 'aggiorna') {
+        ignore_user_abort(true);   // se il browser si disconnette l'operazione deve comunque concludersi
+        header('Content-Type: application/json; charset=utf-8');
+        @unlink($tokenFile);       // il token si consuma subito: un nuovo tentativo richiede di nuovo il pulsante dal pannello
+        try {
+            $r = nilesApplyUpdate($dir);
+            echo json_encode(['ok' => true] + $r, JSON_UNESCAPED_UNICODE | JSON_INVALID_UTF8_SUBSTITUTE);
+        } catch (Throwable $e) {
+            echo json_encode(['ok' => false, 'err' => $e->getMessage()], JSON_UNESCAPED_UNICODE | JSON_INVALID_UTF8_SUBSTITUTE);
+        }
+        @unlink(__FILE__);
+        exit;
+    }
+
+    $js = '(async()=>{const T='.json_encode($token).';occupato("Aggiornamento in corso: non chiudere né ricaricare la pagina…");let d;'
+        .'try{const r=await fetch(location.pathname,{method:"POST",headers:{"Content-Type":"application/x-www-form-urlencoded"},body:"azione=aggiorna&t="+encodeURIComponent(T)});d=JSON.parse(await r.text())}'
+        .'catch(e){d={ok:false,err:"nessuna risposta dal server (tempo scaduto o connessione interrotta). Controllare il sito: se resta in manutenzione, via FTP cancellare storage/framework/maintenance.php; le cartelle precedenti sono in .update-old/."}}'
+        .'document.getElementById("occupato").hidden=true;clearInterval(occTimer);'
+        .'const e=s=>String(s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;"}[c]));let h;'
+        .'if(d.ok){h=\'<div class="box good"><b>Aggiornamento completato: NILES \'+e(d.versione)+\'.</b></div>\'+(d.avvisi&&d.avvisi.length?\'<div class="box avv">\'+d.avvisi.map(e).join("<br>")+"</div>":"")'
+        .'+\'<p><a href="/admin"><b>Torna al pannello</b></a> (tra pochi secondi ci si arriva da soli)</p><details><summary>Dettagli tecnici</summary><pre>\'+e(d.log)+"</pre></details>";setTimeout(()=>location.href="/admin",6000)}'
+        .'else{h=\'<div class="box err"><b>Aggiornamento non riuscito.</b><br>\'+e(d.err)+\'</div><p><a href="/admin/aggiornamento">Torna alla pagina di aggiornamento</a></p>\'}'
+        .'document.getElementById("esito").innerHTML=h})()';
+
+    nilesPage('', '<div id="esito"><p>Avvio…</p></div><script>'.$js.'</script>', 0, $intestazione, []);
+}
+
 function nilesMain(): void
 {
     @ini_set('display_errors', '0');
     $dir = __DIR__;
 
     if (is_file($dir.'/storage/installed')) {
-        @unlink(__FILE__);
-        nilesPage('', nilesBox('avv', 'NILES risulta già installato: questo file non serve più e va cancellato.'));
+        nilesUpdateMain($dir);
     }
 
     $haApp = is_file($dir.'/vendor/autoload.php') && is_file($dir.'/artisan');
@@ -507,6 +765,7 @@ function nilesMain(): void
     nilesScreenDone($v['app_url'], $v['admin_email'], $log, $cancellato);
 }
 
-if (PHP_SAPI !== 'cli') {
+// In CLI, o con NILES_INSTALLER_LIB definita (l'applicazione ne riusa le funzioni), il file definisce solo le funzioni.
+if (PHP_SAPI !== 'cli' && ! defined('NILES_INSTALLER_LIB')) {
     nilesMain();
 }

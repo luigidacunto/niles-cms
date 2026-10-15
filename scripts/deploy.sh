@@ -77,6 +77,8 @@ echo "==> [4/6] Migrazioni"
 # --force: il deploy deve girare senza interazione, sia in prod (dove Laravel chiederebbe
 # conferma per APP_ENV=production) sia in dev.
 php artisan migrate --force
+# Seeder di aggiornamento non ancora eseguiti (database/seeders/aggiornamenti), tracciati in seeders_eseguiti.
+php artisan niles:seeders
 
 echo "==> [5/6] Cache"
 php artisan optimize:clear
