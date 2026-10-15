@@ -48,11 +48,40 @@ Per un sito in produzione, sul ramo `main`, lo script esegue in ordine:
 2. `composer install --no-dev --optimize-autoloader`: aggiorna le librerie;
 3. `npm ci` e `npm run build`: ricostruisce gli stili e gli script;
 4. `php artisan migrate --force`: aggiorna il database alla nuova struttura;
-5. svuota e ricrea le cache (`config:cache`, `route:cache`, `view:cache`);
-6. controlla il collegamento `public/storage`.
+5. `php artisan niles:seeders`: esegue i **seeder di aggiornamento** non ancora eseguiti, cioè i contenuti da portare ai siti già in
+   uso (testi di default, pagine nuove). Ogni seeder viene eseguito una sola volta: il suo nome e la data di esecuzione si registrano nella
+   tabella `seeders_eseguiti`. Con `php artisan niles:seeders --stato` si vede l'elenco, con quelli ancora da eseguire;
+6. svuota e ricrea le cache (`config:cache`, `route:cache`, `view:cache`);
+7. controlla il collegamento `public/storage`.
 
-Se l'aggiornamento non cambia librerie né struttura del database (le note della versione lo dicono), `bash scripts/deploy.sh --quick`
+Se l'aggiornamento non cambia librerie, struttura del database né contenuti (le note della versione lo dicono), `bash scripts/deploy.sh --quick`
 esegue solo il `git pull` e il rinnovo delle cache, in pochi secondi.
+
+### Aggiornare senza lo script
+
+Chi non usa `deploy.sh` (ad esempio perché il codice arriva in un altro modo) esegue gli stessi passi a mano, dalla cartella del sito
+e con l'utente che gestisce il sito:
+
+```bash
+git pull
+composer install --no-dev --optimize-autoloader
+npm ci && npm run build
+php artisan migrate --force
+php artisan niles:seeders
+php artisan optimize:clear
+php artisan config:cache && php artisan route:cache && php artisan view:cache
+[ -e public/storage ] || php artisan storage:link
+```
+
+Il passo `php artisan niles:seeders` non va saltato: senza, i contenuti di aggiornamento previsti dalla nuova versione non vengono applicati. È
+sicuro rilanciarlo: se non c'è niente da eseguire, termina con «Nessun seeder da eseguire.».
+
+### Installazioni su hosting condiviso
+
+Le installazioni fatte con l'installer per hosting condiviso (senza accesso da riga di comando) si aggiornano dal pannello: in dashboard,
+quando esiste una versione più recente, compare il pulsante **Aggiorna**, che guida l'operazione (scarica e verifica il pacchetto, fa una
+copia di sicurezza del database, sostituisce il codice, aggiorna le tabelle ed esegue i seeder di aggiornamento). Quel pulsante è attivo
+solo su quelle installazioni; sulle altre si usa la procedura di questa pagina.
 
 **Verifica:** lo script termina con «Deploy completato.»; aprendo il sito e la dashboard del pannello, la **versione corrente** è quella
 nuova.
@@ -66,6 +95,13 @@ Note utili:
   (vedi [Requisiti](01-requisiti.md#più-versioni-di-php-sullo-stesso-server)).
 - Dopo una modifica al file `.env` basta `php artisan config:cache`, senza rifare l'aggiornamento.
 - Se durante l'aggiornamento il sito non deve essere raggiungibile, `php artisan down` lo mette in manutenzione e `php artisan up` lo riapre.
+- Dove non c'è la riga di comando (hosting condiviso con solo FTP) la manutenzione si attiva creando il file
+  `storage/framework/maintenance.php` con il contenuto seguente, e si disattiva cancellandolo. Finché il file esiste anche il pannello di
+  amministrazione non è raggiungibile.
+
+  ```php
+  <?php http_response_code(503); header('Retry-After: 60'); echo 'Sito in manutenzione'; exit;
+  ```
 
 ## Ripristinare un backup
 
