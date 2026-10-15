@@ -5,11 +5,14 @@ use App\Http\Controllers\Admin\AuthController;
 use App\Http\Controllers\Admin\CategoryController;
 use App\Http\Controllers\Admin\CommitteeInfoController;
 use App\Http\Controllers\Admin\CorsoController;
+use App\Http\Controllers\Admin\CategoriaRiservataController;
 use App\Http\Controllers\Admin\ComunicazioneSociController;
 use App\Http\Controllers\Admin\CorsoIscrizioneController;
 use App\Http\Controllers\Admin\DashboardController;
 use App\Http\Controllers\Admin\DocumentCategoryController;
 use App\Http\Controllers\Admin\DocumentController;
+use App\Http\Controllers\Admin\DocumentoAccessoController;
+use App\Http\Controllers\Admin\DocumentoRiservatoController;
 use App\Http\Controllers\Admin\LoginAuditController;
 use App\Http\Controllers\Admin\MemberController;
 use App\Http\Controllers\Admin\OtpController;
@@ -177,6 +180,8 @@ Route::prefix('admin')->name('admin.')->group(function () {
         // Comunicazioni interne ai soci (post riservati + allegati privati). Permesso unico 'comunicazioni_soci'
         // verificato nel controller; area spenta → 404.
         Route::prefix('comunicazioni-soci')->name('comunicazioni-soci.')->middleware('area.soci')->group(function () {
+            Route::get('immagini/{immagine}', [ComunicazioneSociController::class, 'immagine'])->whereNumber('immagine')->name('immagine');
+            Route::get('{comunicazione}/copertina', [ComunicazioneSociController::class, 'copertina'])->name('copertina');
             Route::get('/', [ComunicazioneSociController::class, 'index'])->name('index');
             Route::get('nuova', [ComunicazioneSociController::class, 'create'])->name('create');
             Route::post('/', [ComunicazioneSociController::class, 'store'])->name('store');
@@ -184,6 +189,31 @@ Route::prefix('admin')->name('admin.')->group(function () {
             Route::put('{comunicazione}', [ComunicazioneSociController::class, 'update'])->name('update');
             Route::delete('{comunicazione}', [ComunicazioneSociController::class, 'destroy'])->name('destroy');
         });
+
+        // Documenti riservati ai soci e relative categorie (chi vede cosa lo decide la categoria). Stesso permesso
+        // 'comunicazioni_soci', verificato nei controller; area spenta → 404.
+        Route::middleware('area.soci')->group(function () {
+            Route::prefix('documenti-riservati')->name('documenti-riservati.')->group(function () {
+                Route::get('/', [DocumentoRiservatoController::class, 'index'])->name('index');
+                Route::get('nuovo', [DocumentoRiservatoController::class, 'create'])->name('create');
+                Route::post('/', [DocumentoRiservatoController::class, 'store'])->name('store');
+                Route::get('{document}/modifica', [DocumentoRiservatoController::class, 'edit'])->name('edit');
+                Route::put('{document}', [DocumentoRiservatoController::class, 'update'])->name('update');
+                Route::delete('{document}', [DocumentoRiservatoController::class, 'destroy'])->name('destroy');
+            });
+            Route::prefix('categorie-riservate')->name('categorie-riservate.')->group(function () {
+                Route::get('/', [CategoriaRiservataController::class, 'index'])->name('index');
+                Route::get('nuova', [CategoriaRiservataController::class, 'create'])->name('create');
+                Route::post('/', [CategoriaRiservataController::class, 'store'])->name('store');
+                Route::get('{categoria}/modifica', [CategoriaRiservataController::class, 'edit'])->name('edit');
+                Route::put('{categoria}', [CategoriaRiservataController::class, 'update'])->name('update');
+                Route::delete('{categoria}', [CategoriaRiservataController::class, 'destroy'])->name('destroy');
+            });
+        });
+
+        // Registro download dei documenti riservati (per socio), sola lettura. Solo admin; resta disponibile anche
+        // con l'area spenta (dati di audit), come il registro accessi.
+        Route::middleware('admin.role')->get('registro-download', [DocumentoAccessoController::class, 'index'])->name('registro-download');
 
         // Anagrafica membri del comitato (+ import Excel). Niente admin.role: permesso unico 'membri'
         // (lettura+scrittura insieme) verificato nel controller. Import/restore prima di {member}.

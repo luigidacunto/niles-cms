@@ -2,6 +2,7 @@
      admin/posts/form.blade.php e admin/pages/form.blade.php — vedi App\Models\Concerns\HasDocumentAttachments
      e App\Http\Controllers\Admin\Concerns\ManagesAttachments. --}}
 @php($existingIds = $model->attachments->pluck('id'))
+@php([$libreriaUrl, $libreriaNome] = $libreria ?? [route('admin.documents.index'), 'Libreria documenti'])
 <div class="card">
     <div class="card-header"><h3 class="card-title">Allegati</h3></div>
     <div class="card-body">
@@ -40,9 +41,9 @@
                 @endforeach
             </select>
             <small class="text-muted">
-                Solo documenti già presenti in Libreria. Per allegarne uno nuovo, caricalo prima in
-                <a href="{{ route('admin.documents.index') }}" target="_blank">Libreria documenti</a>, poi torna qui.
-                Compare in fondo alla pagina pubblica con un'icona automatica per tipo di file.
+                Solo documenti già presenti in archivio. Per allegarne uno nuovo, caricalo prima in
+                <a href="{{ $libreriaUrl }}" target="_blank">{{ $libreriaNome }}</a>, poi torna qui.
+                Compare in fondo alla pagina con un'icona automatica per tipo di file.
             </small>
         </div>
     </div>

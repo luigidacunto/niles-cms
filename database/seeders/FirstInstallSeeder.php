@@ -475,36 +475,7 @@ class FirstInstallSeeder extends Seeder
             .'limitazione o l\'opposizione al trattamento, e proporre reclamo al Garante per la protezione '
             .'dei dati personali (www.garanteprivacy.it).</p>';
 
-        $testoSoci = '<p>La presente informativa riguarda i dati dei soci e dei dipendenti del Comitato e '
-            .'l\'uso dell\'area riservata, ai sensi degli artt. 13-14 del Regolamento (UE) 2016/679 ("GDPR"). '
-            .'Per la navigazione del sito vale la <a href="/privacy">Privacy Policy</a> generale.</p>'
-            .'<h2>Titolare del trattamento</h2>'
-            .'<p>Il titolare del trattamento è {nome_comitato}. Per qualsiasi richiesta relativa ai tuoi dati '
-            .'puoi contattare il Comitato (email: {email_comitato}, telefono: {telefono_comitato}).</p>'
-            .'<h2>Dati trattati e provenienza</h2>'
-            .'<ul>'
-            .'<li>Nome, cognome, codice fiscale, data di nascita, ruolo (volontario, volontario in estensione, '
-            .'dipendente), email e numeri di telefono.</li>'
-            .'<li>I dati provengono dall\'anagrafica gestita tramite i sistemi della Croce Rossa Italiana e dal '
-            .'rapporto associativo con il Comitato.</li>'
-            .'<li><strong>Registro degli accessi</strong> all\'area riservata: data, ora e indirizzo IP di ogni '
-            .'accesso (riuscito o fallito), conservati per 12 mesi e usati solo per la sicurezza del servizio.</li>'
-            .'</ul>'
-            .'<h2>Finalità e base giuridica</h2>'
-            .'<p>Gestione del rapporto associativo e dell\'attività del Comitato; fornitura dell\'accesso '
-            .'all\'area riservata ai soci; sicurezza dei sistemi (legittimo interesse).</p>'
-            .'<h2>Conservazione</h2>'
-            .'<p>I dati anagrafici sono conservati finché sei socio e, dopo la cessazione, per il tempo '
-            .'necessario agli obblighi di legge e alla tutela del Comitato; poi sono cancellati. '
-            .'Il registro degli accessi è conservato 12 mesi.</p>'
-            .'<h2>I tuoi diritti</h2>'
-            .'<p>Puoi chiedere l\'accesso ai tuoi dati, la rettifica, la limitazione o l\'opposizione al '
-            .'trattamento, e proporre reclamo al Garante per la protezione dei dati personali '
-            .'(www.garanteprivacy.it). Finché sei socio, alcuni dati non possono essere cancellati perché '
-            .'conservati per obbligo di legge o necessari al rapporto associativo. '
-            .'Puoi invece <strong>chiedere in qualsiasi momento la disattivazione dell\'accesso all\'area '
-            .'riservata</strong> dalla tua pagina "I miei dati": la richiesta è confermata da un '
-            .'amministratore del Comitato.</p>';
+        $testoSoci = $this->testo('informativa-soci');
 
         $default = [
             'soci' => [

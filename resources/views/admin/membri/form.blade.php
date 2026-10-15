@@ -78,6 +78,19 @@
                         <textarea id="telefoni_aggiuntivi" name="telefoni_aggiuntivi" class="form-control" rows="2">{{ old('telefoni_aggiuntivi', implode("\n", $member->telefoni_aggiuntivi ?? [])) }}</textarea>
                     </div>
                 </div>
+                <div class="form-group">
+                    <label>Documenti riservati visibili <small class="text-muted">— oltre a «Senza categoria», aperta a tutti i soci</small></label>
+                    @php($assegnate = collect(old('categorie_riservate', $member->categorieRiservate->pluck('id')->all()))->map(fn ($id) => (int) $id))
+                    @forelse ($categorieRiservate as $categoria)
+                        <div class="custom-control custom-checkbox">
+                            <input type="checkbox" class="custom-control-input" id="cat-{{ $categoria->id }}" name="categorie_riservate[]"
+                                   value="{{ $categoria->id }}" @checked($assegnate->contains($categoria->id))>
+                            <label class="custom-control-label" for="cat-{{ $categoria->id }}">{{ $categoria->name }}</label>
+                        </div>
+                    @empty
+                        <p class="text-muted small mb-0">Nessuna categoria riservata creata (si gestiscono da Contenuto riservato → Categorie riservate).</p>
+                    @endforelse
+                </div>
                 <div class="custom-control custom-switch">
                     <input type="checkbox" class="custom-control-input" id="disabilitato" name="disabilitato" value="1" @checked(old('disabilitato', $member->disabilitato))>
                     <label class="custom-control-label" for="disabilitato">Disabilitato (il membro resta in anagrafica ma non può accedere all'area riservata)</label>

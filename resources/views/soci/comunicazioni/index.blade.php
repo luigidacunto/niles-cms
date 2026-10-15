@@ -6,6 +6,7 @@
 
 @section('content')
     <div class="max-w-4xl mx-auto px-4 py-10">
+        <x-soci-breadcrumb :items="[['Comunicazioni']]" />
         <h1 class="text-2xl font-bold text-gray-900 mb-1">Comunicazioni</h1>
         <div class="w-14 h-1 bg-[#cc0000] mb-6"></div>
 

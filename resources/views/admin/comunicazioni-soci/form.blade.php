@@ -47,53 +47,74 @@
                             <textarea name="body" id="body" class="form-control" rows="14">{{ old('body', $item->body) }}</textarea>
                             <small class="text-muted">
                                 ⚠️ Le immagini inserite nel testo non sono protette da accesso diretto: per il materiale
-                                riservato usa gli <strong>allegati</strong> qui sotto, che sono realmente privati.
+                                riservato usa <strong>copertina</strong>, <strong>galleria</strong> e <strong>allegati</strong>,
+                                che sono realmente privati.
                             </small>
                         </div>
                     </div>
                 </div>
 
                 <div class="card">
-                    <div class="card-header"><h3 class="card-title">Allegati riservati</h3></div>
+                    <div class="card-header"><h3 class="card-title">Galleria / foto</h3></div>
                     <div class="card-body">
-                        @if ($item->attachments->isNotEmpty())
-                            <table class="table table-sm mb-3">
-                                <tbody>
-                                    @foreach ($item->attachments as $doc)
-                                        <tr>
-                                            <td class="text-nowrap" style="width:1%"><i class="fas {{ $doc->fa_icon }} {{ $doc->bootstrap_color_class }} fa-lg"></i></td>
-                                            <td>{{ $doc->title }}</td>
-                                            <td style="width:5rem">
-                                                <input type="number" min="0" class="form-control form-control-sm"
-                                                       name="attachments[{{ $doc->id }}][order]" value="{{ old("attachments.{$doc->id}.order", $doc->pivot->order) }}">
-                                            </td>
-                                            <td class="text-nowrap text-right" style="width:1%">
-                                                <label class="mb-0 text-danger small">
-                                                    <input type="checkbox" name="attachments[{{ $doc->id }}][delete]" value="1"> elimina
+                        @if ($item->images->isNotEmpty())
+                            <div class="row">
+                                @foreach ($item->images as $image)
+                                    <div class="col-md-6 mb-3">
+                                        <div class="border rounded p-2">
+                                            <img src="{{ route('admin.comunicazioni-soci.immagine', $image) }}" class="img-fluid rounded mb-2" alt="">
+                                            <input type="text" name="images[{{ $image->id }}][caption]"
+                                                   value="{{ old("images.{$image->id}.caption", $image->caption) }}"
+                                                   class="form-control form-control-sm mb-2" placeholder="Didascalia (facoltativa)">
+                                            <div class="d-flex align-items-center justify-content-between">
+                                                <label class="mb-0 mr-2 text-muted small">Ordine
+                                                    <input type="number" min="0" name="images[{{ $image->id }}][order]"
+                                                           value="{{ old("images.{$image->id}.order", $image->order) }}"
+                                                           class="form-control form-control-sm d-inline-block" style="width:5rem">
                                                 </label>
-                                            </td>
-                                        </tr>
-                                    @endforeach
-                                </tbody>
-                            </table>
+                                                <label class="mb-0 text-danger small">
+                                                    <input type="checkbox" name="images[{{ $image->id }}][delete]" value="1"> elimina
+                                                </label>
+                                            </div>
+                                        </div>
+                                    </div>
+                                @endforeach
+                            </div>
                         @endif
 
                         <div class="form-group mb-0">
-                            <label>Aggiungi allegati</label>
-                            <input type="file" name="allegati[]" multiple class="form-control-file"
-                                   accept=".pdf,.doc,.docx,.xls,.xlsx,.ppt,.pptx,.odt,.ods,.odp,.txt,.csv">
+                            <label>Aggiungi foto</label>
+                            <input type="file" name="gallery_images[]" multiple accept=".jpg,.jpeg,.png" class="form-control-file">
                             <small class="text-muted">
-                                PDF, Office, OpenDocument, testo, CSV (max 20 MB l'uno). Si scaricano solo da soci con accesso e
-                                amministratori; eliminando la comunicazione (o l'allegato) il file viene cancellato.
+                                JPG o PNG, più file insieme, ridimensionate automaticamente. Sono immagini riservate: si vedono solo
+                                da soci loggati.
                             </small>
                         </div>
                     </div>
                 </div>
+
+                @include('admin.partials.attachments-card', [
+                    'model' => $item,
+                    'libreria' => [route('admin.documenti-riservati.index'), 'Documenti riservati'],
+                ])
             </div>
 
             <div class="col-md-4">
                 <div class="card">
                     <div class="card-body">
+                        <div class="form-group">
+                            <label>Copertina</label>
+                            @if ($item->cover_image)
+                                <img src="{{ route('admin.comunicazioni-soci.copertina', $item) }}" class="img-fluid rounded mb-2" alt="">
+                                <div class="custom-control custom-checkbox mb-2">
+                                    <input type="checkbox" class="custom-control-input" id="remove_cover" name="remove_cover" value="1">
+                                    <label class="custom-control-label text-danger" for="remove_cover">Rimuovi copertina</label>
+                                </div>
+                            @endif
+                            <input type="file" name="cover_image" accept=".jpg,.jpeg,.png" class="form-control-file">
+                            <small class="text-muted">JPG o PNG, facoltativa. Immagine riservata ai soci loggati.</small>
+                        </div>
+
                         <div class="form-group">
                             <label>Data pubblicazione</label>
                             <input type="datetime-local" name="published_at" class="form-control"

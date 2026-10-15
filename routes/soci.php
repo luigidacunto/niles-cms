@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\Soci\ComunicazioniController;
+use App\Http\Controllers\Soci\DocumentiController;
 use App\Http\Controllers\Soci\OtpController;
 use App\Http\Controllers\Soci\ProfiloController;
 use Illuminate\Support\Facades\Route;
@@ -19,7 +20,14 @@ Route::prefix('soci')->name('soci.')->middleware('area.soci')->group(function ()
     Route::post('profilo/disattivazione', [ProfiloController::class, 'richiediDisattivazione'])->middleware('auth:member')->name('profilo.disattivazione');
     Route::middleware('auth:member')->group(function () {
         Route::get('comunicazioni', [ComunicazioniController::class, 'index'])->name('comunicazioni');
+        Route::get('comunicazioni/immagini/{immagine}', [ComunicazioniController::class, 'immagine'])->whereNumber('immagine')->name('comunicazioni.immagine');
         Route::get('comunicazioni/{comunicazione:slug}', [ComunicazioniController::class, 'show'])->name('comunicazioni.show');
+        Route::get('comunicazioni/{comunicazione:slug}/copertina', [ComunicazioniController::class, 'copertina'])->name('comunicazioni.copertina');
+
+        Route::get('documenti', [DocumentiController::class, 'index'])->name('documenti');
+        Route::get('documenti/{document}', [DocumentiController::class, 'anteprima'])->whereNumber('document')->name('documenti.anteprima');
+        Route::get('documenti/{document}/file', [DocumentiController::class, 'file'])->whereNumber('document')->name('documenti.file');
+        Route::get('documenti/{document}/scarica', [DocumentiController::class, 'scarica'])->whereNumber('document')->name('documenti.scarica');
     });
     Route::post('esci', [OtpController::class, 'logout'])->middleware('auth:member')->name('logout');
 });

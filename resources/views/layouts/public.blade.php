@@ -16,6 +16,7 @@
     $areaSociAttiva = (bool) $committeeInfo->area_soci_attiva;
     $areaSociNav = ($areaSociAttiva && auth('member')->check()) ? [
         ['Comunicazioni', route('soci.comunicazioni')],
+        ['Documenti', route('soci.documenti')],
     ] : [];
 @endphp
 <!DOCTYPE html>

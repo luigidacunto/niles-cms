@@ -19,13 +19,19 @@ class DocumentController extends Controller
     {
         abort_unless($document->published || $request->user('admin'), 404);
 
-        // Allegati riservati ai soci: solo socio loggato (area attiva) o admin; chi non è loggato va al login.
+        // Documenti riservati ai soci: solo socio con accesso (area attiva) o admin; chi non è loggato va al login.
         if ($document->isRiservato() && ! $request->user('admin')) {
             abort_unless(AreaSoci::attiva(), 404);
 
-            if (! $request->user('member')) {
+            $member = $request->user('member');
+            if (! $member) {
                 return redirect()->guest(route('soci.login'));
             }
+
+            // Mai download diretto: il socio passa dall'anteprima (e solo se la sua categoria glielo consente).
+            abort_unless($member->puoVedere($document->loadMissing('category')), 404);
+
+            return redirect()->route('soci.documenti.anteprima', $document);
         }
 
         $disk = $document->disk();

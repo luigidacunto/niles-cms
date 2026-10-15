@@ -6,6 +6,7 @@
 
 @section('content')
     <div class="max-w-2xl mx-auto px-4 py-10">
+        <x-soci-breadcrumb :items="[['I miei dati']]" />
         <h1 class="text-2xl font-bold text-gray-900 mb-6">I miei dati</h1>
 
         <dl class="divide-y divide-gray-200 border-y border-gray-200 text-sm">

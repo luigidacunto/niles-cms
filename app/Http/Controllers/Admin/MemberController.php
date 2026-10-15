@@ -3,10 +3,12 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Models\DocumentCategory;
 use App\Models\Member;
 use App\Rules\CodiceFiscale;
 use App\Services\MemberImportService;
 use Illuminate\Http\Request;
+use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 use Illuminate\Validation\Rule;
@@ -58,14 +60,16 @@ class MemberController extends Controller
     {
         $this->authorizeMembri($request);
 
-        return view('admin.membri.form', ['member' => new Member(['ruolo' => Member::RUOLO_VOLONTARIO])]);
+        return view('admin.membri.form', ['member' => new Member(['ruolo' => Member::RUOLO_VOLONTARIO]), 'categorieRiservate' => $this->categorieRiservate()]);
     }
 
     public function store(Request $request)
     {
         $this->authorizeMembri($request);
 
-        Member::create($this->validated($request));
+        $data = $this->validated($request);
+        $member = Member::create(Arr::except($data, 'categorie_riservate'));
+        $member->categorieRiservate()->sync($data['categorie_riservate']);
 
         return redirect()->route('admin.membri.index')->with('status', 'Membro aggiunto.');
     }
@@ -74,7 +78,7 @@ class MemberController extends Controller
     {
         $this->authorizeMembri($request);
 
-        return view('admin.membri.form', ['member' => $member]);
+        return view('admin.membri.form', ['member' => $member->load('categorieRiservate'), 'categorieRiservate' => $this->categorieRiservate()]);
     }
 
     public function update(Request $request, Member $member)
@@ -82,7 +86,8 @@ class MemberController extends Controller
         $this->authorizeMembri($request);
 
         $data = $this->validated($request, $member);
-        $member->update($data);
+        $member->update(Arr::except($data, 'categorie_riservate'));
+        $member->categorieRiservate()->sync($data['categorie_riservate']);
         if ($data['disabilitato']) {
             $member->forceFill(['richiesta_disattivazione_at' => null])->save(); // richiesta evasa
         }
@@ -192,6 +197,12 @@ class MemberController extends Controller
         }
     }
 
+    /** Categorie di documenti riservati assegnabili ai soci (esclusa «Senza categoria», già visibile a tutti). */
+    private function categorieRiservate()
+    {
+        return DocumentCategory::soci()->where('slug', '!=', DocumentCategory::SLUG_GENERALE)->orderBy('order')->orderBy('name')->get();
+    }
+
     private function authorizeMembri(Request $request): void
     {
         abort_unless($request->user('admin')->hasPermission('membri'), 403);
@@ -209,6 +220,8 @@ class MemberController extends Controller
             'telefoni_aggiuntivi' => ['nullable', 'string', 'max:500'],
             'ruolo' => ['required', Rule::in(array_keys(Member::RUOLI))],
             'disabilitato' => ['boolean'],
+            'categorie_riservate' => ['nullable', 'array'],
+            'categorie_riservate.*' => ['integer', Rule::in($this->categorieRiservate()->pluck('id')->all())],
         ], [
             'codice_fiscale.unique' => 'Esiste già un membro con questo codice fiscale (controlla anche tra i rimossi).',
             'email.unique' => 'Questa email è già associata a un altro membro.',
@@ -218,6 +231,7 @@ class MemberController extends Controller
         $data['email'] = isset($data['email']) ? strtolower($data['email']) : null;
         $data['telefoni_aggiuntivi'] = array_values(array_filter(array_map('trim', preg_split('/[\r\n,]+/', (string) ($data['telefoni_aggiuntivi'] ?? ''))))) ?: null;
         $data['disabilitato'] = $request->boolean('disabilitato');
+        $data['categorie_riservate'] = $data['categorie_riservate'] ?? [];
 
         return $data;
     }

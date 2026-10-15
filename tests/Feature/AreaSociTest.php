@@ -7,6 +7,7 @@ use App\Models\CommitteeInfo;
 use App\Models\ComunicazioneSoci;
 use App\Models\Document;
 use App\Models\Member;
+use App\Support\AreaSoci;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Storage;
@@ -94,7 +95,7 @@ class AreaSociTest extends TestCase
         $this->get(route('soci.comunicazioni.show', 'futura'))->assertNotFound();
     }
 
-    public function test_permesso_e_allegati_privati(): void
+    public function test_permesso_e_allegati_riservati(): void
     {
         Storage::fake('local');
         Storage::fake('public');
@@ -105,33 +106,39 @@ class AreaSociTest extends TestCase
 
         $ed = Admin::create(['name' => 'Ed', 'email' => 'ed@example.test', 'password' => 'x', 'role' => 'editor', 'active' => true,
             'permissions' => ['comunicazioni_soci' => ['read', 'write']]]);
-        $this->actingAs($ed, 'admin')->post(route('admin.comunicazioni-soci.store'), [
-            'title' => 'Con allegato', 'body' => '<p>x</p>', 'published' => '1',
-            'allegati' => [UploadedFile::fake()->create('verbale.pdf', 50, 'application/pdf')],
-        ])->assertRedirect(route('admin.comunicazioni-soci.index'));
 
-        $item = ComunicazioneSoci::first();
-        $doc = $item->attachments()->first();
+        // Il documento si carica in «Documenti riservati» (disco privato) e poi si allega alla comunicazione.
+        $this->actingAs($ed, 'admin')->post(route('admin.documenti-riservati.store'), [
+            'title' => 'Verbale', 'document_category_id' => AreaSoci::categoriaDocumenti()->id, 'published' => '1',
+            'file' => UploadedFile::fake()->create('verbale.pdf', 50, 'application/pdf'),
+        ])->assertRedirect(route('admin.documenti-riservati.index'));
+        $doc = Document::firstOrFail();
         $this->assertTrue($doc->isRiservato());
         Storage::disk('local')->assertExists($doc->file_path);
         Storage::disk('public')->assertMissing($doc->file_path); // mai sul disco pubblico
 
-        // Non compare nella libreria pubblica né nei selettori.
-        $this->actingAs($this->admin(), 'admin')->get(route('admin.documents.index'))->assertDontSee('verbale');
+        $this->post(route('admin.comunicazioni-soci.store'), [
+            'title' => 'Con allegato', 'body' => '<p>x</p>', 'published' => '1', 'attach_documents' => [$doc->id],
+        ])->assertRedirect(route('admin.comunicazioni-soci.index'));
+        $item = ComunicazioneSoci::firstOrFail();
+        $this->assertSame([$doc->id], $item->attachments()->pluck('documents.id')->all());
 
-        // Download: ospite → login; socio → file; area spenta → 404.
+        // Non compare nella libreria pubblica né nei selettori.
+        $this->actingAs($this->admin(), 'admin')->get(route('admin.documents.index'))->assertDontSee('Verbale');
+
+        // Accesso: ospite → login; socio → anteprima (mai file diretto); area spenta → 404.
         auth('admin')->logout();
         $this->get($doc->download_url)->assertRedirect(route('soci.login'));
-        $this->actingAs($this->member(), 'member')->get($doc->download_url)->assertOk();
+        $this->actingAs($this->member(), 'member')->get($doc->download_url)->assertRedirect(route('soci.documenti.anteprima', $doc));
         $this->attiva(false);
         $this->get($doc->download_url)->assertNotFound();
 
-        // Eliminare la comunicazione cancella documento e file.
+        // Eliminare la comunicazione scollega l'allegato ma non cancella il documento riservato.
         $this->actingAs($ed, 'admin');
         $this->attiva();
         $this->delete(route('admin.comunicazioni-soci.destroy', $item))->assertRedirect();
-        $this->assertNull(Document::find($doc->id));
-        Storage::disk('local')->assertMissing($doc->file_path);
+        $this->assertNotNull(Document::find($doc->id));
+        Storage::disk('local')->assertExists($doc->file_path);
     }
 
     public function test_permesso_comunicazioni_si_salva_come_unico_switch(): void

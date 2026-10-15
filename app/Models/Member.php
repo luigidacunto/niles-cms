@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
@@ -39,6 +40,23 @@ class Member extends Authenticatable
             'disabilitato' => 'boolean',
             'richiesta_disattivazione_at' => 'datetime',
         ];
+    }
+
+    /** Categorie di documenti riservati assegnate al socio (oltre a «Senza categoria», visibile a tutti). */
+    public function categorieRiservate(): BelongsToMany
+    {
+        return $this->belongsToMany(DocumentCategory::class, 'member_document_category');
+    }
+
+    /** Unico punto che decide se il socio può aprire un documento riservato. */
+    public function puoVedere(Document $document): bool
+    {
+        $category = $document->category;
+        if (! $document->published || $category?->scope !== DocumentCategory::SCOPE_SOCI) {
+            return false;
+        }
+
+        return $category->isGenerale() || $this->categorieRiservate->contains('id', $category->id);
     }
 
     public function ruoloLabel(): string

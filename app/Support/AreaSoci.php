@@ -16,11 +16,11 @@ class AreaSoci
         return (bool) CommitteeInfo::current()->area_soci_attiva;
     }
 
-    /** Categoria documenti riservata (scope `soci`): file su disco privato, scaricabili solo da soci/admin. */
+    /** Categoria riservata di sistema «Senza categoria» (scope `soci`): file su disco privato, visibili a tutti i soci. */
     public static function categoriaDocumenti(): DocumentCategory
     {
         return DocumentCategory::firstOrCreate(
-            ['slug' => 'riservati-soci'],
+            ['slug' => DocumentCategory::SLUG_GENERALE],
             ['name' => 'Riservati ai soci', 'scope' => DocumentCategory::SCOPE_SOCI, 'selectable' => false, 'order' => 900,
                 'description' => 'Allegati dell\'area soci: non pubblici.'],
         );

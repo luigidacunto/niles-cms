@@ -10,7 +10,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 class Document extends Model
 {
     protected $fillable = [
-        'document_category_id', 'title', 'description', 'type', 'file_path', 'original_filename',
+        'document_category_id', 'title', 'description', 'type', 'sottocategoria', 'file_path', 'original_filename',
         'file_size', 'published_at', 'published',
     ];
 
@@ -34,6 +34,12 @@ class Document extends Model
     public function disk(): string
     {
         return $this->isRiservato() ? 'local' : 'public';
+    }
+
+    /** Documenti dell'area soci (categoria con scope `soci`). */
+    public function scopeRiservati(Builder $query): void
+    {
+        $query->whereHas('category', fn ($c) => $c->soci());
     }
 
     public function scopePublished(Builder $query): void

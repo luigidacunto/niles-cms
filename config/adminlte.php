@@ -346,10 +346,24 @@ return [
             'icon' => 'fas fa-fw fa-folder-open',
             'can' => 'manage-documents',
         ],
+
+        ['header' => 'Contenuto riservato', 'can' => 'manage-comunicazioni-soci'],
         [
             'text' => 'Comunicazioni soci',
             'route' => 'admin.comunicazioni-soci.index',
             'icon' => 'fas fa-fw fa-bullhorn',
+            'can' => 'manage-comunicazioni-soci',
+        ],
+        [
+            'text' => 'Documenti riservati',
+            'route' => 'admin.documenti-riservati.index',
+            'icon' => 'fas fa-fw fa-lock',
+            'can' => 'manage-comunicazioni-soci',
+        ],
+        [
+            'text' => 'Categorie riservate',
+            'route' => 'admin.categorie-riservate.index',
+            'icon' => 'fas fa-fw fa-layer-group',
             'can' => 'manage-comunicazioni-soci',
         ],
 
@@ -410,6 +424,12 @@ return [
             'text' => 'Registro accessi',
             'route' => 'admin.registro-accessi',
             'icon' => 'fas fa-fw fa-history',
+            'can' => 'manage-users',
+        ],
+        [
+            'text' => 'Registro download',
+            'route' => 'admin.registro-download',
+            'icon' => 'fas fa-fw fa-file-download',
             'can' => 'manage-users',
         ],
         [
