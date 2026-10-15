@@ -323,14 +323,21 @@ function nilesPage(string $titolo, string $corpo, int $passo = 0): never
         .'.row{display:flex;gap:12px}.row>div{flex:1}button{background:#c00;color:#fff;border:0;border-radius:4px;padding:10px 20px;font-size:15px;cursor:pointer;margin-top:16px}button[disabled]{background:#999}'
         .'.box{padding:10px 14px;border-radius:4px;margin:12px 0}.err{background:#fdecec;border:1px solid #c00}.avv{background:#fff6e5;border:1px solid #b26a00}.good{background:#eaf7ee;border:1px solid #0a7d2c}'
         .'small{color:#666}pre{background:#f4f4f4;padding:8px;overflow:auto;font-size:12px}details{margin:14px 0}'
-        .'</style></head><body><main><h1>Installazione di NILES</h1><nav>'.$nav.'</nav>'.($titolo !== '' ? '<h2>'.h($titolo).'</h2>' : '').$corpo.'</main></body></html>';
+        // Velo con rotella durante le operazioni lunghe: la pagina non deve mai sembrare ferma (si finirebbe per cliccare altrove).
+        .'#occupato{position:fixed;inset:0;background:#fffe;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px;z-index:9;text-align:center;padding:20px}'
+        .'#occupato[hidden]{display:none}.rot{width:56px;height:56px;border:6px solid #ddd;border-top-color:#c00;border-radius:50%;animation:g 1s linear infinite}@keyframes g{to{transform:rotate(360deg)}}'
+        .'</style></head><body><main><h1>Installazione di NILES</h1><nav>'.$nav.'</nav>'.($titolo !== '' ? '<h2>'.h($titolo).'</h2>' : '').$corpo.'</main>'
+        .'<div id="occupato" hidden><div class="rot"></div><b id="occ-msg"></b><span id="occ-t"></span></div>'
+        .'<script>let occTimer;function occupato(m){const o=document.getElementById("occupato"),t0=Date.now();document.getElementById("occ-msg").textContent=m;o.hidden=false;'
+        .'const f=()=>{const s=Math.floor((Date.now()-t0)/1000);document.getElementById("occ-t").textContent="Trascorsi "+Math.floor(s/60)+":"+String(s%60).padStart(2,"0")};f();occTimer=setInterval(f,1000)}'
+        .'addEventListener("pageshow",()=>{document.getElementById("occupato").hidden=true;clearInterval(occTimer)})</script></body></html>';
     exit;
 }
 
-/** Attributo onsubmit: disattiva il pulsante e mostra che l'operazione è in corso (evita il doppio invio e la sensazione di blocco). */
+/** Attributo onsubmit: mostra il velo con rotella e contatore (occupato(), definita in nilesPage). Copre la pagina: niente doppio invio né clic altrove. */
 function nilesBusy(string $messaggio): string
 {
-    return h("var b=this.querySelector('button');b.disabled=true;b.textContent=".json_encode($messaggio, JSON_UNESCAPED_UNICODE).';');
+    return h('occupato('.json_encode($messaggio, JSON_UNESCAPED_UNICODE).');');
 }
 
 function nilesBox(string $classe, string $html): string
