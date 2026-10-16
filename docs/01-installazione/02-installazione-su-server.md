@@ -3,6 +3,9 @@
 Procedura per mettere NILES online su un server Linux, con un dominio e HTTPS. Tempo previsto: circa mezz'ora. Prima di
 iniziare controlla i [requisiti](01-requisiti.md): PHP 8.4, MariaDB, Composer 2.10, Node 24, Git.
 
+Su un **hosting condiviso senza accesso da riga di comando** (solo FTP e un database) la procedura è un'altra:
+[Installazione su un hosting condiviso](05-installazione-su-hosting-condiviso.md).
+
 Negli esempi il dominio è `esempio.it` e il progetto sta in `/var/www/niles`: adatta i nomi al tuo server. Tutti i comandi
 vanno lanciati con l'utente con cui gira il sito: vedi la sezione seguente.
 

@@ -11,6 +11,8 @@ Per mettere NILES online su un server.
 2. [Installazione su un server](01-installazione/02-installazione-su-server.md): la procedura passo per passo.
 3. [Configurazione del file .env](01-installazione/03-configurazione-env.md): tutte le variabili, spiegate.
 4. [Aggiornamento e backup](01-installazione/04-aggiornamento.md): nuove versioni e copie di sicurezza.
+5. [Installazione su un hosting condiviso](01-installazione/05-installazione-su-hosting-condiviso.md): senza riga di comando, solo FTP e un
+   database, con il programma di installazione.
 
 ## Configurazione iniziale
 

@@ -81,7 +81,8 @@ sicuro rilanciarlo: se non c'è niente da eseguire, termina con «Nessun seeder 
 Le installazioni fatte con l'installer per hosting condiviso (senza accesso da riga di comando) si aggiornano dal pannello: in dashboard,
 quando esiste una versione più recente, compare il pulsante **Aggiorna**, che guida l'operazione (scarica e verifica il pacchetto, fa una
 copia di sicurezza del database, sostituisce il codice, aggiorna le tabelle ed esegue i seeder di aggiornamento). Quel pulsante è attivo
-solo su quelle installazioni; sulle altre si usa la procedura di questa pagina.
+solo su quelle installazioni (vedi [Installazione su un hosting condiviso](05-installazione-su-hosting-condiviso.md)); sulle altre si usa la
+procedura di questa pagina.
 
 **Verifica:** lo script termina con «Deploy completato.»; aprendo il sito e la dashboard del pannello, la **versione corrente** è quella
 nuova.
