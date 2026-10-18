@@ -665,7 +665,7 @@ function nilesUpdateMain(string $dir): never
         exit;
     }
 
-    $js = '(async()=>{const T='.json_encode($token).';occupato("Aggiornamento in corso: non chiudere né ricaricare la pagina…");let d;'
+    $js = 'addEventListener("DOMContentLoaded",async()=>{const T='.json_encode($token).';occupato("Aggiornamento in corso: non chiudere né ricaricare la pagina…");let d;'
         .'try{const r=await fetch(location.pathname,{method:"POST",headers:{"Content-Type":"application/x-www-form-urlencoded"},body:"azione=aggiorna&t="+encodeURIComponent(T)});d=JSON.parse(await r.text())}'
         .'catch(e){d={ok:false,err:"nessuna risposta dal server (tempo scaduto o connessione interrotta). Controllare il sito: se resta in manutenzione, via FTP cancellare storage/framework/maintenance.php; le cartelle precedenti sono in .update-old/."}}'
         .'document.getElementById("occupato").hidden=true;clearInterval(occTimer);'
@@ -673,7 +673,7 @@ function nilesUpdateMain(string $dir): never
         .'if(d.ok){h=\'<div class="box good"><b>Aggiornamento completato: NILES \'+e(d.versione)+\'.</b></div>\'+(d.avvisi&&d.avvisi.length?\'<div class="box avv">\'+d.avvisi.map(e).join("<br>")+"</div>":"")'
         .'+\'<p><a href="/admin"><b>Torna al pannello</b></a> (tra pochi secondi ci si arriva da soli)</p><details><summary>Dettagli tecnici</summary><pre>\'+e(d.log)+"</pre></details>";setTimeout(()=>location.href="/admin",6000)}'
         .'else{h=\'<div class="box err"><b>Aggiornamento non riuscito.</b><br>\'+e(d.err)+\'</div><p><a href="/admin/aggiornamento">Torna alla pagina di aggiornamento</a></p>\'}'
-        .'document.getElementById("esito").innerHTML=h})()';
+        .'document.getElementById("esito").innerHTML=h})';
 
     nilesPage('', '<div id="esito"><p>Avvio…</p></div><script>'.$js.'</script>', 0, $intestazione, []);
 }

@@ -3,7 +3,7 @@
 Direzione di sviluppo di NILES: cosa è in lavorazione, cosa è in programma e cosa è stato escluso. Non è un calendario: le
 priorità possono cambiare e le voci «da valutare» non sono impegni. Per proporre una funzione vedi [CONTRIBUTING.md](CONTRIBUTING.md).
 
-Versione attuale: vedi le [release](https://github.com/luigidacunto/niles-cms/releases).
+Versione attuale e funzioni già rilasciate: vedi il [changelog](CHANGELOG.md) e le [release](https://github.com/luigidacunto/niles-cms/releases). Una voce completata esce da questa pagina.
 
 ## In lavorazione
 
