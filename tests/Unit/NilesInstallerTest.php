@@ -16,14 +16,13 @@ class NilesInstallerTest extends TestCase
         require_once __DIR__.'/../../scripts/niles-installer.php';
     }
 
-    private function config(?array $smtp = null): array
+    private function config(): array
     {
         return [
             'public_name' => 'Croce Rossa – Comitato "Esempio" #1',
             'url' => 'https://esempio.it',
             'key' => 'base64:abc=',
             'db' => ['host' => 'localhost', 'port' => '3306', 'name' => 'db', 'user' => 'u', 'pass' => 'p@ss"w$ord #1\\x y'],
-            'smtp' => $smtp,
         ];
     }
 
@@ -36,20 +35,14 @@ class NilesInstallerTest extends TestCase
         $this->assertSame('base64:abc=', $env['APP_KEY']);
         $this->assertSame('production', $env['APP_ENV']);
         $this->assertSame('sync', $env['QUEUE_CONNECTION']);
-        $this->assertSame('log', $env['MAIL_MAILER']);
     }
 
-    public function test_env_con_smtp(): void
+    public function test_env_senza_righe_mail(): void
     {
-        $smtp = ['host' => 'smtps.example.it', 'port' => '465', 'enc' => 'ssl', 'user' => 'a@esempio.it', 'pass' => 'x y$', 'from' => 'a@esempio.it', 'from_name' => 'Comitato'];
-        $env = Dotenv::parse(nilesBuildEnv($this->config($smtp)));
+        // La posta sta nel database: una sola riga MAIL_* nel .env avrebbe la precedenza sul pannello.
+        $env = Dotenv::parse(nilesBuildEnv($this->config()));
 
-        $this->assertSame('smtp', $env['MAIL_MAILER']);
-        $this->assertSame('smtps', $env['MAIL_SCHEME']);
-        $this->assertSame('x y$', $env['MAIL_PASSWORD']);
-
-        $env = Dotenv::parse(nilesBuildEnv($this->config(['enc' => 'tls'] + $smtp)));
-        $this->assertArrayNotHasKey('MAIL_SCHEME', $env);
+        $this->assertSame([], array_values(array_filter(array_keys($env), fn ($k) => str_starts_with($k, 'MAIL_'))));
     }
 
     public function test_voci_dello_zip_non_ammesse(): void

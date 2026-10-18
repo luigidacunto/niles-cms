@@ -1,6 +1,19 @@
 <?php
 
+use Illuminate\Support\Env;
+
 return [
+
+    /*
+    | Variabili MAIL_* presenti nel .env (anche vuote): se ce n'è almeno una, la posta si legge solo da qui e le
+    | impostazioni salvate dal pannello sono ignorate (App\Support\PostaInUscita). Calcolato in questo file perché
+    | con `config:cache` env() fuori dai file di configurazione non funziona.
+    */
+    'env_presenti' => array_values(array_filter(
+        ['MAIL_MAILER', 'MAIL_SCHEME', 'MAIL_URL', 'MAIL_HOST', 'MAIL_PORT', 'MAIL_USERNAME', 'MAIL_PASSWORD', 'MAIL_FROM_ADDRESS', 'MAIL_FROM_NAME'],
+        fn ($k) => Env::getRepository()->has($k)
+    )),
+
 
     /*
     |--------------------------------------------------------------------------

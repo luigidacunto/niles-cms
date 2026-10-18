@@ -57,6 +57,7 @@ Un documento per ogni voce del menu laterale del pannello, nello stesso ordine e
 - [Sicurezza moduli](03-pannello/04-amministrazione/04-sicurezza-moduli.md): Limiti di invio e protezione anti-bot (CAPTCHA) dei moduli pubblici.
 - [Informative privacy](03-pannello/04-amministrazione/05-informative-privacy.md): Le informative per i soci e per i corsi e come personalizzarle.
 - [Template email](03-pannello/04-amministrazione/06-template-email.md): I testi delle email di sistema e come ripristinarli.
+- [Posta in uscita](03-pannello/04-amministrazione/07-posta-in-uscita.md): Server di invio delle email, email di prova e precedenza del file .env.
 
 ## Organizzazione della cartella
 

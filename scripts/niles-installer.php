@@ -47,7 +47,7 @@ function nilesEnvValue(string $v): string
     return '"'.str_replace(['\\', '"', '$'], ['\\\\', '\\"', '\\$'], $v).'"';
 }
 
-/** Contenuto di `.env`. `$c`: public_name, url, key, db[host,port,name,user,pass], smtp[host,port,enc,user,pass,from,from_name]|null. */
+/** Contenuto di `.env`. `$c`: public_name, url, key, db[host,port,name,user,pass]. */
 function nilesBuildEnv(array $c): string
 {
     $l = [
@@ -75,22 +75,8 @@ function nilesBuildEnv(array $c): string
         // Installazione fatta dall'installer, quindi senza riga di comando: abilita l'aggiornamento dal pannello.
         'NILES_WEB_UPDATE' => 'true',
     ];
-    if (! empty($c['smtp'])) {
-        $s = $c['smtp'];
-        $l['MAIL_MAILER'] = 'smtp';
-        $l['MAIL_HOST'] = $s['host'];
-        $l['MAIL_PORT'] = $s['port'];
-        if ($s['enc'] === 'ssl') {
-            // TLS implicito (porta 465): schema smtps. Con STARTTLS o senza cifratura resta lo schema predefinito.
-            $l['MAIL_SCHEME'] = 'smtps';
-        }
-        $l['MAIL_USERNAME'] = $s['user'];
-        $l['MAIL_PASSWORD'] = $s['pass'];
-        $l['MAIL_FROM_ADDRESS'] = $s['from'];
-        $l['MAIL_FROM_NAME'] = $s['from_name'];
-    } else {
-        $l['MAIL_MAILER'] = 'log';
-    }
+    // ⚠️ Nessuna riga MAIL_*: la posta si salva nel database (nilesSalvaPosta) e si modifica dal pannello;
+    // una sola riga MAIL_* nel .env avrebbe la precedenza e la renderebbe inutile.
     $out = '';
     foreach ($l as $k => $v) {
         $out .= $k.'='.nilesEnvValue((string) $v)."\n";
@@ -506,18 +492,32 @@ function nilesRunArtisan(string $dir, array $comandi): array
         }
     }
 
-    return [$log, $avvisi, (string) $app->make('config')->get('app.version')];
+    return [$log, $avvisi, (string) $app->make('config')->get('app.version'), $app];
 }
 
-/** Prima installazione: migrazioni, seeder e collegamento di storage. Ritorna [log, versione]. */
-function nilesRunLaravel(string $dir, string $adminEmail, string $adminPassword): array
+/** Salva la posta scelta nell'installer nel database (come dal pannello; password cifrata dal modello). */
+function nilesSalvaPosta(array $s): void
+{
+    App\Models\CommitteeInfo::current()->update([
+        'mail_mailer' => 'smtp', 'mail_host' => $s['host'], 'mail_port' => (int) $s['port'], 'mail_encryption' => $s['enc'],
+        'mail_username' => $s['user'], 'mail_password' => $s['pass'], 'mail_from_address' => $s['from'],
+        'mail_from_name' => $s['from_name'], 'mail_modificata_da' => 'Installazione', 'mail_modificata_at' => now(),
+    ]);
+}
+
+/** Prima installazione: migrazioni, seeder, posta e collegamento di storage. Ritorna [log, versione]. */
+function nilesRunLaravel(string $dir, string $adminEmail, string $adminPassword, ?array $smtp = null): array
 {
     // Variabili d'ambiente di processo: Dotenv non le sovrascrive e la password non finisce in `.env`.
     foreach (['INITIAL_ADMIN_EMAIL' => $adminEmail, 'INITIAL_ADMIN_PASSWORD' => $adminPassword] as $k => $v) {
         putenv("$k=$v");
         $_ENV[$k] = $_SERVER[$k] = $v;
     }
-    [$log, , $versione] = nilesRunArtisan($dir, [['migrate', ['--force' => true], true], ['db:seed', ['--force' => true], true], ['storage:link', [], false]]);
+    [$log, , $versione, $app] = nilesRunArtisan($dir, [['migrate', ['--force' => true], true], ['db:seed', ['--force' => true], true], ['storage:link', [], false]]);
+    if ($smtp) {
+        nilesSalvaPosta($smtp);
+        $log .= "> posta salvata nel database\n";
+    }
 
     return [$log, $versione];
 }
@@ -627,7 +627,7 @@ function nilesScreenDone(string $url, string $email, string $log, bool $installe
 {
     $c = nilesBox('good', '<b>NILES è installato.</b>').'<p>Accedi al pannello con l\'email <b>'.h($email).'</b> e la password scelta:</p>'
         .'<p><a href="'.h(rtrim($url, '/')).'/admin/login/password"><b>'.h(rtrim($url, '/')).'/admin/login/password</b></a></p>'
-        .'<p>Il codice di accesso via email funzionerà dopo aver configurato la posta in uscita; finché non è configurata, usa l\'accesso con password.</p>'
+        .'<p>Il codice di accesso via email funzionerà dopo aver configurato la posta in uscita (menu Amministrazione → Posta in uscita); finché non è configurata, usa l\'accesso con password.</p>'
         .($installerCancellato ? '' : nilesBox('err', '<b>Cancella a mano il file <code>niles-installer.php</code> dalla radice del sito</b> (non è stato possibile farlo in automatico).'))
         .'<details><summary>Dettagli tecnici</summary><pre>'.h($log).'</pre></details>';
     nilesPage('Fatto', $c, 3);
@@ -749,12 +749,12 @@ function nilesMain(): void
 
     try {
         @set_time_limit(0);
-        $env = nilesBuildEnv(['public_name' => $v['public_name'], 'url' => rtrim($v['app_url'], '/'), 'key' => nilesAppKey(), 'db' => $db, 'smtp' => $smtp]);
+        $env = nilesBuildEnv(['public_name' => $v['public_name'], 'url' => rtrim($v['app_url'], '/'), 'key' => nilesAppKey(), 'db' => $db]);
         if (file_put_contents($dir.'/.env', $env) === false) {
             throw new RuntimeException('Impossibile scrivere il file .env nella radice del sito.');
         }
         @chmod($dir.'/.env', 0640);
-        [$log, $versione] = nilesRunLaravel($dir, $v['admin_email'], $apass);
+        [$log, $versione] = nilesRunLaravel($dir, $v['admin_email'], $apass, $smtp);
         file_put_contents($dir.'/storage/installed', json_encode(['versione' => $versione, 'data' => date('c')]));
     } catch (Throwable $e) {
         $form('Installazione interrotta: '.$e->getMessage().' — correggi e riprova (il database viene ripreso da dove si era fermato).');

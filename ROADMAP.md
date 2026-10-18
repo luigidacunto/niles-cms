@@ -7,10 +7,6 @@ Versione attuale: vedi le [release](https://github.com/luigidacunto/niles-cms/re
 
 ## In lavorazione
 
-- **Posta in uscita configurabile dal pannello.** Server SMTP, credenziali (password cifrata) e mittente impostati da una pagina
-  del pannello, con invio di un'email di prova. L'installer su hosting condiviso salverà qui la posta, invece che nel file `.env`.
-  Le variabili `MAIL_*` del `.env`, se presenti, restano prioritarie: servono come scorciatoia in caso di problemi (per esempio
-  `MAIL_MAILER=log` per leggere i codici di accesso dal file di log quando la posta non funziona).
 - **Installazione e aggiornamento su hosting condiviso: verifica sul campo.** L'installer a file singolo e l'aggiornamento dal
   pannello esistono già (vedi [Installazione su hosting condiviso](docs/01-installazione/05-installazione-su-hosting-condiviso.md)).
   Restano le prove su hosting reali: scaricamento diretto dell'installer dalle release, invio di posta dal wizard, primo
@@ -31,7 +27,6 @@ Versione attuale: vedi le [release](https://github.com/luigidacunto/niles-cms/re
 ### Documentazione
 Completamento della [guida](docs/README.md), un argomento per volta. Parti ancora mancanti:
 - area soci: documenti riservati, categorie riservate, registro dei download e uso dell'area dal lato del socio;
-- posta in uscita dal pannello, quando sarà disponibile;
 - installazione di un server di sviluppo, con le differenze rispetto alla produzione;
 - migrazione da un CMS esistente, insieme allo strumento di migrazione.
 

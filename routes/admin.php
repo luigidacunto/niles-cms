@@ -22,6 +22,7 @@ use App\Http\Controllers\Admin\PostController;
 use App\Http\Controllers\Admin\EmailTemplateController;
 use App\Http\Controllers\Admin\PersonaController;
 use App\Http\Controllers\Admin\PrivacyPolicyController;
+use App\Http\Controllers\Admin\PostaInUscitaController;
 use App\Http\Controllers\Admin\SicurezzaFormController;
 use App\Http\Controllers\Admin\StrutturaOrganizzativaController;
 use App\Http\Controllers\Admin\TipologiaCorsoController;
@@ -141,6 +142,13 @@ Route::prefix('admin')->name('admin.')->group(function () {
         Route::middleware('admin.role')->prefix('comitato')->name('comitato.')->group(function () {
             Route::get('/', [CommitteeInfoController::class, 'edit'])->name('edit');
             Route::put('/', [CommitteeInfoController::class, 'update'])->name('update');
+        });
+
+        // Posta in uscita (SMTP/log) e prova di invio. Solo admin. La prova è PUT perché parte dallo stesso modulo del salvataggio.
+        Route::middleware('admin.role')->prefix('posta')->name('posta.')->group(function () {
+            Route::get('/', [PostaInUscitaController::class, 'edit'])->name('edit');
+            Route::put('/', [PostaInUscitaController::class, 'update'])->name('update');
+            Route::put('prova', [PostaInUscitaController::class, 'prova'])->middleware('throttle:5,1')->name('prova');
         });
 
         // Interruttori anti-bot dei moduli pubblici (rate limiting/captcha). Solo admin.

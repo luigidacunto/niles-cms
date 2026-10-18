@@ -6,6 +6,7 @@ use App\Models\Admin;
 use App\Models\Corso;
 use App\Models\SicurezzaForm;
 use App\Support\AreaSoci;
+use App\Support\PostaInUscita;
 use Illuminate\Cache\RateLimiting\Limit;
 use Illuminate\Support\Facades\Event;
 use JeroenNoten\LaravelAdminLte\Events\BuildingMenu;
@@ -18,7 +19,8 @@ class AppServiceProvider extends ServiceProvider
 {
     public function register(): void
     {
-        //
+        // Posta configurata dal pannello: applicata solo quando la posta serve davvero (nessuna query negli altri casi).
+        $this->app->resolving('mail.manager', fn () => PostaInUscita::applica());
     }
 
     public function boot(): void
@@ -44,6 +46,8 @@ class AppServiceProvider extends ServiceProvider
         // (tipologie/sedi) è struttura, solo admin.
         Gate::define('manage-corsi', fn (Admin $admin) => $admin->hasPermission('corsi', 'read') || $admin->hasPermission('corsi', 'write'));
         Gate::define('manage-corsi-catalogo', fn (Admin $admin) => $admin->role === 'admin');
+        // Posta in uscita (SMTP): contiene credenziali, solo admin.
+        Gate::define('manage-posta', fn (Admin $admin) => $admin->role === 'admin');
         // Impostazioni di sicurezza dei moduli pubblici (rate limiting/captcha): sezione strutturale, solo admin.
         // Voci dell'area soci: nascoste (e rotte 404 via middleware area.soci) se l'interruttore in Dati comitato è spento.
         Gate::define('manage-membri', fn (Admin $admin) => AreaSoci::attiva() && $admin->hasPermission('membri'));

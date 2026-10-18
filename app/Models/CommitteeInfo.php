@@ -25,12 +25,22 @@ class CommitteeInfo extends Model
         'logo_ifrc', 'logo_un_italia', 'favicon', 'goatcounter_enabled', 'ga_enabled', 'area_soci_attiva',
         'facebook_url', 'instagram_url', 'youtube_url', 'x_url', 'metodi_pagamento',
         'iban', 'intestatario_conto', 'banca',
+        'mail_mailer', 'mail_host', 'mail_port', 'mail_encryption', 'mail_username', 'mail_password',
+        'mail_from_address', 'mail_from_name', 'mail_prova_at', 'mail_prova_esito', 'mail_prova_parametri',
+        'mail_modificata_da', 'mail_modificata_at',
     ];
+
+    protected $hidden = ['mail_password'];
 
     protected $casts = [
         'goatcounter_enabled' => 'boolean',
         'ga_enabled' => 'boolean',
         'area_soci_attiva' => 'boolean',
+        // ⚠️ Cifrata con APP_KEY (come la secret Turnstile): se la chiave cambia non è più leggibile, vedi PostaInUscita.
+        'mail_password' => 'encrypted',
+        'mail_prova_at' => 'datetime',
+        'mail_prova_parametri' => 'array',
+        'mail_modificata_at' => 'datetime',
     ];
 
     public static function current(): self

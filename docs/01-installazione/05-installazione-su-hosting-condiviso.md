@@ -94,8 +94,8 @@ password**, sempre disponibile per il primo amministratore. Il resto della confi
 - il sito pubblico si apre all'indirizzo del dominio;
 - nella radice del sito via FTP **non c'è più** `niles-installer.php`. Se per qualche motivo è ancora lì, va cancellato a mano.
 
-Per configurare la posta in un secondo momento si modificano le variabili `MAIL_*` del file `.env`, come descritto in
-[Configurazione del file .env](03-configurazione-env.md).
+Per configurare la posta in un secondo momento si usa la pagina [Posta in uscita](../03-pannello/04-amministrazione/07-posta-in-uscita.md)
+del pannello: non serve modificare il file `.env`. La posta indicata durante l'installazione viene salvata nel database e si può cambiare dalla stessa pagina.
 
 ## Aggiornare
 

@@ -433,6 +433,12 @@ return [
             'can' => 'manage-users',
         ],
         [
+            'text' => 'Posta in uscita',
+            'route' => 'admin.posta.edit',
+            'icon' => 'fas fa-fw fa-envelope',
+            'can' => 'manage-posta',
+        ],
+        [
             'text' => 'Sicurezza moduli',
             'route' => 'admin.sicurezza-form.edit',
             'icon' => 'fas fa-fw fa-shield-alt',

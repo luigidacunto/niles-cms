@@ -31,7 +31,7 @@ mostrata una sola volta al termine di `db:seed`. Le altre voci del database (`DB
 NILES invia email per il codice di accesso al pannello e all'area soci e per le conferme di iscrizione ai corsi (con il
 promemoria per il calendario). Con `MAIL_MAILER=log` le email **non vengono spedite**: finiscono in `storage/logs/laravel.log`, e solo se
 `LOG_LEVEL=debug`. Va bene per provare, non per un sito in uso. Per spedirle davvero serve un server SMTP (quello del
-provider del dominio o un servizio di invio):
+provider del dominio o un servizio di invio). **Di norma si configura dal pannello**, in [Posta in uscita](../03-pannello/04-amministrazione/07-posta-in-uscita.md), senza toccare il `.env`. Le variabili qui sotto sono la strada alternativa, con la **precedenza**: se il `.env` contiene anche una sola variabile `MAIL_*`, le impostazioni del pannello vengono ignorate.
 
 ```ini
 MAIL_MAILER=smtp
