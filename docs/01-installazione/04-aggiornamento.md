@@ -82,7 +82,8 @@ Le installazioni fatte con l'installer per hosting condiviso (senza accesso da r
 quando esiste una versione più recente, compare il pulsante **Aggiorna**, che guida l'operazione (scarica e verifica il pacchetto, fa una
 copia di sicurezza del database, sostituisce il codice, aggiorna le tabelle ed esegue i seeder di aggiornamento). Quel pulsante è attivo
 solo su quelle installazioni (vedi [Installazione su un hosting condiviso](05-installazione-su-hosting-condiviso.md)); sulle altre si usa la
-procedura di questa pagina.
+procedura di questa pagina. La disponibilità di una versione nuova viene verificata una volta al giorno: se una release è appena uscita e il
+pulsante non compare, nella pagina **Aggiornamento** il pulsante **Controlla ora** ripete subito la verifica.
 
 **Verifica:** lo script termina con «Deploy completato.»; aprendo il sito e la dashboard del pannello, la **versione corrente** è quella
 nuova.

@@ -56,6 +56,8 @@ Route::prefix('admin')->name('admin.')->group(function () {
         // Aggiornamento dal pannello (installazioni senza riga di comando: NILES_WEB_UPDATE=true, 404 altrimenti).
         Route::middleware('admin.role')->prefix('aggiornamento')->name('aggiornamento.')->group(function () {
             Route::get('/', [AggiornamentoController::class, 'index'])->name('index');
+            // Un solo clic svuota la cache del controllo versione; limite orario per restare nei 60 richieste/ora di GitHub.
+            Route::post('controlla', [AggiornamentoController::class, 'controlla'])->middleware('throttle:6,60')->name('controlla');
             Route::post('passo', [AggiornamentoController::class, 'passo'])->name('passo');
             Route::get('copia/{nome}', [AggiornamentoController::class, 'copia'])->name('copia');
         });

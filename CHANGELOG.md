@@ -4,6 +4,10 @@ Elenco delle modifiche di ogni versione, dalla più recente. Le versioni seguono
 incrementano la seconda cifra, le correzioni e i miglioramenti la terza. Le release complete, con i pacchetti scaricabili, sono su
 [GitHub](https://github.com/luigidacunto/niles-cms/releases). Le direzioni future sono nella [roadmap](ROADMAP.md).
 
+## 1.1.6 — 2026-10-19
+- Pagina Aggiornamento: pulsante **Controlla ora**, che ripete subito la verifica della versione disponibile senza aspettare il
+  controllo giornaliero.
+
 ## 1.1.5 — 2026-10-18
 - Correzione dell'aggiornamento dal pannello: la pagina del programma di aggiornamento restava ferma su «Avvio…» senza far partire
   l'operazione.

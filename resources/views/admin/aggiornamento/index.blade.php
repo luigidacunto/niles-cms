@@ -10,8 +10,20 @@
 @section('content')
     @php($tuttoOk = collect($requisiti)->every(fn ($r) => $r[1]))
 
+    @if (session('status'))
+        <div class="alert alert-success">{{ session('status') }}</div>
+    @endif
+
     <div class="card">
-        <div class="card-header"><strong>Versione</strong></div>
+        <div class="card-header d-flex justify-content-between align-items-center">
+            <strong>Versione</strong>
+            <form method="POST" action="{{ route('admin.aggiornamento.controlla') }}" class="m-0">
+                @csrf
+                <button type="submit" class="btn btn-sm btn-outline-secondary" title="Di norma la verifica si ripete una volta al giorno">
+                    <i class="fas fa-redo mr-1"></i> Controlla ora
+                </button>
+            </form>
+        </div>
         <ul class="list-group list-group-flush">
             <li class="list-group-item d-flex justify-content-between"><span>Installata</span><span class="badge badge-primary">{{ $versione }}</span></li>
             <li class="list-group-item d-flex justify-content-between">

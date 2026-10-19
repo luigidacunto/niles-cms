@@ -39,6 +39,15 @@ class AggiornamentoController extends Controller
         ]);
     }
 
+    /** Forza un nuovo controllo della versione disponibile (altrimenti l'esito resta in cache 24 ore). */
+    public function controlla(): \Illuminate\Http\RedirectResponse
+    {
+        $this->attivo();
+        UpdateCheck::dimentica();
+
+        return redirect()->route('admin.aggiornamento.index')->with('status', 'Controllo eseguito.');
+    }
+
     /** Un passo della preparazione: scarica | estrai | dump-inizia | dump | applica. Risponde sempre in JSON. */
     public function passo(Request $request): JsonResponse
     {

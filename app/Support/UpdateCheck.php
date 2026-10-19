@@ -41,6 +41,12 @@ class UpdateCheck
         return ['stato' => 'disponibile', 'livello' => self::livello($installata, $latest['versione'])] + $latest;
     }
 
+    /** Dimentica l'esito in cache: la prossima `status()` interroga di nuovo GitHub. */
+    public static function dimentica(): void
+    {
+        Cache::forget(self::CACHE_KEY);
+    }
+
     /** Quanto è distante la versione disponibile: `major`, `minor` o `patch` (in base alla prima parte che cambia). */
     private static function livello(string $installata, string $disponibile): string
     {

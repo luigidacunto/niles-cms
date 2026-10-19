@@ -40,6 +40,26 @@ class AggiornamentoTest extends TestCase
             ->assertOk()->assertSee('Aggiornamento di NILES')->assertSee('Copie del database');
     }
 
+    public function test_controlla_ora_svuota_la_cache_del_controllo_versione(): void
+    {
+        $this->attiva();
+        \Illuminate\Support\Facades\Cache::put('niles.update_check.latest', false, 3600);
+
+        $this->actingAs($this->admin(), 'admin')->post('/admin/aggiornamento/controlla')
+            ->assertRedirect('/admin/aggiornamento')->assertSessionHas('status');
+
+        $this->assertFalse(\Illuminate\Support\Facades\Cache::has('niles.update_check.latest'));
+    }
+
+    public function test_controlla_ora_non_esiste_senza_flag_ne_per_gli_editor(): void
+    {
+        config(['app.web_update' => false]);
+        $this->actingAs($this->admin(), 'admin')->post('/admin/aggiornamento/controlla')->assertNotFound();
+
+        $this->attiva();
+        $this->actingAs($this->admin('editor'), 'admin')->post('/admin/aggiornamento/controlla')->assertForbidden();
+    }
+
     public function test_un_editor_non_accede(): void
     {
         $this->attiva();
