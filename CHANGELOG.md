@@ -4,6 +4,13 @@ Elenco delle modifiche di ogni versione, dalla più recente. Le versioni seguono
 incrementano la seconda cifra, le correzioni e i miglioramenti la terza. Le release complete, con i pacchetti scaricabili, sono su
 [GitHub](https://github.com/luigidacunto/niles-cms/releases). Le direzioni future sono nella [roadmap](ROADMAP.md).
 
+## 1.1.8 — 2026-10-21
+- **Footer riordinato**: le tre colonne hanno tutte un titolo («Contatti», «Informazioni», «Link utili») e i link sono in carattere normale, senza
+  maiuscolo e grassetto.
+- **Link del footer: aggiunta dinamica.** Nella pagina Amministrazione → Link del footer il pulsante «Aggiungi link» inserisce una riga con
+  ordine, testo e indirizzo, tutte quelle che servono; la X toglie una riga. Le modifiche, le righe nuove e quelle rimosse si applicano
+  al salvataggio.
+
 ## 1.1.7 — 2026-10-21
 - **Link del footer personalizzabili** (Amministrazione → Link del footer): la terza colonna del footer, «Link utili», si compone da pannello
   con testo, indirizzo e ordine di ciascun link (siti esterni con `https://…` oppure pagine del sito con `/…`). Senza link la colonna non

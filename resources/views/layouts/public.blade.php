@@ -285,37 +285,44 @@
             {{-- Ordine nel markup = ordine di impilamento su mobile: Contatti prima (l'informazione più
                  cercata), poi i link interni del comitato, poi quelli personalizzati (siti esterni) in fondo. --}}
             <div class="grid grid-cols-1 sm:grid-cols-3 gap-x-12 gap-y-8">
-                <div class="space-y-3 text-sm">
-                    <p class="font-semibold uppercase tracking-wide mb-1">Contatti</p>
-                    @if ($committeeInfo->indirizzo)
-                        <p class="text-white/90">{{ $committeeInfo->indirizzo }}</p>
-                    @endif
-                    @if ($committeeInfo->telefono)
-                        <a href="tel:{{ $committeeInfo->telefono }}" class="block text-white/90 hover:text-white">{{ $committeeInfo->telefono }}</a>
-                    @endif
-                    @if ($committeeInfo->email)
-                        @php($obfuscatedEmail = \App\Support\EmailObfuscator::protect(e($committeeInfo->email)))
-                        <a href="mailto:{!! $obfuscatedEmail !!}" class="block text-white/90 hover:text-white">{!! $obfuscatedEmail !!}</a>
-                    @endif
-                    <a href="{{ route('pages.show', 'dove-trovarci') }}" class="block text-white/90 hover:text-white font-semibold uppercase tracking-wide text-xs mt-2">Dove trovarci</a>
+                <div>
+                    <h2 class="text-xs font-semibold uppercase tracking-wider text-white border-b border-white/25 pb-2 mb-4">Contatti</h2>
+                    <div class="space-y-2 text-sm text-white/90">
+                        @if ($committeeInfo->indirizzo)
+                            <p>{{ $committeeInfo->indirizzo }}</p>
+                        @endif
+                        @if ($committeeInfo->telefono)
+                            <a href="tel:{{ $committeeInfo->telefono }}" class="block hover:text-white hover:underline underline-offset-2">{{ $committeeInfo->telefono }}</a>
+                        @endif
+                        @if ($committeeInfo->email)
+                            @php($obfuscatedEmail = \App\Support\EmailObfuscator::protect(e($committeeInfo->email)))
+                            <a href="mailto:{!! $obfuscatedEmail !!}" class="block hover:text-white hover:underline underline-offset-2">{!! $obfuscatedEmail !!}</a>
+                        @endif
+                        <a href="{{ route('pages.show', 'dove-trovarci') }}" class="block hover:text-white hover:underline underline-offset-2">Dove trovarci</a>
+                    </div>
                 </div>
-                <div class="space-y-3 text-sm font-semibold uppercase tracking-wide">
-                    <a href="{{ route('posts.archive') }}" class="block text-white/90 hover:text-white">Archivio Notizie</a>
-                    <a href="{{ route('posts.archive.comunicati') }}" class="block text-white/90 hover:text-white">Archivio Comunicati Stampa</a>
-                    <a href="{{ route('trasparenza') }}" class="block text-white/90 hover:text-white">Trasparenza</a>
-                    <a href="{{ route('pages.show', 'struttura-organizzativa') }}" class="block text-white/90 hover:text-white">Struttura Organizzativa</a>
-                    <a href="{{ $privacyPage ? route('pages.show', $privacyPage) : '#' }}" class="block text-white/90 hover:text-white">Privacy Policy</a>
-                    <a href="{{ $cookiePage ? route('pages.show', $cookiePage) : '#' }}" class="block text-white/90 hover:text-white">Cookie Policy</a>
-                    @if (config('tracking.ga.id') || ! app()->isProduction())
-                        <a href="#cookie-preferences" class="block text-white/90 hover:text-white">Gestisci cookie</a>
-                    @endif
+                <div>
+                    <h2 class="text-xs font-semibold uppercase tracking-wider text-white border-b border-white/25 pb-2 mb-4">Informazioni</h2>
+                    <div class="space-y-2 text-sm text-white/90">
+                        <a href="{{ route('posts.archive') }}" class="block hover:text-white hover:underline underline-offset-2">Archivio notizie</a>
+                        <a href="{{ route('posts.archive.comunicati') }}" class="block hover:text-white hover:underline underline-offset-2">Archivio comunicati stampa</a>
+                        <a href="{{ route('trasparenza') }}" class="block hover:text-white hover:underline underline-offset-2">Trasparenza</a>
+                        <a href="{{ route('pages.show', 'struttura-organizzativa') }}" class="block hover:text-white hover:underline underline-offset-2">Struttura organizzativa</a>
+                        <a href="{{ $privacyPage ? route('pages.show', $privacyPage) : '#' }}" class="block hover:text-white hover:underline underline-offset-2">Privacy policy</a>
+                        <a href="{{ $cookiePage ? route('pages.show', $cookiePage) : '#' }}" class="block hover:text-white hover:underline underline-offset-2">Cookie policy</a>
+                        @if (config('tracking.ga.id') || ! app()->isProduction())
+                            <a href="#cookie-preferences" class="block hover:text-white hover:underline underline-offset-2">Gestisci cookie</a>
+                        @endif
+                    </div>
                 </div>
                 @if ($footerLinks->isNotEmpty())
-                    <div class="space-y-3 text-sm font-semibold uppercase tracking-wide">
-                        <p class="mb-1">Link utili</p>
-                        @foreach ($footerLinks as $link)
-                            <a href="{{ $link->url }}" @if ($link->isEsterno()) target="_blank" rel="noopener" @endif class="block text-white/90 hover:text-white">{{ $link->label }}</a>
-                        @endforeach
+                    <div>
+                        <h2 class="text-xs font-semibold uppercase tracking-wider text-white border-b border-white/25 pb-2 mb-4">Link utili</h2>
+                        <div class="space-y-2 text-sm text-white/90">
+                            @foreach ($footerLinks as $link)
+                                <a href="{{ $link->url }}" @if ($link->isEsterno()) target="_blank" rel="noopener" @endif class="block hover:text-white hover:underline underline-offset-2">{{ $link->label }}</a>
+                            @endforeach
+                        </div>
                     </div>
                 @endif
             </div>

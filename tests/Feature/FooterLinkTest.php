@@ -38,7 +38,7 @@ class FooterLinkTest extends TestCase
 
     public function test_struttura_organizzativa_resta_nella_seconda_colonna_fissa(): void
     {
-        $this->get('/')->assertOk()->assertSee('Struttura Organizzativa');
+        $this->get('/')->assertOk()->assertSee('Struttura organizzativa');
     }
 
     public function test_l_admin_aggiunge_modifica_ed_elimina_i_link(): void
@@ -54,14 +54,27 @@ class FooterLinkTest extends TestCase
         $this->assertSame(2, FooterLink::count());
         $bandi = FooterLink::where('label', 'Bandi')->first();
 
-        $this->put(route('admin.footer.update'), ['links' => [
+        // Il modulo non reinvia le righe rimosse: Trasparenza non arriva più → si elimina.
+        $this->put(route('admin.footer.update'), ['links_inviati' => 1, 'links' => [
             ['id' => $bandi->id, 'label' => 'Bandi di gara', 'url' => 'https://www.cri.it/gare', 'order' => 5],
-            ['id' => FooterLink::where('label', 'Trasparenza')->value('id'), 'label' => 'Trasparenza', 'url' => '/trasparenza', 'order' => 3, 'delete' => 1],
         ]]);
 
         $this->assertSame(1, FooterLink::count());
         $this->assertSame('Bandi di gara', $bandi->fresh()->label);
         $this->assertSame(5, $bandi->fresh()->order);
+    }
+
+    public function test_senza_il_marcatore_una_richiesta_parziale_non_cancella_nulla(): void
+    {
+        $this->actingAs($this->admin(), 'admin');
+        FooterLink::create(['label' => 'Resta', 'url' => '/x', 'order' => 1]);
+
+        $this->put(route('admin.footer.update'), ['links' => []])->assertRedirect();
+        $this->assertSame(1, FooterLink::count());
+
+        // Con il marcatore e nessuna riga: l'utente le ha tolte tutte.
+        $this->put(route('admin.footer.update'), ['links_inviati' => 1])->assertRedirect();
+        $this->assertSame(0, FooterLink::count());
     }
 
     public function test_indirizzi_non_validi_sono_rifiutati(): void
@@ -85,6 +98,17 @@ class FooterLinkTest extends TestCase
         $this->get(route('admin.footer.edit'))->assertForbidden();
         $this->put(route('admin.footer.update'), ['links' => [['id' => '', 'label' => 'X', 'url' => '/x', 'order' => 1]]])->assertForbidden();
         $this->assertSame(0, FooterLink::count());
+    }
+
+    public function test_la_pagina_ha_il_pulsante_per_aggiungere_link_e_il_modello_della_riga(): void
+    {
+        $html = $this->actingAs($this->admin(), 'admin')->get(route('admin.footer.edit'))->assertOk()->getContent();
+
+        $this->assertStringContainsString('id="aggiungi-link"', $html);
+        $this->assertStringContainsString('<template id="modello-riga">', $html);
+        $this->assertStringContainsString('name="links[__I__][label]"', $html);
+        $this->assertStringContainsString('Nessun link nel footer', $html);
+        $this->assertStringContainsString('name="links_inviati"', $html);
     }
 
     public function test_la_pagina_di_modifica_si_apre(): void

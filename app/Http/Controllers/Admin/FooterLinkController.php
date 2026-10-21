@@ -9,7 +9,7 @@ use Illuminate\Support\Facades\Validator;
 
 /**
  * Link della terza colonna del footer pubblico. Solo admin (middleware `admin.role` sulla rotta).
- * Un solo modulo: righe esistenti (modifica / «elimina») + righe vuote per aggiungerne di nuove.
+ * Un solo modulo: righe esistenti (modificabili) e righe nuove aggiunte dal pulsante «Aggiungi link»; una riga si toglie dalla pagina con la X e la cancellazione avviene al salvataggio.
  */
 class FooterLinkController extends Controller
 {
@@ -26,10 +26,9 @@ class FooterLinkController extends Controller
             'links.*.label' => ['nullable', 'string', 'max:100'],
             'links.*.url' => ['nullable', 'string', 'max:2000'],
             'links.*.order' => ['nullable', 'integer', 'min:0', 'max:9999'],
-            'links.*.delete' => ['nullable', 'boolean'],
         ], [], ['links.*.label' => 'testo', 'links.*.url' => 'link'])
             ->after(function ($validator) use ($request) {
-                foreach ((array) $request->input('links') as $i => $riga) {
+                foreach (array_values((array) $request->input('links')) as $i => $riga) {
                     $label = trim((string) ($riga['label'] ?? ''));
                     $url = trim((string) ($riga['url'] ?? ''));
                     if ($label === '' && $url === '') {
@@ -43,16 +42,22 @@ class FooterLinkController extends Controller
                 }
             })->validate();
 
+        // Il modulo toglie dalla pagina le righe rimosse: quelle che non arrivano più (o arrivano senza testo e link) si eliminano.
+        // Senza il marcatore `links_inviati` (richiesta parziale) non si cancella nulla.
+        $mantenuti = [];
         foreach ((array) $request->input('links') as $riga) {
             $label = trim((string) ($riga['label'] ?? ''));
             $url = trim((string) ($riga['url'] ?? ''));
-            $link = ! empty($riga['id']) ? FooterLink::find($riga['id']) : null;
-
-            if ($link && ! empty($riga['delete'])) {
-                $link->delete();
-            } elseif ($label !== '' && $url !== '') {
-                ($link ?? new FooterLink)->fill(['label' => $label, 'url' => $url, 'order' => (int) ($riga['order'] ?? 0)])->save();
+            if ($label === '' || $url === '') {
+                continue;
             }
+            $link = ! empty($riga['id']) ? FooterLink::find($riga['id']) : null;
+            $link = ($link ?? new FooterLink);
+            $link->fill(['label' => $label, 'url' => $url, 'order' => (int) ($riga['order'] ?? 0)])->save();
+            $mantenuti[] = $link->id;
+        }
+        if ($request->boolean('links_inviati')) {
+            FooterLink::whereNotIn('id', $mantenuti)->delete();
         }
 
         return redirect()->route('admin.footer.edit')->with('status', 'Link del footer salvati.');
