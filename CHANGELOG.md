@@ -4,6 +4,13 @@ Elenco delle modifiche di ogni versione, dalla più recente. Le versioni seguono
 incrementano la seconda cifra, le correzioni e i miglioramenti la terza. Le release complete, con i pacchetti scaricabili, sono su
 [GitHub](https://github.com/luigidacunto/niles-cms/releases). Le direzioni future sono nella [roadmap](ROADMAP.md).
 
+## 1.1.7 — 2026-10-21
+- **Link del footer personalizzabili** (Amministrazione → Link del footer): la terza colonna del footer, «Link utili», si compone da pannello
+  con testo, indirizzo e ordine di ciascun link (siti esterni con `https://…` oppure pagine del sito con `/…`). Senza link la colonna non
+  compare. I tre link a cri.it scritti nel codice sono stati rimossi: chi li usava li reinserisce dal pannello dopo l'aggiornamento.
+- «Struttura Organizzativa» passa nella seconda colonna del footer, con gli altri link interni.
+- Nuova voce **Aggiornamento** nel menu Amministrazione, sulle installazioni con aggiornamento dal pannello.
+
 ## 1.1.6 — 2026-10-19
 - Pagina Aggiornamento: pulsante **Controlla ora**, che ripete subito la verifica della versione disponibile senza aspettare il
   controllo giornaliero.

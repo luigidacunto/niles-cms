@@ -60,6 +60,25 @@ class AggiornamentoTest extends TestCase
         $this->actingAs($this->admin('editor'), 'admin')->post('/admin/aggiornamento/controlla')->assertForbidden();
     }
 
+    // ⚠️ Un caso per test: il menu di AdminLTE è costruito una volta per applicazione, richieste ripetute nello stesso test lo riusano.
+    public function test_voce_di_menu_per_l_admin_con_il_flag(): void
+    {
+        $this->attiva();
+        $this->actingAs($this->admin(), 'admin')->get('/admin')->assertSee('admin/aggiornamento', false);
+    }
+
+    public function test_voce_di_menu_assente_senza_il_flag(): void
+    {
+        config(['app.web_update' => false]);
+        $this->actingAs($this->admin(), 'admin')->get('/admin')->assertOk()->assertDontSee('admin/aggiornamento', false);
+    }
+
+    public function test_voce_di_menu_assente_per_gli_editor(): void
+    {
+        $this->attiva();
+        $this->actingAs($this->admin('editor'), 'admin')->get('/admin')->assertDontSee('admin/aggiornamento', false);
+    }
+
     public function test_un_editor_non_accede(): void
     {
         $this->attiva();

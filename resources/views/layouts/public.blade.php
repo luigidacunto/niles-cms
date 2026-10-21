@@ -11,6 +11,9 @@
     // Dati/loghi del comitato (nav + footer).
     $committeeInfo ??= \App\Models\CommitteeInfo::current();
 
+    // Link personalizzabili della terza colonna del footer (Amministrazione → Link del footer).
+    $footerLinks ??= \App\Models\FooterLink::ordered()->get();
+
     // Area soci: attiva da Dati comitato; il menu "Area Soci" compare solo a un socio loggato. Le pagine future
     // (materiali, ecc.) si aggiungono qui come ['titolo', url].
     $areaSociAttiva = (bool) $committeeInfo->area_soci_attiva;
@@ -280,7 +283,7 @@
     <footer class="bg-[#757575] text-white font-[Roboto,Helvetica,Arial,sans-serif]">
         <div class="max-w-6xl mx-auto px-4 py-10">
             {{-- Ordine nel markup = ordine di impilamento su mobile: Contatti prima (l'informazione più
-                 cercata), poi i link interni del comitato, poi quelli verso cri.it in fondo. --}}
+                 cercata), poi i link interni del comitato, poi quelli personalizzati (siti esterni) in fondo. --}}
             <div class="grid grid-cols-1 sm:grid-cols-3 gap-x-12 gap-y-8">
                 <div class="space-y-3 text-sm">
                     <p class="font-semibold uppercase tracking-wide mb-1">Contatti</p>
@@ -300,18 +303,21 @@
                     <a href="{{ route('posts.archive') }}" class="block text-white/90 hover:text-white">Archivio Notizie</a>
                     <a href="{{ route('posts.archive.comunicati') }}" class="block text-white/90 hover:text-white">Archivio Comunicati Stampa</a>
                     <a href="{{ route('trasparenza') }}" class="block text-white/90 hover:text-white">Trasparenza</a>
+                    <a href="{{ route('pages.show', 'struttura-organizzativa') }}" class="block text-white/90 hover:text-white">Struttura Organizzativa</a>
                     <a href="{{ $privacyPage ? route('pages.show', $privacyPage) : '#' }}" class="block text-white/90 hover:text-white">Privacy Policy</a>
                     <a href="{{ $cookiePage ? route('pages.show', $cookiePage) : '#' }}" class="block text-white/90 hover:text-white">Cookie Policy</a>
                     @if (config('tracking.ga.id') || ! app()->isProduction())
                         <a href="#cookie-preferences" class="block text-white/90 hover:text-white">Gestisci cookie</a>
                     @endif
                 </div>
-                <div class="space-y-3 text-sm font-semibold uppercase tracking-wide">
-                    <a href="https://www.cri.it/trasparenza" target="_blank" rel="noopener" class="block text-white/90 hover:text-white">Amministrazione Trasparente (cri.it)</a>
-                    <a href="https://www.cri.it" target="_blank" rel="noopener" class="block text-white/90 hover:text-white">Bandi di Gara (cri.it)</a>
-                    <a href="https://www.cri.it" target="_blank" rel="noopener" class="block text-white/90 hover:text-white">Servizio Civile (cri.it)</a>
-                    <a href="{{ route('pages.show', 'struttura-organizzativa') }}" class="block text-white/90 hover:text-white">Struttura Organizzativa</a>
-                </div>
+                @if ($footerLinks->isNotEmpty())
+                    <div class="space-y-3 text-sm font-semibold uppercase tracking-wide">
+                        <p class="mb-1">Link utili</p>
+                        @foreach ($footerLinks as $link)
+                            <a href="{{ $link->url }}" @if ($link->isEsterno()) target="_blank" rel="noopener" @endif class="block text-white/90 hover:text-white">{{ $link->label }}</a>
+                        @endforeach
+                    </div>
+                @endif
             </div>
 
             @if ($committeeInfo->denominazione || $committeeInfo->piva || $committeeInfo->codice_fiscale || $committeeInfo->pec || $committeeInfo->codice_fatturazione_elettronica)

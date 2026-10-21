@@ -5,6 +5,7 @@ use App\Http\Controllers\Admin\AggiornamentoController;
 use App\Http\Controllers\Admin\AuthController;
 use App\Http\Controllers\Admin\CategoryController;
 use App\Http\Controllers\Admin\CommitteeInfoController;
+use App\Http\Controllers\Admin\FooterLinkController;
 use App\Http\Controllers\Admin\CorsoController;
 use App\Http\Controllers\Admin\CategoriaRiservataController;
 use App\Http\Controllers\Admin\ComunicazioneSociController;
@@ -144,6 +145,12 @@ Route::prefix('admin')->name('admin.')->group(function () {
         Route::middleware('admin.role')->prefix('comitato')->name('comitato.')->group(function () {
             Route::get('/', [CommitteeInfoController::class, 'edit'])->name('edit');
             Route::put('/', [CommitteeInfoController::class, 'update'])->name('update');
+        });
+
+        // Link personalizzabili del footer pubblico (terza colonna). Solo admin.
+        Route::middleware('admin.role')->prefix('footer')->name('footer.')->group(function () {
+            Route::get('/', [FooterLinkController::class, 'edit'])->name('edit');
+            Route::put('/', [FooterLinkController::class, 'update'])->name('update');
         });
 
         // Posta in uscita (SMTP/log) e prova di invio. Solo admin. La prova è PUT perché parte dallo stesso modulo del salvataggio.

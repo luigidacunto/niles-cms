@@ -14,6 +14,11 @@ Versione attuale e funzioni già rilasciate: vedi il [changelog](CHANGELOG.md) e
 
 ## In programma
 
+### Installazione e aggiornamento
+- **Aggiornamento dal pannello anche per le installazioni da git e Composer.** Oggi il pulsante «Aggiorna» è disponibile solo per le
+  installazioni fatte con l'installer per hosting condiviso, dove il dominio punta alla cartella dell'applicazione. Va adattato ai siti il cui
+  dominio punta a `public/`, mantenendo la procedura da riga di comando (`deploy.sh`) per chi la preferisce.
+
 ### Area soci
 - **App installabile (PWA)** per l'area soci: icona sullo schermo del telefono e apertura a tutto schermo; consultazione solo online,
   senza copia locale dei documenti.

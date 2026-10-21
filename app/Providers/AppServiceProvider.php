@@ -7,6 +7,7 @@ use App\Models\Corso;
 use App\Models\SicurezzaForm;
 use App\Support\AreaSoci;
 use App\Support\PostaInUscita;
+use App\Support\WebUpdate;
 use Illuminate\Cache\RateLimiting\Limit;
 use Illuminate\Support\Facades\Event;
 use JeroenNoten\LaravelAdminLte\Events\BuildingMenu;
@@ -42,12 +43,15 @@ class AppServiceProvider extends ServiceProvider
         Gate::define('manage-struttura-organizzativa', fn (Admin $admin) => $admin->role === 'admin');
         // Dati anagrafici/contatto del comitato (footer pubblico): sezione strutturale, solo admin.
         Gate::define('manage-comitato', fn (Admin $admin) => $admin->role === 'admin');
+        Gate::define('manage-footer', fn (Admin $admin) => $admin->role === 'admin');
         // Corsi di formazione (permesso 'corsi', flat: nessuno scoping per categoria/sede); il catalogo
         // (tipologie/sedi) è struttura, solo admin.
         Gate::define('manage-corsi', fn (Admin $admin) => $admin->hasPermission('corsi', 'read') || $admin->hasPermission('corsi', 'write'));
         Gate::define('manage-corsi-catalogo', fn (Admin $admin) => $admin->role === 'admin');
         // Posta in uscita (SMTP): contiene credenziali, solo admin.
         Gate::define('manage-posta', fn (Admin $admin) => $admin->role === 'admin');
+        // Aggiornamento dal pannello: solo admin e solo sulle installazioni con NILES_WEB_UPDATE=true (altrove la pagina è 404).
+        Gate::define('manage-aggiornamento', fn (Admin $admin) => $admin->role === 'admin' && WebUpdate::attivo());
         // Impostazioni di sicurezza dei moduli pubblici (rate limiting/captcha): sezione strutturale, solo admin.
         // Voci dell'area soci: nascoste (e rotte 404 via middleware area.soci) se l'interruttore in Dati comitato è spento.
         Gate::define('manage-membri', fn (Admin $admin) => AreaSoci::attiva() && $admin->hasPermission('membri'));

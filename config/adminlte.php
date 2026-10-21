@@ -335,6 +335,12 @@ return [
             'can' => 'manage-comitato',
         ],
         [
+            'text' => 'Link del footer',
+            'route' => 'admin.footer.edit',
+            'icon' => 'fas fa-fw fa-link',
+            'can' => 'manage-footer',
+        ],
+        [
             'text' => 'Trasparenza',
             'route' => 'admin.trasparenza-documenti.index',
             'icon' => 'fas fa-fw fa-balance-scale',
@@ -449,6 +455,12 @@ return [
             'route' => 'admin.privacy-policies.index',
             'icon' => 'fas fa-fw fa-file-contract',
             'can' => 'manage-privacy-policies',
+        ],
+        [
+            'text' => 'Aggiornamento',
+            'route' => 'admin.aggiornamento.index',
+            'icon' => 'fas fa-fw fa-sync-alt',
+            'can' => 'manage-aggiornamento',
         ],
         [
             'text' => 'Template email',
