@@ -4,6 +4,10 @@ Elenco delle modifiche di ogni versione, dalla più recente. Le versioni seguono
 incrementano la seconda cifra, le correzioni e i miglioramenti la terza. Le release complete, con i pacchetti scaricabili, sono su
 [GitHub](https://github.com/luigidacunto/niles-cms/releases). Le direzioni future sono nella [roadmap](ROADMAP.md).
 
+## 1.1.9 — 2026-10-22
+- Aggiornamento di sicurezza degli strumenti di build: Vite 8.3.4, che corregge tre vulnerabilità di `launch-editor` presenti nel server di
+  sviluppo (`npm run dev`). Nessun effetto sul sito in produzione.
+
 ## 1.1.8 — 2026-10-21
 - **Footer riordinato**: le tre colonne hanno tutte un titolo («Contatti», «Informazioni», «Link utili») e i link sono in carattere normale, senza
   maiuscolo e grassetto.
