@@ -4,6 +4,12 @@ Elenco delle modifiche di ogni versione, dalla più recente. Le versioni seguono
 incrementano la seconda cifra, le correzioni e i miglioramenti la terza. Le release complete, con i pacchetti scaricabili, sono su
 [GitHub](https://github.com/luigidacunto/niles-cms/releases). Le direzioni future sono nella [roadmap](ROADMAP.md).
 
+## 1.1.11 — 2026-11-02
+- **Risposte ai corsisti**: le email inviate a chi si iscrive a un corso (conferma di iscrizione e riepilogo al referente) hanno come «Rispondi a»
+  il primo indirizzo dell'elenco dell'avviso di iscrizione (Posta in uscita, sezione Formazione), se presente; altrimenti vale il «Rispondi a»
+  generale.
+- L'email di prova di Posta in uscita riporta ora anche il «Rispondi a».
+
 ## 1.1.10 — 2026-11-02
 - **«Rispondi a» generale** (Amministrazione → Posta in uscita): indirizzo reale a cui arrivano le risposte a qualsiasi email del sito, anche al
   codice di accesso, utile quando l'indirizzo mittente è tecnico o inesistente. Se vuoto si usa l'email del comitato. Vale anche con la posta

@@ -5,6 +5,7 @@ namespace App\Mail;
 use App\Models\EmailTemplate;
 use App\Models\Persona;
 use App\Support\DatiPagamento;
+use App\Support\PostaInUscita;
 use Illuminate\Mail\Mailable;
 use Illuminate\Support\Collection;
 
@@ -40,6 +41,8 @@ class RiepilogoReferenteMail extends Mailable
             'dati_fatturazione' => view('emails.partials.dati-fatturazione', ['f' => $unica])->render(),
             'dati_pagamento' => $unica ? DatiPagamento::bloccoEmail(DatiPagamento::bonificoGruppo($unica, $corso, $iscrizioni->count())) : '',
         ]);
+
+        PostaInUscita::rispondiAFormazione($this);
 
         return $this->subject($mail['oggetto'])->html($mail['corpo']);
     }

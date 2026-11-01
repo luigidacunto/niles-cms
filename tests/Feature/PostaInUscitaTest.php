@@ -141,10 +141,11 @@ class PostaInUscitaTest extends TestCase
             $m = new \Illuminate\Mail\Message(new \Symfony\Component\Mime\Email);
             $cb($m);
             $this->assertSame('admin@example.test', $m->getSymfonyMessage()->getTo()[0]->getAddress());
+            $this->assertSame('persona@example.org', $m->getSymfonyMessage()->getReplyTo()[0]->getAddress()); // anche non salvato
         });
 
         $this->actingAs($this->admin(), 'admin')
-            ->put(route('admin.posta.prova'), $this->dati(['mail_to' => 'altro@example.test']))
+            ->put(route('admin.posta.prova'), $this->dati(['mail_to' => 'altro@example.test', 'mail_rispondi_a' => 'persona@example.org']))
             ->assertSessionHas('status');
 
         $info = CommitteeInfo::current();
@@ -195,6 +196,37 @@ class PostaInUscitaTest extends TestCase
 
         $inviato = Mail::mailer('array')->getSymfonyTransport()->messages()->last()->getOriginalMessage();
         $this->assertSame('persona@example.org', $inviato->getReplyTo()[0]->getAddress());
+    }
+
+    public function test_email_ai_corsisti_rispondono_al_primo_indirizzo_della_formazione_con_un_solo_reply_to(): void
+    {
+        CommitteeInfo::current()->update(['email' => 'comitato@example.org', 'mail_rispondi_a' => 'generale@example.org']);
+        config(['mail.default' => 'array', 'mail.env_presenti' => ['MAIL_MAILER']]);
+        $corsista = new class extends \Illuminate\Mail\Mailable
+        {
+            public function build(): static
+            {
+                PostaInUscita::rispondiAFormazione($this);
+
+                return $this->subject('x')->html('x');
+            }
+        };
+        $replyTo = function () use ($corsista) {
+            PostaInUscita::applica();
+            Mail::forgetMailers();
+            Mail::to('x@example.test')->send($corsista);
+
+            return collect(Mail::mailer('array')->getSymfonyTransport()->messages()->last()->getOriginalMessage()->getReplyTo())
+                ->map->getAddress()->all();
+        };
+
+        // Senza indirizzi della formazione: solo il «Rispondi a» generale.
+        $this->assertSame(['generale@example.org'], $replyTo());
+
+        // Con l'elenco: il primo indirizzo valido, e uno solo (non si somma al generale).
+        CommitteeInfo::current()->update(['mail_notifica_iscrizioni_a' => "formazione@example.org\naltro@example.org"]);
+        Mail::forgetMailers();
+        $this->assertSame(['formazione@example.org'], $replyTo());
     }
 
     public function test_notifica_iscrizioni_si_salva_normalizzata_e_si_valida(): void

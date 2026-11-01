@@ -4,7 +4,10 @@ namespace App\Support;
 
 use App\Models\CommitteeInfo;
 use Illuminate\Contracts\Encryption\DecryptException;
+use Illuminate\Mail\Mailable;
 use Illuminate\Support\Facades\Mail;
+use Symfony\Component\Mime\Address;
+use Symfony\Component\Mime\Email;
 use Throwable;
 
 /**
@@ -109,6 +112,21 @@ class PostaInUscita
         return $info->mail_notifica_iscrizioni ? self::indirizzi($info->mail_notifica_iscrizioni_a) : [];
     }
 
+    /**
+     * Email ai corsisti: «Rispondi» va al primo indirizzo dell'avviso di iscrizione (quello di chi segue la formazione), se
+     * l'elenco ne contiene di validi; altrimenti resta il «Rispondi a» generale. ⚠️ Il Reply-To globale è già stato aggiunto da
+     * Laravel e `replyTo()` della mailable ne aggiungerebbe un secondo: qui si usa il messaggio Symfony, che invece sostituisce.
+     */
+    public static function rispondiAFormazione(Mailable $mailable): void
+    {
+        $primo = collect(self::indirizzi(CommitteeInfo::current()->mail_notifica_iscrizioni_a))
+            ->first(fn ($i) => filter_var($i, FILTER_VALIDATE_EMAIL));
+
+        if ($primo) {
+            $mailable->withSymfonyMessage(fn (Email $m) => $m->replyTo(new Address($primo, (string) config('app.public_name'))));
+        }
+    }
+
     /** Applica le impostazioni del pannello alla configurazione, se il .env non ha la precedenza. */
     public static function applica(): void
     {
@@ -166,7 +184,7 @@ class PostaInUscita
     {
         return [
             'server' => $v['host'], 'porta' => (int) $v['port'], 'cifratura' => $v['encryption'],
-            'utente' => $v['username'], 'mittente' => $v['from_address'],
+            'utente' => $v['username'], 'mittente' => $v['from_address'], 'rispondi_a' => $v['rispondi_a'] ?? null,
         ];
     }
 
@@ -176,7 +194,13 @@ class PostaInUscita
         try {
             Mail::build(self::mailer($v))->raw(
                 "Questa è una email di prova inviata da NILES.\nSe la leggi, la posta in uscita funziona.",
-                fn ($m) => $m->to($destinatario)->from($v['from_address'], $v['from_name'] ?: config('app.name'))->subject('Prova posta in uscita')
+                function ($m) use ($v, $destinatario) {
+                    $m->to($destinatario)->from($v['from_address'], $v['from_name'] ?: config('app.name'))->subject('Prova posta in uscita');
+                    // ⚠️ Mail::build() (mailer "al volo") non applica gli indirizzi globali di config/mail.php: il Reply-To va messo qui.
+                    if (filled($v['rispondi_a'] ?? null)) {
+                        $m->replyTo($v['rispondi_a'], config('app.public_name'));
+                    }
+                }
             );
         } catch (Throwable $e) {
             return trim($e->getMessage()) ?: $e::class;

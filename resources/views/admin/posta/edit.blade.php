@@ -144,7 +144,7 @@
                     <label for="mail_notifica_iscrizioni_a">Indirizzi che ricevono l'avviso</label>
                     <textarea name="mail_notifica_iscrizioni_a" id="mail_notifica_iscrizioni_a" rows="3" class="form-control col-md-6 @error('mail_notifica_iscrizioni_a') is-invalid @enderror" placeholder="uno per riga">{{ old('mail_notifica_iscrizioni_a', $info->mail_notifica_iscrizioni_a) }}</textarea>
                     @error('mail_notifica_iscrizioni_a') <div class="invalid-feedback">{{ $message }}</div> @enderror
-                    <small class="text-muted">Uno per riga (massimo 10). Parte una sola email per ogni iscrizione dal modulo pubblico, anche con più persone iscritte; non per gli iscritti inseriti a mano dal pannello. Contiene corso, iscritti (nome, email, telefono) e il link all'elenco nel pannello, senza codice fiscale. Il testo si modifica da Template email.</small>
+                    <small class="text-muted">Uno per riga (massimo 10). Parte una sola email per ogni iscrizione dal modulo pubblico, anche con più persone iscritte; non per gli iscritti inseriti a mano dal pannello. Il primo indirizzo è anche quello a cui arrivano le risposte (tasto «Rispondi») di chi si iscrive ai corsi. Contiene corso, iscritti (nome, email, telefono) e il link all'elenco nel pannello, senza codice fiscale. Il testo si modifica da Template email.</small>
                 </div>
             </div>
         </div>
@@ -162,7 +162,7 @@
             <div class="card-body">
                 <strong>Ultima prova:</strong> {{ $info->mail_prova_at->format('d/m/Y H:i') }} —
                 @if ($info->mail_prova_esito === 'ok') <span class="text-success">riuscita</span>@else <span class="text-danger">non riuscita</span>: {{ $info->mail_prova_esito }}@endif
-                <div class="text-muted small">Parametri usati: server {{ $p['server'] ?? '—' }}, porta {{ $p['porta'] ?? '—' }}, cifratura {{ $p['cifratura'] ?? '—' }}, utente {{ $p['utente'] ?? '—' }}, mittente {{ $p['mittente'] ?? '—' }}.</div>
+                <div class="text-muted small">Parametri usati: server {{ $p['server'] ?? '—' }}, porta {{ $p['porta'] ?? '—' }}, cifratura {{ $p['cifratura'] ?? '—' }}, utente {{ $p['utente'] ?? '—' }}, mittente {{ $p['mittente'] ?? '—' }}, rispondi a {{ $p['rispondi_a'] ?? '—' }}.</div>
             </div>
         </div>
     @endif

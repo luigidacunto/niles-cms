@@ -6,6 +6,7 @@ use App\Models\EmailTemplate;
 use App\Models\IscrizioneCorso;
 use App\Support\DatiPagamento;
 use App\Support\IcsEvento;
+use App\Support\PostaInUscita;
 use Illuminate\Mail\Mailable;
 
 /** Email di iscrizione a un corso: testo dal template `iscrizione-corso` + promemoria .ics in allegato. */
@@ -31,6 +32,8 @@ class IscrizioneCorsoMail extends Mailable
             // Coordinate del bonifico: solo se ha scelto il bonifico, il corso ha una quota e l'IBAN è impostato.
             'dati_pagamento' => DatiPagamento::bloccoEmail(DatiPagamento::bonifico($iscrizione)),
         ]);
+
+        PostaInUscita::rispondiAFormazione($this);
 
         return $this->subject($mail['oggetto'])
             ->html($mail['corpo'])

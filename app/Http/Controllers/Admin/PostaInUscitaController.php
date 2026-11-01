@@ -87,6 +87,7 @@ class PostaInUscitaController extends Controller
             'username' => $data['mail_username'] ?? null, 'password' => $password,
             'from_address' => ($data['mail_from_address'] ?? null) ?: ($data['mail_username'] ?? null),
             'from_name' => $data['mail_from_name'] ?? null,
+            'rispondi_a' => ($data['mail_rispondi_a'] ?? null) ?: $info->email, // come in produzione: vuoto = email del comitato
         ];
         if (! filter_var($v['from_address'], FILTER_VALIDATE_EMAIL)) {
             return back()->withInput($request->except('mail_password'))
