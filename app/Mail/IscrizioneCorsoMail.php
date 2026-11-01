@@ -2,7 +2,6 @@
 
 namespace App\Mail;
 
-use App\Models\CommitteeInfo;
 use App\Models\EmailTemplate;
 use App\Models\IscrizioneCorso;
 use App\Support\DatiPagamento;
@@ -32,11 +31,6 @@ class IscrizioneCorsoMail extends Mailable
             // Coordinate del bonifico: solo se ha scelto il bonifico, il corso ha una quota e l'IBAN è impostato.
             'dati_pagamento' => DatiPagamento::bloccoEmail(DatiPagamento::bonifico($iscrizione)),
         ]);
-
-        // "Rispondi" arriva alla segreteria, non all'indirizzo tecnico di invio.
-        if ($segreteria = CommitteeInfo::current()->email) {
-            $this->replyTo($segreteria, config('app.public_name'));
-        }
 
         return $this->subject($mail['oggetto'])
             ->html($mail['corpo'])

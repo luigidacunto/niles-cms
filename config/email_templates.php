@@ -76,4 +76,25 @@ return [
                 .'<p>A presto,<br>{nome_comitato}</p>',
         ],
     ],
+    'notifica-iscrizione' => [
+        'label' => 'Avviso alla segreteria: nuova iscrizione',
+        'descrizione' => 'Inviata agli indirizzi indicati in Posta in uscita (se l\'avviso è attivo) a ogni iscrizione dal modulo pubblico: una sola email per invio, anche se le persone iscritte sono più di una. Non è inviata per gli iscritti inseriti a mano dal pannello. Non contiene il codice fiscale.',
+        'segnaposto' => [
+            '{corso}' => 'Nome del corso',
+            '{protocollo}' => 'Protocollo del corso (es. BLSD-2026-001)',
+            '{periodo}' => 'Data e orario del corso',
+            '{numero_iscritti}' => 'Quante persone sono state iscritte con questo invio',
+            '{elenco_iscritti}' => 'Tabella con le persone iscritte (nome, email, telefono)',
+            '{referente}' => 'Chi ha compilato il modulo (nome, cognome ed email)',
+            '{link_iscritti}' => 'Indirizzo dell\'elenco iscritti del corso nel pannello (usalo dentro un link: <a href="{link_iscritti}">…</a>)',
+        ],
+        'predefinito' => [
+            'oggetto' => 'Nuova iscrizione: {corso} ({protocollo})',
+            'corpo' => '<p>Nuova iscrizione al corso <strong>{corso}</strong> (protocollo {protocollo}, {periodo}).</p>'
+                .'<p>Persone iscritte con questo invio: <strong>{numero_iscritti}</strong>.</p>'
+                .'{elenco_iscritti}'
+                .'<p>Modulo compilato da: {referente}</p>'
+                .'<p><a href="{link_iscritti}">Apri l\'elenco degli iscritti nel pannello</a></p>',
+        ],
+    ],
 ];

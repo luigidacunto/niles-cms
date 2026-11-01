@@ -2,6 +2,7 @@
 
 namespace Tests\Feature;
 
+use App\Mail\OtpMail;
 use App\Models\Admin;
 use App\Models\CommitteeInfo;
 use App\Support\PostaInUscita;
@@ -162,6 +163,61 @@ class PostaInUscitaTest extends TestCase
 
         $this->assertSame('Connessione rifiutata', CommitteeInfo::current()->mail_prova_esito);
         $this->get(route('admin.posta.edit'))->assertOk()->assertSee('non riuscita');
+    }
+
+    public function test_rispondi_a_del_pannello_vale_anche_con_il_env_e_ripiega_sull_email_del_comitato(): void
+    {
+        // Senza nulla di salvato: nessun Reply-To.
+        config(['mail.reply_to' => null, 'mail.env_presenti' => ['MAIL_MAILER']]);
+        PostaInUscita::applicaRispondiA();
+        $this->assertNull(config('mail.reply_to'));
+
+        // Solo l'email del comitato: è il ripiego.
+        CommitteeInfo::current()->update(['email' => 'segreteria@example.org']);
+        PostaInUscita::applica(); // ⚠️ con una variabile nel .env il server resta quello del .env, il «Rispondi a» no
+        $this->assertSame('segreteria@example.org', config('mail.reply_to.address'));
+
+        // Quello del pannello ha la precedenza.
+        CommitteeInfo::current()->update(['mail_rispondi_a' => 'persona@example.org']);
+        PostaInUscita::applica();
+        $this->assertSame('persona@example.org', config('mail.reply_to.address'));
+        $this->assertSame(config('app.public_name'), config('mail.reply_to.name'));
+    }
+
+    public function test_il_codice_di_accesso_parte_con_il_rispondi_a(): void
+    {
+        CommitteeInfo::current()->update(['mail_rispondi_a' => 'persona@example.org']);
+        config(['mail.default' => 'array', 'mail.env_presenti' => ['MAIL_MAILER']]);
+        PostaInUscita::applica();
+        Mail::forgetMailers();
+
+        Mail::to('x@example.test')->send(new OtpMail('123456'));
+
+        $inviato = Mail::mailer('array')->getSymfonyTransport()->messages()->last()->getOriginalMessage();
+        $this->assertSame('persona@example.org', $inviato->getReplyTo()[0]->getAddress());
+    }
+
+    public function test_notifica_iscrizioni_si_salva_normalizzata_e_si_valida(): void
+    {
+        $this->actingAs($this->admin(), 'admin');
+
+        $this->put(route('admin.posta.update'), ['mail_mailer' => 'log', 'mail_rispondi_a' => 'persona@example.org',
+            'mail_notifica_iscrizioni' => '1', 'mail_notifica_iscrizioni_a' => "a@example.org, b@example.org;\n a@example.org"])
+            ->assertSessionHasNoErrors();
+        $info = CommitteeInfo::current();
+        $this->assertTrue($info->mail_notifica_iscrizioni);
+        $this->assertSame("a@example.org\nb@example.org", $info->mail_notifica_iscrizioni_a);
+        $this->assertSame(['a@example.org', 'b@example.org'], PostaInUscita::destinatariNotificaIscrizioni());
+
+        // Spunta senza indirizzi, o con un indirizzo non valido: errore.
+        $this->put(route('admin.posta.update'), ['mail_mailer' => 'log', 'mail_notifica_iscrizioni' => '1'])
+            ->assertSessionHasErrors('mail_notifica_iscrizioni_a');
+        $this->put(route('admin.posta.update'), ['mail_mailer' => 'log', 'mail_notifica_iscrizioni' => '1', 'mail_notifica_iscrizioni_a' => 'non-una-email'])
+            ->assertSessionHasErrors('mail_notifica_iscrizioni_a');
+
+        // Spunta spenta: nessun destinatario, gli indirizzi restano salvati.
+        $this->put(route('admin.posta.update'), ['mail_mailer' => 'log', 'mail_notifica_iscrizioni' => '0', 'mail_notifica_iscrizioni_a' => 'a@example.org']);
+        $this->assertSame([], PostaInUscita::destinatariNotificaIscrizioni());
     }
 
     public function test_validazione(): void

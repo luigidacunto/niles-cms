@@ -28,6 +28,7 @@ class CommitteeInfo extends Model
         'mail_mailer', 'mail_host', 'mail_port', 'mail_encryption', 'mail_username', 'mail_password',
         'mail_from_address', 'mail_from_name', 'mail_prova_at', 'mail_prova_esito', 'mail_prova_parametri',
         'mail_modificata_da', 'mail_modificata_at',
+        'mail_rispondi_a', 'mail_notifica_iscrizioni', 'mail_notifica_iscrizioni_a',
     ];
 
     protected $hidden = ['mail_password'];
@@ -36,6 +37,7 @@ class CommitteeInfo extends Model
         'goatcounter_enabled' => 'boolean',
         'ga_enabled' => 'boolean',
         'area_soci_attiva' => 'boolean',
+        'mail_notifica_iscrizioni' => 'boolean',
         // ⚠️ Cifrata con APP_KEY (come la secret Turnstile): se la chiave cambia non è più leggibile, vedi PostaInUscita.
         'mail_password' => 'encrypted',
         'mail_prova_at' => 'datetime',

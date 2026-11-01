@@ -3,6 +3,7 @@
 namespace App\Support;
 
 use App\Mail\IscrizioneCorsoMail;
+use App\Mail\NotificaIscrizioneMail;
 use App\Mail\RiepilogoReferenteMail;
 use App\Models\IscrizioneCorso;
 use App\Models\Persona;
@@ -21,8 +22,9 @@ class IscrizioneNotifier
     /**
      * @param  iterable<IscrizioneCorso>  $iscrizioni
      * @param  Persona|null  $referente  chi ha compilato il modulo: se ha iscritto anche altri, riceve il riepilogo
+     * @param  bool  $avvisaSegreteria  solo per il modulo pubblico: avviso agli indirizzi di Posta in uscita (non per gli inserimenti a mano)
      */
-    public static function invia(iterable $iscrizioni, ?Persona $referente = null): void
+    public static function invia(iterable $iscrizioni, ?Persona $referente = null, bool $avvisaSegreteria = false): void
     {
         $iscrizioni = collect($iscrizioni);
 
@@ -49,6 +51,16 @@ class IscrizioneNotifier
                 Mail::to($referente->email)->send(new RiepilogoReferenteMail($referente, $iscrizioni));
             } catch (Throwable $e) {
                 Log::warning("Riepilogo al referente #{$referente->id} non inviato: ".$e->getMessage());
+            }
+        }
+
+        if ($avvisaSegreteria && $iscrizioni->isNotEmpty()) {
+            try {
+                if ($destinatari = PostaInUscita::destinatariNotificaIscrizioni()) {
+                    Mail::to($destinatari)->send(new NotificaIscrizioneMail($iscrizioni, $referente));
+                }
+            } catch (Throwable $e) {
+                Log::warning('Avviso di iscrizione alla segreteria non inviato: '.$e->getMessage());
             }
         }
     }

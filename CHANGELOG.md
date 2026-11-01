@@ -4,6 +4,14 @@ Elenco delle modifiche di ogni versione, dalla più recente. Le versioni seguono
 incrementano la seconda cifra, le correzioni e i miglioramenti la terza. Le release complete, con i pacchetti scaricabili, sono su
 [GitHub](https://github.com/luigidacunto/niles-cms/releases). Le direzioni future sono nella [roadmap](ROADMAP.md).
 
+## 1.1.10 — 2026-11-02
+- **«Rispondi a» generale** (Amministrazione → Posta in uscita): indirizzo reale a cui arrivano le risposte a qualsiasi email del sito, anche al
+  codice di accesso, utile quando l'indirizzo mittente è tecnico o inesistente. Se vuoto si usa l'email del comitato. Vale anche con la posta
+  impostata nel file `.env`.
+- **Avviso di nuova iscrizione ai corsi** (stessa pagina, sezione Formazione): spuntando l'opzione e indicando uno o più indirizzi, la segreteria
+  riceve una email per ogni iscrizione dal modulo pubblico, con corso, iscritti e link all'elenco nel pannello (senza codice fiscale). Non parte
+  per gli iscritti inseriti a mano. Il testo è modificabile da Template email.
+
 ## 1.1.9 — 2026-10-22
 - Aggiornamento di sicurezza degli strumenti di build: Vite 8.3.4, che corregge tre vulnerabilità di `launch-editor` presenti nel server di
   sviluppo (`npm run dev`). Nessun effetto sul sito in produzione.

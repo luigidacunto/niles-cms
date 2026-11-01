@@ -77,9 +77,43 @@ class PostaInUscita
         return false;
     }
 
+    /**
+     * «Rispondi a» di tutte le email in uscita (anche il codice di accesso): quello del pannello, altrimenti l'email del
+     * comitato. Vale anche con il `.env` (non è un parametro del server di invio). Laravel lo aggiunge a ogni messaggio.
+     */
+    public static function applicaRispondiA(): void
+    {
+        try {
+            $info = CommitteeInfo::find(1);
+        } catch (Throwable) {
+            return; // prima delle migrazioni, durante l'installer, nei test senza schema
+        }
+
+        $indirizzo = ($info?->getAttributes()['mail_rispondi_a'] ?? null) ?: ($info?->getAttributes()['email'] ?? null);
+        if (filled($indirizzo)) {
+            config(['mail.reply_to' => ['address' => $indirizzo, 'name' => config('app.public_name')]]);
+        }
+    }
+
+    /** Indirizzi in un testo libero (uno per riga, o separati da virgola/punto e virgola/spazio), senza doppioni. */
+    public static function indirizzi(?string $testo): array
+    {
+        return array_values(array_unique(array_filter(preg_split('/[\s,;]+/', (string) $testo))));
+    }
+
+    /** Destinatari dell'avviso di nuova iscrizione a un corso (vuoto = avviso disattivato). */
+    public static function destinatariNotificaIscrizioni(): array
+    {
+        $info = CommitteeInfo::current();
+
+        return $info->mail_notifica_iscrizioni ? self::indirizzi($info->mail_notifica_iscrizioni_a) : [];
+    }
+
     /** Applica le impostazioni del pannello alla configurazione, se il .env non ha la precedenza. */
     public static function applica(): void
     {
+        self::applicaRispondiA();
+
         if (self::daEnv() || ! ($info = self::dalDatabase()) || self::passwordIllegibile($info)) {
             return;
         }

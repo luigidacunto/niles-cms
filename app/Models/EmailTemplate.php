@@ -78,6 +78,10 @@ class EmailTemplate extends Model
                     'iban' => 'IT60 X054 2811 1010 0000 0123 456', 'banca' => null, 'causale' => 'Corso BLSD-2026-001 - ACME srl',
                 ]),
             ],
+            'notifica-iscrizione' => [
+                'elenco_iscritti' => '<table cellpadding="5" style="border-collapse:collapse;border:1px solid #ccc;font-size:13px"><tr style="background:#f1f1f1;text-align:left"><th>Cognome e nome</th><th>Email</th><th>Telefono</th></tr>'
+                    .'<tr><td>Rossi Mario</td><td>mario@example.test</td><td>333 0000000</td></tr><tr><td>Verdi Anna</td><td>anna@example.test</td><td>333 1111111</td></tr></table>',
+            ],
             default => [],
         };
     }
@@ -94,6 +98,11 @@ class EmailTemplate extends Model
             'riepilogo-referente' => [
                 'nome' => 'Hilda', 'corso' => 'Rianimazione cardiopolmonare e defibrillazione', 'protocollo' => 'BLSD-2026-001',
                 'periodo' => '10/10/2026, 09:00–13:00', 'luogo' => 'Sede del Comitato', 'costo' => '35,00 €', 'numero_iscritti' => '2',
+            ],
+            'notifica-iscrizione' => [
+                'corso' => 'Rianimazione cardiopolmonare e defibrillazione', 'protocollo' => 'BLSD-2026-001',
+                'periodo' => '10/10/2026, 09:00–13:00', 'numero_iscritti' => '2', 'referente' => 'Hilda Bianchi (hilda@example.test)',
+                'link_iscritti' => url('/admin/corsi'),
             ],
             default => [],
         };

@@ -2,7 +2,6 @@
 
 namespace App\Mail;
 
-use App\Models\CommitteeInfo;
 use App\Models\EmailTemplate;
 use App\Models\Persona;
 use App\Support\DatiPagamento;
@@ -41,10 +40,6 @@ class RiepilogoReferenteMail extends Mailable
             'dati_fatturazione' => view('emails.partials.dati-fatturazione', ['f' => $unica])->render(),
             'dati_pagamento' => $unica ? DatiPagamento::bloccoEmail(DatiPagamento::bonificoGruppo($unica, $corso, $iscrizioni->count())) : '',
         ]);
-
-        if ($segreteria = CommitteeInfo::current()->email) {
-            $this->replyTo($segreteria, config('app.public_name'));
-        }
 
         return $this->subject($mail['oggetto'])->html($mail['corpo']);
     }

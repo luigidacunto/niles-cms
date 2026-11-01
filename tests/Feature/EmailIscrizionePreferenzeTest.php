@@ -3,6 +3,7 @@
 namespace Tests\Feature;
 
 use App\Mail\IscrizioneCorsoMail;
+use App\Mail\NotificaIscrizioneMail;
 use App\Models\Admin;
 use App\Models\CommitteeInfo;
 use App\Models\Corso;
@@ -86,10 +87,9 @@ class EmailIscrizionePreferenzeTest extends TestCase
             $this->assertStringContainsString('Corso BLSD', $html);
             $this->assertStringContainsString('Via Roma 1, Bologna', $html);
 
-            // Reply-To, oggetto e allegato si impostano in build(): lo si chiama una volta sola.
+            // Oggetto e allegato si impostano in build(): lo si chiama una volta sola. Il Reply-To è globale (PostaInUscita).
             $m->build();
             $this->assertSame('Iscrizione registrata: Corso BLSD', $m->subject);
-            $this->assertTrue($m->hasReplyTo('segreteria@comitato.test'));
             $this->assertCount(1, $m->rawAttachments);
             $this->assertSame('promemoria-corso.ics', $m->rawAttachments[0]['name']);
 
@@ -154,6 +154,76 @@ class EmailIscrizionePreferenzeTest extends TestCase
 
         Mail::assertSent(IscrizioneCorsoMail::class, fn ($m) => $m->hasTo('mario@example.test'));
         $this->assertSame('richiesto', Persona::first()->newsletter_stato);
+    }
+
+    // ---- avviso alla segreteria
+
+    private function attivaAvviso(): void
+    {
+        CommitteeInfo::current()->update(['mail_notifica_iscrizioni' => true, 'mail_notifica_iscrizioni_a' => "formazione@comitato.test\nsegreteria@comitato.test"]);
+    }
+
+    public function test_avviso_alla_segreteria_una_sola_email_per_invio_senza_codice_fiscale(): void
+    {
+        Mail::fake();
+        $this->attivaAvviso();
+        $a = $this->persona(self::ADULTO_A, 'Mario', 'mario@example.test');
+        $b = $this->persona(self::ADULTO_B, 'Anna', 'anna@example.test');
+
+        $this->invia($a, [$a, $b], ['autodichiarazione_terzi' => 1])->assertRedirect(route('corsi.iscrizione.confermata', $this->corso));
+
+        Mail::assertSent(NotificaIscrizioneMail::class, 1);
+        Mail::assertSent(NotificaIscrizioneMail::class, function (NotificaIscrizioneMail $m) {
+            $this->assertTrue($m->hasTo('formazione@comitato.test') && $m->hasTo('segreteria@comitato.test'));
+            $html = $m->render();
+            $this->assertStringContainsString('mario@example.test', $html);
+            $this->assertStringContainsString('anna@example.test', $html);
+            $this->assertStringNotContainsString(self::ADULTO_A, $html); // niente codice fiscale
+            $this->assertStringContainsString(route('admin.corsi.iscritti.index', $this->corso), $html);
+
+            return true;
+        });
+    }
+
+    public function test_avviso_disattivato_o_senza_indirizzi_non_parte_e_a_mano_non_parte_mai(): void
+    {
+        Mail::fake();
+        $a = $this->persona(self::ADULTO_A, 'Mario', 'mario@example.test');
+
+        $this->invia($a, [$a]);                       // spunta spenta
+        Mail::assertNotSent(NotificaIscrizioneMail::class);
+
+        $this->attivaAvviso();
+        $this->actingAs(Admin::first(), 'admin')->post(route('admin.corsi.iscritti.store', $this->corso), [
+            'nominativo' => $this->persona(self::ADULTO_B, 'Anna', 'anna@example.test'),
+            'fatturazione_modo' => 'stessi', 'fatturazione' => ['metodo_pagamento' => 'Bonifico'], 'privacy_confermata' => 1,
+        ])->assertRedirect();                         // inserimento a mano
+        Mail::assertNotSent(NotificaIscrizioneMail::class);
+    }
+
+    public function test_l_update_seeder_crea_il_testo_dell_avviso_sui_siti_gia_installati_senza_toccare_le_personalizzazioni(): void
+    {
+        EmailTemplate::where('tipo', 'notifica-iscrizione')->delete();
+        $seeder = require base_path('database/seeders/aggiornamenti/2026_11_02_090000_template_notifica_iscrizione.php');
+
+        $seeder->run();
+        $this->assertSame(EmailTemplate::testoPredefinito('notifica-iscrizione')['corpo'], EmailTemplate::perTipo('notifica-iscrizione')->corpo);
+
+        EmailTemplate::create(['tipo' => 'notifica-iscrizione', 'is_default' => false, 'oggetto' => 'Mio', 'corpo' => '<p>mio</p>']);
+        $seeder->run();
+        $this->assertSame('Mio', EmailTemplate::perTipo('notifica-iscrizione')->oggetto);
+        $this->assertSame(1, EmailTemplate::where('tipo', 'notifica-iscrizione')->where('is_default', true)->count());
+    }
+
+    public function test_avviso_fallito_non_fa_perdere_l_iscrizione(): void
+    {
+        $this->attivaAvviso();
+        Mail::shouldReceive('to')->andThrow(new \RuntimeException('smtp giù'));
+        $a = $this->persona(self::ADULTO_A, 'Mario', 'mario@example.test');
+
+        $this->invia($a, [$a])->assertRedirect();
+
+        $this->assertSame(1, IscrizioneCorso::count());
     }
 
     // ---- template

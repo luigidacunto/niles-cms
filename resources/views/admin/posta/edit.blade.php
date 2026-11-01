@@ -30,7 +30,7 @@
     @if ($daEnv)
         <div class="alert alert-warning">
             <strong>Attive le impostazioni del file .env.</strong> Server: <code>{{ $envHost }}</code>@if ($envUtente), utente <code>{{ $envUtente }}</code>@endif, invio <code>{{ $envMailer }}</code>.
-            Quelle salvate qui non verranno usate finché non togli o commenti le righe <code>MAIL_*</code> dal file <code>.env</code> (righe presenti: {{ implode(', ', $envPresenti) }}).
+            I parametri del server salvati qui non verranno usati finché non togli o commenti le righe <code>MAIL_*</code> dal file <code>.env</code> (righe presenti: {{ implode(', ', $envPresenti) }}); «Rispondi a» e l'avviso di nuova iscrizione restano invece sempre attivi.
         </div>
         @if ($envMancanti)
             <div class="alert alert-danger">
@@ -119,16 +119,40 @@
                     </div>
                 </div>
 
+                <div class="form-group mb-0">
+                    <label for="mail_rispondi_a">Rispondi a</label>
+                    <input type="email" name="mail_rispondi_a" id="mail_rispondi_a" class="form-control col-md-6 @error('mail_rispondi_a') is-invalid @enderror" value="{{ old('mail_rispondi_a', $info->mail_rispondi_a) }}" placeholder="vuoto = l'email del comitato">
+                    @error('mail_rispondi_a') <div class="invalid-feedback">{{ $message }}</div> @enderror
+                    <small class="text-muted">Indirizzo reale, letto da una persona, a cui arrivano le risposte di chi preme «Rispondi» su una qualsiasi email del sito (anche il codice di accesso), se l'indirizzo mittente è tecnico o inesistente. Vale anche se la posta è impostata nel file <code>.env</code>. Se lasci vuoto si usa l'email indicata in «Dati del comitato».</small>
+                </div>
+
                 @if ($info->mail_modificata_at)
-                    <p class="text-muted small mb-0">Ultima modifica: {{ $info->mail_modificata_at->format('d/m/Y H:i') }}@if ($info->mail_modificata_da) — {{ $info->mail_modificata_da }}@endif.</p>
+                    <p class="text-muted small mt-3 mb-0">Ultima modifica: {{ $info->mail_modificata_at->format('d/m/Y H:i') }}@if ($info->mail_modificata_da) — {{ $info->mail_modificata_da }}@endif.</p>
                 @endif
             </div>
+        </div>
 
-            <div class="card-footer">
-                <button type="submit" class="btn btn-primary">Salva</button>
-                <button type="submit" class="btn btn-outline-secondary ml-2" id="btn-prova" formaction="{{ route('admin.posta.prova') }}">Invia email di prova</button>
-                <small class="text-muted ml-2">La prova usa i valori scritti qui (anche non salvati) e spedisce solo alla tua email: {{ auth('admin')->user()->email }}.</small>
+        <div class="card">
+            <div class="card-header"><h3 class="card-title">Formazione — avviso di nuova iscrizione</h3></div>
+            <div class="card-body">
+                <div class="custom-control custom-checkbox mb-3">
+                    <input type="hidden" name="mail_notifica_iscrizioni" value="0">
+                    <input type="checkbox" class="custom-control-input" id="mail_notifica_iscrizioni" name="mail_notifica_iscrizioni" value="1" @checked(old('mail_notifica_iscrizioni', $info->mail_notifica_iscrizioni))>
+                    <label class="custom-control-label" for="mail_notifica_iscrizioni">Avvisa la segreteria a ogni nuova iscrizione a un corso</label>
+                </div>
+                <div class="form-group mb-0">
+                    <label for="mail_notifica_iscrizioni_a">Indirizzi che ricevono l'avviso</label>
+                    <textarea name="mail_notifica_iscrizioni_a" id="mail_notifica_iscrizioni_a" rows="3" class="form-control col-md-6 @error('mail_notifica_iscrizioni_a') is-invalid @enderror" placeholder="uno per riga">{{ old('mail_notifica_iscrizioni_a', $info->mail_notifica_iscrizioni_a) }}</textarea>
+                    @error('mail_notifica_iscrizioni_a') <div class="invalid-feedback">{{ $message }}</div> @enderror
+                    <small class="text-muted">Uno per riga (massimo 10). Parte una sola email per ogni iscrizione dal modulo pubblico, anche con più persone iscritte; non per gli iscritti inseriti a mano dal pannello. Contiene corso, iscritti (nome, email, telefono) e il link all'elenco nel pannello, senza codice fiscale. Il testo si modifica da Template email.</small>
+                </div>
             </div>
+        </div>
+
+        <div class="mb-4">
+            <button type="submit" class="btn btn-primary">Salva</button>
+            <button type="submit" class="btn btn-outline-secondary ml-2" id="btn-prova" formaction="{{ route('admin.posta.prova') }}">Invia email di prova</button>
+            <small class="text-muted ml-2">La prova usa i valori scritti qui (anche non salvati) e spedisce solo alla tua email: {{ auth('admin')->user()->email }}.</small>
         </div>
     </form>
 

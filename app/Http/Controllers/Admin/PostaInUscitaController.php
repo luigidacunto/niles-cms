@@ -25,6 +25,8 @@ class PostaInUscitaController extends Controller
                 'mail_from_name' => 'Comitato di esempio', 'mail_prova_at' => now()->subDay(), 'mail_prova_esito' => 'ok',
                 'mail_prova_parametri' => ['server' => 'smtp.example.org', 'porta' => 465, 'cifratura' => 'ssl', 'utente' => 'no-reply@example.org', 'mittente' => 'no-reply@example.org'],
                 'mail_modificata_da' => 'Amministratore di esempio', 'mail_modificata_at' => now()->subDays(2),
+                'mail_rispondi_a' => 'segreteria@example.org', 'mail_notifica_iscrizioni' => true,
+                'mail_notifica_iscrizioni_a' => "formazione@example.org\nsegreteria@example.org",
             ]);
         }
 
@@ -51,6 +53,10 @@ class PostaInUscitaController extends Controller
             'mail_mailer' => $data['mail_mailer'],
             'mail_modificata_da' => $request->user('admin')->name,
             'mail_modificata_at' => now(),
+            // Indipendenti dal tipo di invio: valgono anche con posta disattivata o impostata nel .env.
+            'mail_rispondi_a' => $data['mail_rispondi_a'] ?? null,
+            'mail_notifica_iscrizioni' => $request->boolean('mail_notifica_iscrizioni'),
+            'mail_notifica_iscrizioni_a' => implode("\n", PostaInUscita::indirizzi($data['mail_notifica_iscrizioni_a'] ?? null)) ?: null,
         ];
         if ($data['mail_mailer'] === 'smtp') {
             $valori += [
@@ -115,6 +121,18 @@ class PostaInUscitaController extends Controller
             'mail_password' => ['nullable', 'string', 'max:255'],
             'mail_from_address' => ['nullable', 'email', 'max:255'],
             'mail_from_name' => ['nullable', 'string', 'max:255'],
+            'mail_rispondi_a' => ['nullable', 'email', 'max:255'],
+            'mail_notifica_iscrizioni_a' => ['required_if:mail_notifica_iscrizioni,1', 'nullable', 'string', 'max:1000', function ($attr, $value, $fail) {
+                $indirizzi = PostaInUscita::indirizzi($value);
+                if (count($indirizzi) > 10) {
+                    $fail('Indica al massimo 10 indirizzi.');
+                }
+                foreach ($indirizzi as $indirizzo) {
+                    if (! filter_var($indirizzo, FILTER_VALIDATE_EMAIL)) {
+                        $fail("«{$indirizzo}» non è un indirizzo email valido.");
+                    }
+                }
+            }],
         ];
     }
 }

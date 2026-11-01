@@ -105,7 +105,7 @@ class CorsoIscrizioneController extends Controller
         [$iscrizioni, $referente] = $iscrizioni;
 
         // Dopo il commit: l'iscrizione è già al sicuro anche se un invio fallisce (vedi IscrizioneNotifier).
-        IscrizioneNotifier::invia($iscrizioni, $referente);
+        IscrizioneNotifier::invia($iscrizioni, $referente, avvisaSegreteria: true);
 
         return redirect()->route('corsi.iscrizione.confermata', $corso)->with('status', 'Iscrizione registrata.');
     }
