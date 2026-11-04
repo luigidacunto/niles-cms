@@ -5,6 +5,11 @@ incrementano la seconda cifra, le correzioni e i miglioramenti la terza. Le rele
 [GitHub](https://github.com/luigidacunto/niles-cms/releases). Le direzioni future sono nella [roadmap](ROADMAP.md).
 
 ## 1.1.12 — 2026-11-04
+- **Permessi degli utenti semplificati**: tutte le sezioni (Post, Pagine, Trasparenza, Documenti, Immagini, File, Comunicazioni soci, Membri)
+  hanno un solo interruttore «Lettura e scrittura»; solo i Corsi mantengono lettura e scrittura separate. Nel modulo utenti le sezioni a
+  permesso unico sono in una tabella, i Corsi in una seconda. Per i Corsi, attivare la Scrittura attiva anche la Lettura e disattivare la
+  Lettura disattiva anche la Scrittura.
+- Alla migrazione, chi aveva già un permesso (anche di sola lettura) su una delle sezioni a permesso unico passa a lettura e scrittura.
 - **Correzione degli errori di inserimento** (solo amministratori), per sistemare iscrizioni e anagrafiche create con dati sbagliati:
   - **Correggi iscritto** (Corsi → Iscritti): modifica i dati del partecipante e quelli di fatturazione e pagamento. Se la fatturazione è
     condivisa con altri iscritti, la modifica vale per tutti e la pagina lo segnala. Cambiando il codice fiscale l'iscrizione viene

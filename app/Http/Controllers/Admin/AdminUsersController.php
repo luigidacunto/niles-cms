@@ -151,6 +151,8 @@ class AdminUsersController extends Controller
 
             if ($actions && in_array($resource, Admin::COMBINED_PERMISSIONS, true)) {
                 $actions = ['read', 'write'];
+            } elseif (in_array('write', $actions, true)) {
+                $actions = ['read', 'write'];   // la scrittura implica la lettura (come nel form)
             }
 
             if ($actions) {

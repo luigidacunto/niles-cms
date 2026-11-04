@@ -77,53 +77,70 @@
                 <hr>
 
                 <h6>Permessi <small class="text-muted">— solo per ruolo Editor, un Admin li ha tutti</small></h6>
+                @php
+                    $combined = collect($resources)->only(\App\Models\Admin::COMBINED_PERMISSIONS);
+                    $split = collect($resources)->except(\App\Models\Admin::COMBINED_PERMISSIONS);
+                @endphp
                 <table class="table table-sm w-auto">
                     <thead>
                         <tr>
                             <th>Sezione</th>
-                            <th>Lettura</th>
-                            <th>Scrittura</th>
+                            <th>Lettura e scrittura</th>
                         </tr>
                     </thead>
                     <tbody>
-                        @foreach ($resources as $key => $label)
+                        @foreach ($combined as $key => $label)
                             @php $current = old("permissions.$key", $admin->permissions[$key] ?? []) @endphp
-                            @if (in_array($key, \App\Models\Admin::COMBINED_PERMISSIONS, true))
-                                <tr>
-                                    <td>{{ $label }}</td>
-                                    <td colspan="2">
-                                        <div class="custom-control custom-switch">
-                                            <input type="checkbox" class="custom-control-input permission-check"
-                                                   id="perm-{{ $key }}" name="permissions[{{ $key }}][]" value="write"
-                                                   @checked(in_array('write', $current))>
-                                            <label class="custom-control-label" for="perm-{{ $key }}">Lettura e scrittura</label>
-                                        </div>
-                                    </td>
-                                </tr>
-                            @else
                             <tr>
                                 <td>{{ $label }}</td>
                                 <td>
                                     <div class="custom-control custom-switch">
                                         <input type="checkbox" class="custom-control-input permission-check"
-                                               id="perm-{{ $key }}-read" name="permissions[{{ $key }}][]" value="read"
-                                               @checked(in_array('read', $current))>
-                                        <label class="custom-control-label" for="perm-{{ $key }}-read"></label>
-                                    </div>
-                                </td>
-                                <td>
-                                    <div class="custom-control custom-switch">
-                                        <input type="checkbox" class="custom-control-input permission-check"
-                                               id="perm-{{ $key }}-write" name="permissions[{{ $key }}][]" value="write"
-                                               @checked(in_array('write', $current))>
-                                        <label class="custom-control-label" for="perm-{{ $key }}-write"></label>
+                                               id="perm-{{ $key }}" name="permissions[{{ $key }}][]" value="write"
+                                               @checked($current)>
+                                        <label class="custom-control-label" for="perm-{{ $key }}"></label>
                                     </div>
                                 </td>
                             </tr>
-                            @endif
                         @endforeach
                     </tbody>
                 </table>
+
+                @if ($split->isNotEmpty())
+                    <table class="table table-sm w-auto">
+                        <thead>
+                            <tr>
+                                <th>Sezione</th>
+                                <th>Lettura</th>
+                                <th>Scrittura</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach ($split as $key => $label)
+                                @php $current = old("permissions.$key", $admin->permissions[$key] ?? []) @endphp
+                                <tr>
+                                    <td>{{ $label }}</td>
+                                    <td>
+                                        <div class="custom-control custom-switch">
+                                            <input type="checkbox" class="custom-control-input permission-check perm-read" data-resource="{{ $key }}"
+                                                   id="perm-{{ $key }}-read" name="permissions[{{ $key }}][]" value="read"
+                                                   @checked(in_array('read', $current))>
+                                            <label class="custom-control-label" for="perm-{{ $key }}-read"></label>
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <div class="custom-control custom-switch">
+                                            <input type="checkbox" class="custom-control-input permission-check perm-write" data-resource="{{ $key }}"
+                                                   id="perm-{{ $key }}-write" name="permissions[{{ $key }}][]" value="write"
+                                                   @checked(in_array('write', $current))>
+                                            <label class="custom-control-label" for="perm-{{ $key }}-write"></label>
+                                        </div>
+                                    </td>
+                                </tr>
+                            @endforeach
+                        </tbody>
+                    </table>
+                @endif
 
                 <hr>
 
@@ -179,6 +196,18 @@
                     newsCategoryInput.disabled = true;
                 }
             }
+
+            // Sezioni con lettura e scrittura separate: Scrittura accesa accende Lettura; Lettura spenta spegne Scrittura.
+            // Lettura da sola e Scrittura spenta da sola restano possibili.
+            document.querySelectorAll('.perm-write').forEach(function (write) {
+                var read = document.getElementById('perm-' + write.dataset.resource + '-read');
+                write.addEventListener('change', function () {
+                    if (write.checked) read.checked = true;
+                });
+                read.addEventListener('change', function () {
+                    if (!read.checked) write.checked = false;
+                });
+            });
 
             function lockAsAdmin() {
                 permissionInputs.forEach(function (el) {

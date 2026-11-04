@@ -10,8 +10,11 @@ class Admin extends Authenticatable
 {
     use Notifiable;
 
-    /** Sezioni con un solo permesso (lettura+scrittura insieme): salvato sempre come ['read','write']. */
-    public const COMBINED_PERMISSIONS = ['membri', 'comunicazioni_soci'];
+    /**
+     * Sezioni con un solo permesso (lettura+scrittura insieme): salvato sempre come ['read','write'].
+     * Le altre sezioni di config/permissions.php (oggi solo «corsi») hanno lettura e scrittura separate.
+     */
+    public const COMBINED_PERMISSIONS = ['posts', 'pages', 'trasparenza', 'documents', 'images', 'files', 'membri', 'comunicazioni_soci'];
 
     protected $fillable = [
         'name', 'email', 'password', 'role', 'active', 'password_login_enabled',
