@@ -46,7 +46,7 @@ class IscrizioneConsensiTest extends TestCase
     private function persona(string $cf, string $nome, string $email): array
     {
         return [
-            'nome' => $nome, 'cognome' => 'Test', 'email' => $email, 'telefono' => '333', 'codice_fiscale' => $cf,
+            'nome' => self::nomiDaCf($cf)[0], 'cognome' => self::nomiDaCf($cf)[1], 'email' => $email, 'telefono' => '333', 'codice_fiscale' => $cf,
             'via' => 'Via Roma 1', 'comune' => 'Bologna', 'provincia' => 'BO', 'cap' => '40100',
         ];
     }

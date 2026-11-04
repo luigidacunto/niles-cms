@@ -63,6 +63,10 @@
                 </table>
             </div>
             <div class="card-footer">
+                @php $cfDubbi = collect($plan['ops'])->where('cf_dubbio')->count(); @endphp
+                @if ($cfDubbi > 0)
+                    <p class="text-warning mb-2"><i class="fas fa-exclamation-triangle"></i> {{ $cfDubbi }} {{ $cfDubbi === 1 ? 'codice fiscale non torna' : 'codici fiscali non tornano' }} con nome, cognome o data di nascita (vedi le note): verranno importati comunque, controllali nel gestionale.</p>
+                @endif
                 @if ($plan['counts']['errore'] > 0)
                     <p class="text-warning mb-2"><i class="fas fa-exclamation-triangle"></i> Le righe con errori non verranno importate.</p>
                 @endif

@@ -105,6 +105,37 @@
         </div>
     </div>
 
+    @if (auth('admin')->user()->role === 'admin')
+        <div class="card card-warning card-outline">
+            <div class="card-header"><strong>Correzione errori di inserimento</strong></div>
+            <div class="card-body">
+                @if ($comeReferente->isNotEmpty())
+                    <form method="POST" action="{{ route('admin.persone.sostituisci-referente', $persona) }}" class="mb-3"
+                        onsubmit="return confirm('Spostare tutte le iscrizioni di cui questa persona è referente sulla persona indicata?');">
+                        @csrf
+                        <label>Questa persona è referente di {{ $comeReferente->count() }} {{ $comeReferente->count() === 1 ? 'iscrizione' : 'iscrizioni' }}. Se è un errore, indica il codice fiscale della persona corretta (già in anagrafica):</label>
+                        <div class="input-group" style="max-width: 28rem;">
+                            <input name="codice_fiscale" maxlength="16" class="form-control text-uppercase" placeholder="Codice fiscale corretto" required>
+                            <div class="input-group-append"><button class="btn btn-outline-warning">Sostituisci referente</button></div>
+                        </div>
+                    </form>
+                @endif
+
+                @if ($persona->eliminabile())
+                    <form method="POST" action="{{ route('admin.persone.destroy', $persona) }}"
+                        onsubmit="return confirm('Eliminare definitivamente questa persona e il suo storico dei consensi? Non si può annullare.');">
+                        @csrf @method('DELETE')
+                        <p class="mb-2">Nessuna iscrizione usa questa persona: si può eliminare (insieme al suo storico dei consensi).</p>
+                        <button class="btn btn-danger"><i class="fas fa-trash"></i> Elimina persona</button>
+                    </form>
+                @else
+                    <p class="mb-0 text-muted">Non si può eliminare finché è collegata a delle iscrizioni (come partecipante o referente): correggi prima quelle
+                        (<em>Correggi</em> nell'elenco iscritti del corso, o «Sostituisci referente» qui sopra).</p>
+                @endif
+            </div>
+        </div>
+    @endif
+
     @if (! $persona->anonimizzata() && auth('admin')->user()->role === 'admin')
         <div class="card card-danger card-outline">
             <div class="card-header"><strong>Cancellazione dei dati</strong></div>

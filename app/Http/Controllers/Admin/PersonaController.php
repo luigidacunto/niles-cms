@@ -6,6 +6,8 @@ use App\Http\Controllers\Controller;
 use App\Models\Persona;
 use App\Support\CsvSicuro;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Validation\Rule;
 
 /**
@@ -74,7 +76,7 @@ class PersonaController extends Controller
         return view('admin.persone.show', [
             'persona' => $persona,
             'iscrizioni' => $persona->iscrizioni()->with('corso.tipologia', 'referente')->latest()->get(),
-            'comeReferente' => \App\Models\IscrizioneCorso::where('referente_persona_id', $persona->id)->with('corso.tipologia')->latest()->get(),
+            'comeReferente' => $persona->iscrizioniComeReferente()->with('corso.tipologia')->latest()->get(),
             'storico' => $persona->consensi()->orderByDesc('id')->get(),
         ]);
     }
@@ -101,6 +103,48 @@ class PersonaController extends Controller
         $persona->anonimizza();
 
         return redirect()->route('admin.persone.show', $persona)->with('status', 'Dati anonimizzati.');
+    }
+
+    /**
+     * Cancella una persona inserita per errore (solo admin). Rifiutato se qualche iscrizione la usa ancora come
+     * partecipante o come referente: prima si riagganciano quelle alla persona giusta. Lo storico dei consensi
+     * cade con lei (cascata a DB).
+     */
+    public function destroy(Request $request, Persona $persona)
+    {
+        abort_unless($request->user('admin')->role === 'admin', 403);
+
+        if (! $persona->eliminabile()) {
+            return back()->withErrors(['elimina' => 'Questa persona è ancora collegata a delle iscrizioni (come partecipante o come referente): riagganciale prima a quella corretta.']);
+        }
+
+        Log::info('Persona eliminata', ['admin' => $request->user('admin')->email, 'persona_id' => $persona->id, 'cf' => $persona->codice_fiscale, 'nome' => "{$persona->nome} {$persona->cognome}"]);
+        $persona->delete();
+
+        return redirect()->route('admin.persone.index')->with('status', 'Persona eliminata.');
+    }
+
+    /** Sposta su un'altra persona (già esistente, indicata dal codice fiscale) tutte le iscrizioni di cui questa è referente. Solo admin. */
+    public function sostituisciReferente(Request $request, Persona $persona)
+    {
+        abort_unless($request->user('admin')->role === 'admin', 403);
+        $dati = $request->validate(['codice_fiscale' => ['required', 'string', 'size:16']]);
+
+        $nuova = Persona::where('codice_fiscale', strtoupper($dati['codice_fiscale']))->whereNull('anonimizzata_at')->first();
+        if (! $nuova || $nuova->is($persona)) {
+            return back()->withErrors(['codice_fiscale' => 'Nessun\'altra persona con questo codice fiscale: deve già esistere in anagrafica.']);
+        }
+
+        $spostate = DB::transaction(function () use ($persona, $nuova) {
+            // Se il nuovo referente è anche il partecipante, il campo torna vuoto (stessa convenzione del modulo pubblico).
+            $persona->iscrizioniComeReferente()->where('persona_id', $nuova->id)->update(['referente_persona_id' => null]);
+
+            return $persona->iscrizioniComeReferente()->update(['referente_persona_id' => $nuova->id]);
+        });
+
+        Log::info('Referente sostituito', ['admin' => $request->user('admin')->email, 'da_persona_id' => $persona->id, 'a_persona_id' => $nuova->id]);
+
+        return back()->with('status', "Referente sostituito su {$spostate} iscrizioni (ora: {$nuova->nome} {$nuova->cognome}).");
     }
 
     /** CSV dei contatti con consenso newsletter confermato, con le colonne scelte (adattabile alle esigenze di ogni comitato). */

@@ -11,12 +11,17 @@ use App\Models\IscrizioneCorso;
 use App\Models\Persona;
 use App\Rules\CampoAnagrafico;
 use App\Rules\CodiceFiscale;
+use App\Rules\CodiceFiscaleCoerente;
 use App\Rules\PartitaIva;
 use App\Support\CsvSicuro;
 use App\Support\Pulizia;
 use App\Support\IscrizioneNotifier;
 use Barryvdh\DomPDF\Facade\Pdf;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Http\Request;
+use Illuminate\Support\Arr;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Validation\Rule;
 use Maatwebsite\Excel\Facades\Excel;
 
@@ -130,15 +135,7 @@ class CorsoIscrizioneController extends Controller
         $esistente = $modo === 'esistente';
 
         $data = $request->validate([
-            'nominativo.nome' => ['required', 'string', 'max:255', new CampoAnagrafico('nome')],
-            'nominativo.cognome' => ['required', 'string', 'max:255', new CampoAnagrafico('nome')],
-            'nominativo.email' => ['required', 'email', 'max:255'],
-            'nominativo.telefono' => ['required', 'string', 'max:30', new CampoAnagrafico('telefono')],
-            'nominativo.codice_fiscale' => ['required', new CodiceFiscale],
-            'nominativo.via' => ['required', 'string', 'max:255', new CampoAnagrafico('via')],
-            'nominativo.comune' => ['required', 'string', 'max:255', new CampoAnagrafico('nome')],
-            'nominativo.provincia' => ['required', 'string', new CampoAnagrafico('provincia')],
-            'nominativo.cap' => ['required', 'string', new CampoAnagrafico('cap')],
+            ...self::regoleNominativo(),
 
             'fatturazione_modo' => ['nullable', Rule::in(['stessi', 'esistente', 'manuale'])],
             'fatturazione_esistente_id' => [
@@ -146,43 +143,12 @@ class CorsoIscrizioneController extends Controller
                 Rule::exists('iscrizioni_corso', 'dati_fatturazione_corso_id')->where('corso_id', $corso->id),
             ],
 
-            'fatturazione.tipo' => [Rule::requiredIf($modo === 'manuale'), Rule::in(['privato', 'azienda'])],
-            'fatturazione.nome' => ['required_if:fatturazione.tipo,privato', 'nullable', 'string', 'max:255', new CampoAnagrafico('nome')],
-            'fatturazione.cognome' => ['required_if:fatturazione.tipo,privato', 'nullable', 'string', 'max:255', new CampoAnagrafico('nome')],
-            'fatturazione.ragione_sociale' => ['required_if:fatturazione.tipo,azienda', 'nullable', 'string', 'max:255'],
-            'fatturazione.partita_iva' => ['required_if:fatturazione.tipo,azienda', 'nullable', new PartitaIva],
-            'fatturazione.codice_fiscale' => ['nullable', new CodiceFiscale],
-            'fatturazione.via' => ['nullable', 'string', 'max:255', new CampoAnagrafico('via')],
-            'fatturazione.comune' => ['nullable', 'string', 'max:255', new CampoAnagrafico('nome')],
-            'fatturazione.provincia' => ['nullable', 'string', new CampoAnagrafico('provincia')],
-            'fatturazione.cap' => ['nullable', 'string', new CampoAnagrafico('cap')],
-            'fatturazione.codice_destinatario' => ['nullable', 'regex:/^[A-Za-z0-9]{6,7}$/'],
-            'fatturazione.pec' => ['nullable', 'email', 'max:255'],
-            'fatturazione.metodo_pagamento' => ['nullable', Rule::in($metodiPagamento)],
+            ...self::regoleFatturazione($metodiPagamento, $modo === 'manuale'),
 
             // Nessuna spunta di consenso newsletter/promemoria qui: la persona li sceglie dal link nell'email
             // di iscrizione (un consenso dato a voce non è documentabile).
             'privacy_confermata' => ['accepted'],
-        ], [
-            'fatturazione.codice_destinatario.regex' => 'Il codice destinatario deve essere di 7 caratteri (6 per la pubblica amministrazione), solo lettere e numeri.',
-            'fatturazione.pec.email' => 'La PEC deve essere un indirizzo email valido.',
-        ], [
-            'nominativo.nome' => 'nome',
-            'nominativo.cognome' => 'cognome',
-            'nominativo.email' => 'email',
-            'nominativo.telefono' => 'telefono',
-            'nominativo.codice_fiscale' => 'codice fiscale',
-            'nominativo.via' => 'via / largo / piazza / località',
-            'nominativo.comune' => 'comune',
-            'nominativo.provincia' => 'provincia',
-            'nominativo.cap' => 'CAP',
-            'fatturazione.nome' => 'nome di fatturazione',
-            'fatturazione.cognome' => 'cognome di fatturazione',
-            'fatturazione.via' => 'via / largo / piazza / località di fatturazione',
-            'fatturazione.comune' => 'comune di fatturazione',
-            'fatturazione.provincia' => 'provincia di fatturazione',
-            'fatturazione.cap' => 'CAP di fatturazione',
-        ]);
+        ], self::MESSAGGI, self::ATTRIBUTI);
 
         if ($corso->iscrizioni()->attive()->where('codice_fiscale', strtoupper($data['nominativo']['codice_fiscale']))->exists()) {
             return back()->withInput()->withErrors(['nominativo.codice_fiscale' => 'Questa persona risulta già iscritta a questo corso.']);
@@ -220,6 +186,169 @@ class CorsoIscrizioneController extends Controller
         IscrizioneNotifier::invia([$iscrizione]);
 
         return redirect()->route('admin.corsi.iscritti.index', $corso)->with('status', 'Iscritto aggiunto: gli abbiamo inviato l\'email di iscrizione.');
+    }
+
+    /**
+     * Correzione di un'iscrizione già registrata (solo admin): dati del partecipante e dati di fatturazione.
+     * Pensata per errori di inserimento (es. CF sbagliato): le persone create per errore restano senza riferimenti
+     * e si eliminano da Admin → Persone.
+     */
+    public function correggi(Request $request, Corso $corso, IscrizioneCorso $iscrizione)
+    {
+        $this->iscrizioneCorreggibile($corso, $iscrizione);
+
+        $fatturazione = $iscrizione->datiFatturazione;
+
+        return view('admin.corsi.iscritti.correggi', [
+            'corso' => $corso,
+            'iscrizione' => $iscrizione,
+            'fatturazione' => $fatturazione,
+            'condivisaCon' => $fatturazione->iscrizioni()->where('id', '!=', $iscrizione->id)->get(),
+            // Metodi attuali del comitato + quello già salvato (può essere un valore storico non più in elenco).
+            'metodi' => array_values(array_unique(array_filter([...CommitteeInfo::current()->metodi_pagamento, $fatturazione->metodo_pagamento]))),
+        ]);
+    }
+
+    public function aggiorna(Request $request, Corso $corso, IscrizioneCorso $iscrizione)
+    {
+        $this->iscrizioneCorreggibile($corso, $iscrizione);
+
+        $request->merge(array_filter([
+            'nominativo' => is_array($request->input('nominativo')) ? Pulizia::persona($request->input('nominativo')) : null,
+            'fatturazione' => is_array($request->input('fatturazione')) ? Pulizia::fatturazione($request->input('fatturazione')) : null,
+        ], fn ($v) => $v !== null));
+
+        $fatturazione = $iscrizione->datiFatturazione;
+        $metodi = array_values(array_unique(array_filter([...CommitteeInfo::current()->metodi_pagamento, $fatturazione->metodo_pagamento])));
+
+        $data = $request->validate([...self::regoleNominativo(), ...self::regoleFatturazione($metodi, true)], self::MESSAGGI, self::ATTRIBUTI);
+
+        $cf = strtoupper($data['nominativo']['codice_fiscale']);
+        $doppione = ! $iscrizione->ritirata() && $corso->iscrizioni()->attive()->where('codice_fiscale', $cf)->where('id', '!=', $iscrizione->id)->exists();
+        if ($doppione) {
+            return back()->withInput()->withErrors(['nominativo.codice_fiscale' => 'Questa persona risulta già iscritta a questo corso.']);
+        }
+
+        $vecchia = $iscrizione->persona;
+
+        $modifiche = DB::transaction(function () use ($data, $iscrizione, $fatturazione, $vecchia, $cf) {
+            // Persona del partecipante: quella con il CF indicato (esistente o nuova), con i dati aggiornati.
+            $persona = Persona::daDati($data['nominativo']);
+
+            $iscrizione->fill([
+                'persona_id' => $persona->id,
+                // Referente vuoto = si è iscritto da solo. Se il CF cambia, la correzione si considera sempre la stessa
+                // persona (errore di battitura): resta vuoto. Un referente esplicito si tiene, salvo che coincida col partecipante.
+                'referente_persona_id' => $iscrizione->referente_persona_id === $persona->id ? null : $iscrizione->referente_persona_id,
+                'nome' => $data['nominativo']['nome'],
+                'cognome' => $data['nominativo']['cognome'],
+                'email' => $data['nominativo']['email'],
+                'telefono' => $data['nominativo']['telefono'] ?? null,
+                'codice_fiscale' => $cf,
+                'via' => $data['nominativo']['via'] ?? null,
+                'comune' => $data['nominativo']['comune'] ?? null,
+                'provincia' => $data['nominativo']['provincia'] ?? null,
+                'cap' => $data['nominativo']['cap'] ?? null,
+            ]);
+
+            // ⚠️ Email/telefono della fatturazione NON si toccano: in un gruppo sono i contatti di chi ha compilato il modulo.
+            $f = Arr::except(DatiFatturazioneCorso::datiDaInput($data['fatturazione'], []), ['email', 'telefono']);
+            $azienda = $f['tipo'] === 'azienda';
+            $fatturazione->fill($azienda
+                ? ['nome' => null, 'cognome' => null] + $f
+                : ['ragione_sociale' => null, 'partita_iva' => null, 'codice_destinatario' => null, 'pec' => null] + $f);
+
+            $modifiche = ['iscrizione' => self::differenze($iscrizione), 'fatturazione' => self::differenze($fatturazione)];
+            $iscrizione->save();
+            $fatturazione->save();
+
+            // Se la persona precedente è rimasta senza riferimenti, i suoi consensi (dati dalla stessa persona reale
+            // tramite il link dell'email) passano a quella corretta, per non perderli con la cancellazione.
+            if (! $vecchia->is($persona) && $vecchia->eliminabile()) {
+                $persona->assorbiConsensi($vecchia);
+            }
+
+            return $modifiche;
+        });
+
+        Log::info('Iscrizione corretta', ['admin' => $request->user('admin')->email, 'corso' => $corso->protocollo, 'iscrizione_id' => $iscrizione->id] + $modifiche);
+
+        $messaggio = 'Iscrizione corretta.';
+        if (! $vecchia->is($iscrizione->persona) && $vecchia->eliminabile()) {
+            $messaggio .= " La persona {$vecchia->nome} {$vecchia->cognome} ({$vecchia->codice_fiscale}) non ha più riferimenti: puoi eliminarla da Persone.";
+        }
+
+        return redirect()->route('admin.corsi.iscritti.index', $corso)->with('status', $messaggio);
+    }
+
+    private function iscrizioneCorreggibile(Corso $corso, IscrizioneCorso $iscrizione): void
+    {
+        abort_unless($iscrizione->corso_id === $corso->id && ! $iscrizione->persona->anonimizzata(), 404);
+    }
+
+    /** Campi cambiati di un modello non ancora salvato, come [campo => [prima, dopo]] (per il log). */
+    private static function differenze(Model $modello): array
+    {
+        return collect($modello->getDirty())->map(fn ($nuovo, $campo) => [$modello->getOriginal($campo), $nuovo])->all();
+    }
+
+    private const MESSAGGI = [
+        'fatturazione.codice_destinatario.regex' => 'Il codice destinatario deve essere di 7 caratteri (6 per la pubblica amministrazione), solo lettere e numeri.',
+        'fatturazione.pec.email' => 'La PEC deve essere un indirizzo email valido.',
+    ];
+
+    private const ATTRIBUTI = [
+        'nominativo.nome' => 'nome',
+        'nominativo.cognome' => 'cognome',
+        'nominativo.email' => 'email',
+        'nominativo.telefono' => 'telefono',
+        'nominativo.codice_fiscale' => 'codice fiscale',
+        'nominativo.via' => 'via / largo / piazza / località',
+        'nominativo.comune' => 'comune',
+        'nominativo.provincia' => 'provincia',
+        'nominativo.cap' => 'CAP',
+        'fatturazione.nome' => 'nome di fatturazione',
+        'fatturazione.cognome' => 'cognome di fatturazione',
+        'fatturazione.via' => 'via / largo / piazza / località di fatturazione',
+        'fatturazione.comune' => 'comune di fatturazione',
+        'fatturazione.provincia' => 'provincia di fatturazione',
+        'fatturazione.cap' => 'CAP di fatturazione',
+    ];
+
+    /** Regole dei dati del partecipante (inserimento manuale e correzione). */
+    private static function regoleNominativo(): array
+    {
+        return [
+            'nominativo.nome' => ['required', 'string', 'max:255', new CampoAnagrafico('nome')],
+            'nominativo.cognome' => ['required', 'string', 'max:255', new CampoAnagrafico('nome')],
+            'nominativo.email' => ['required', 'email', 'max:255'],
+            'nominativo.telefono' => ['required', 'string', 'max:30', new CampoAnagrafico('telefono')],
+            'nominativo.codice_fiscale' => ['required', new CodiceFiscale, new CodiceFiscaleCoerente(controllaNomi: false)],
+            'nominativo.via' => ['required', 'string', 'max:255', new CampoAnagrafico('via')],
+            'nominativo.comune' => ['required', 'string', 'max:255', new CampoAnagrafico('nome')],
+            'nominativo.provincia' => ['required', 'string', new CampoAnagrafico('provincia')],
+            'nominativo.cap' => ['required', 'string', new CampoAnagrafico('cap')],
+        ];
+    }
+
+    /** Regole del blocco fatturazione compilato a mano; `$obbligatoria` = il tipo (privato/azienda) è richiesto. */
+    private static function regoleFatturazione(array $metodiPagamento, bool $obbligatoria): array
+    {
+        return [
+            'fatturazione.tipo' => [Rule::requiredIf($obbligatoria), Rule::in(['privato', 'azienda'])],
+            'fatturazione.nome' => ['required_if:fatturazione.tipo,privato', 'nullable', 'string', 'max:255', new CampoAnagrafico('nome')],
+            'fatturazione.cognome' => ['required_if:fatturazione.tipo,privato', 'nullable', 'string', 'max:255', new CampoAnagrafico('nome')],
+            'fatturazione.ragione_sociale' => ['required_if:fatturazione.tipo,azienda', 'nullable', 'string', 'max:255'],
+            'fatturazione.partita_iva' => ['required_if:fatturazione.tipo,azienda', 'nullable', new PartitaIva],
+            'fatturazione.codice_fiscale' => ['nullable', new CodiceFiscale],
+            'fatturazione.via' => ['nullable', 'string', 'max:255', new CampoAnagrafico('via')],
+            'fatturazione.comune' => ['nullable', 'string', 'max:255', new CampoAnagrafico('nome')],
+            'fatturazione.provincia' => ['nullable', 'string', new CampoAnagrafico('provincia')],
+            'fatturazione.cap' => ['nullable', 'string', new CampoAnagrafico('cap')],
+            'fatturazione.codice_destinatario' => ['nullable', 'regex:/^[A-Za-z0-9]{6,7}$/'],
+            'fatturazione.pec' => ['nullable', 'email', 'max:255'],
+            'fatturazione.metodo_pagamento' => ['nullable', Rule::in($metodiPagamento)],
+        ];
     }
 
     public function export(Request $request, Corso $corso, string $formato)

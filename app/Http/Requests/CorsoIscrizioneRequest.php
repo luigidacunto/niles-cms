@@ -7,6 +7,7 @@ use App\Models\IscrizioneCorso;
 use App\Models\SicurezzaForm;
 use App\Rules\CampoAnagrafico;
 use App\Rules\CodiceFiscale;
+use App\Rules\CodiceFiscaleCoerente;
 use App\Rules\Maggiorenne;
 use App\Rules\PartitaIva;
 use App\Rules\TurnstileToken;
@@ -53,7 +54,7 @@ class CorsoIscrizioneRequest extends FormRequest
             'richiedente.cognome' => ['required', 'string', 'max:255', new CampoAnagrafico('nome')],
             'richiedente.email' => ['required', 'email', 'max:255'],
             'richiedente.telefono' => ['nullable', 'string', 'max:30', new CampoAnagrafico('telefono')],
-            'richiedente.codice_fiscale' => ['required', new CodiceFiscale],
+            'richiedente.codice_fiscale' => ['required', new CodiceFiscale, new CodiceFiscaleCoerente],
 
             'fatturazione_unica' => ['boolean'],
 
@@ -77,7 +78,7 @@ class CorsoIscrizioneRequest extends FormRequest
             'nominativi.*.cognome' => ['required', 'string', 'max:255', new CampoAnagrafico('nome')],
             'nominativi.*.email' => ['required', 'email', 'max:255'],
             'nominativi.*.telefono' => ['required', 'string', 'max:30', new CampoAnagrafico('telefono')],
-            'nominativi.*.codice_fiscale' => ['required', new CodiceFiscale],
+            'nominativi.*.codice_fiscale' => ['required', new CodiceFiscale, new CodiceFiscaleCoerente],
             'nominativi.*.via' => ['required', 'string', 'max:255', new CampoAnagrafico('via')],
             'nominativi.*.comune' => ['required', 'string', 'max:255', new CampoAnagrafico('nome')],
             'nominativi.*.provincia' => ['required', 'string', new CampoAnagrafico('provincia')],

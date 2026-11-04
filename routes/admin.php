@@ -182,6 +182,8 @@ Route::prefix('admin')->name('admin.')->group(function () {
             Route::get('{persona}', [PersonaController::class, 'show'])->name('show');
             Route::post('{persona}/consensi/{finalita}/revoca', [PersonaController::class, 'revoca'])->name('revoca');
             Route::post('{persona}/anonimizza', [PersonaController::class, 'anonimizza'])->middleware('admin.role')->name('anonimizza');
+            Route::post('{persona}/sostituisci-referente', [PersonaController::class, 'sostituisciReferente'])->middleware('admin.role')->name('sostituisci-referente');
+            Route::delete('{persona}', [PersonaController::class, 'destroy'])->middleware('admin.role')->name('destroy');
         });
 
         // Template delle email di sistema (default seedato + personalizzazione). Solo admin.
@@ -301,6 +303,8 @@ Route::prefix('admin')->name('admin.')->group(function () {
                 Route::get('stampa', [CorsoIscrizioneController::class, 'stampa'])->name('stampa');
                 Route::put('{iscrizione}/ritira', [CorsoIscrizioneController::class, 'ritira'])->name('ritira');
                 Route::put('{iscrizione}/ripristina', [CorsoIscrizioneController::class, 'ripristina'])->name('ripristina');
+                Route::get('{iscrizione}/correggi', [CorsoIscrizioneController::class, 'correggi'])->middleware('admin.role')->name('correggi');
+                Route::put('{iscrizione}/correggi', [CorsoIscrizioneController::class, 'aggiorna'])->middleware('admin.role')->name('aggiorna');
                 Route::post('/', [CorsoIscrizioneController::class, 'store'])->name('store');
                 Route::get('export/{formato}', [CorsoIscrizioneController::class, 'export'])
                     ->whereIn('formato', ['csv', 'xlsx', 'pdf'])->name('export');

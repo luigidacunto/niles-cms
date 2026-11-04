@@ -3,6 +3,7 @@
 namespace App\Services;
 
 use App\Models\Member;
+use App\Support\CodiceFiscaleInfo;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\DB;
 use PhpOffice\PhpSpreadsheet\IOFactory;
@@ -75,6 +76,7 @@ class MemberImportService
 
         foreach ($parsed as $cf => [$r, $ruolo]) {
             $m = $existing->get($cf);
+            $opsPrima = count($ops);
             if (! $m) {
                 $email = $this->email($r['Email'] ?? null);
                 $avviso = null;
@@ -92,6 +94,13 @@ class MemberImportService
                 $ops[] = $this->op(self::OP_CAMBIO_RUOLO, $cf, $r, $ruolo, $m);
             } else {
                 $ops[] = $this->op(self::OP_INVARIATO, $cf, $r, $ruolo, $m);
+            }
+
+            // Solo un avviso (il file arriva già dal gestionale): la riga si importa comunque, ma in anteprima si vede cosa non torna.
+            $dubbi = CodiceFiscaleInfo::incoerenze($cf, (string) $r['Nome'], (string) $r['Cognome']);
+            if ($dubbi !== []) {
+                $ops[$opsPrima]['avviso'] = trim(($ops[$opsPrima]['avviso'] ?? '').' Codice fiscale da controllare: '.implode(' ', $dubbi));
+                $ops[$opsPrima]['cf_dubbio'] = true;
             }
         }
 

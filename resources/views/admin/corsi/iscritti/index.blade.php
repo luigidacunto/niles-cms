@@ -2,7 +2,10 @@
 
 @section('title', 'Iscritti — '.$corso->protocollo)
 
-@php $canWrite = Auth::guard('admin')->user()->hasPermission('corsi', 'write'); @endphp
+@php
+    $canWrite = Auth::guard('admin')->user()->hasPermission('corsi', 'write');
+    $isAdmin = Auth::guard('admin')->user()->role === 'admin';
+@endphp
 
 @section('content_header')
     <div class="d-flex justify-content-between align-items-center flex-wrap">
@@ -89,6 +92,9 @@
                             <td>{{ $iscrizione->created_at->format('d/m/Y H:i') }}</td>
                             @if ($canWrite)
                                 <td class="text-right text-nowrap">
+                                    @if ($isAdmin)
+                                        <a href="{{ route('admin.corsi.iscritti.correggi', [$corso, $iscrizione]) }}" class="btn btn-sm btn-outline-primary" title="Correggi i dati dell'iscritto e della fatturazione"><i class="fas fa-pen"></i> Correggi</a>
+                                    @endif
                                     @if ($iscrizione->ritirata())
                                         <form method="POST" action="{{ route('admin.corsi.iscritti.ripristina', [$corso, $iscrizione]) }}" class="d-inline">
                                             @csrf @method('PUT')

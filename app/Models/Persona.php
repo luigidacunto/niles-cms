@@ -47,9 +47,24 @@ class Persona extends Model
         return $this->hasMany(IscrizioneCorso::class);
     }
 
+    /** Iscrizioni compilate da questa persona per conto di altri (campo `referente_persona_id`). */
+    public function iscrizioniComeReferente(): HasMany
+    {
+        return $this->hasMany(IscrizioneCorso::class, 'referente_persona_id');
+    }
+
     public function consensi(): HasMany
     {
         return $this->hasMany(Consenso::class);
+    }
+
+    /**
+     * Una persona si può cancellare solo se nessuna iscrizione la usa, né come partecipante né come referente
+     * (un referente vuoto significherebbe "si è iscritto da solo": il dato diventerebbe falso).
+     */
+    public function eliminabile(): bool
+    {
+        return ! $this->iscrizioni()->exists() && ! $this->iscrizioniComeReferente()->exists();
     }
 
     /**
@@ -101,6 +116,29 @@ class Persona extends Model
             ]);
 
             $this->forceFill(["{$finalita}_stato" => $evento, "{$finalita}_stato_at" => now()])->save();
+        });
+    }
+
+    /**
+     * Fonde i consensi di un'altra riga che era la stessa persona reale (errore di battitura nel codice fiscale):
+     * lo storico passa a questa riga e, per ogni finalità, vale lo stato più recente dei due. ⚠️ Eccezione voluta a
+     * "solo registraConsenso() scrive i consensi": non nasce una nuova volontà, si sposta quella già espressa.
+     */
+    public function assorbiConsensi(self $da): void
+    {
+        DB::transaction(function () use ($da) {
+            $da->consensi()->update(['persona_id' => $this->id]);
+
+            foreach (self::FINALITA as $f) {
+                $at = $da->{"{$f}_stato_at"};
+                if ($at && (! $this->{"{$f}_stato_at"} || $at->gt($this->{"{$f}_stato_at"}))) {
+                    $this->forceFill(["{$f}_stato" => $da->{"{$f}_stato"}, "{$f}_stato_at" => $at]);
+                }
+                $da->forceFill(["{$f}_stato" => null, "{$f}_stato_at" => null]);
+            }
+
+            $this->save();
+            $da->save();
         });
     }
 

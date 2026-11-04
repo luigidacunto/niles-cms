@@ -4,6 +4,20 @@ Elenco delle modifiche di ogni versione, dalla più recente. Le versioni seguono
 incrementano la seconda cifra, le correzioni e i miglioramenti la terza. Le release complete, con i pacchetti scaricabili, sono su
 [GitHub](https://github.com/luigidacunto/niles-cms/releases). Le direzioni future sono nella [roadmap](ROADMAP.md).
 
+## 1.1.12 — 2026-11-04
+- **Correzione degli errori di inserimento** (solo amministratori), per sistemare iscrizioni e anagrafiche create con dati sbagliati:
+  - **Correggi iscritto** (Corsi → Iscritti): modifica i dati del partecipante e quelli di fatturazione e pagamento. Se la fatturazione è
+    condivisa con altri iscritti, la modifica vale per tutti e la pagina lo segnala. Cambiando il codice fiscale l'iscrizione viene
+    ricollegata alla persona corretta e i consensi della persona sbagliata passano a quella giusta.
+  - **Elimina persona** (scheda Persone): consentita solo se la persona non ha iscrizioni né è referente di altre iscrizioni.
+  - **Sostituisci referente**: sposta tutte le iscrizioni di un referente sbagliato su un'altra persona esistente, indicata dal codice fiscale.
+  - Ogni correzione viene registrata nel log dell'applicazione.
+- **Controllo più accurato del codice fiscale** nei moduli dei corsi: oltre al formato si verificano data di nascita (anche con omocodia),
+  lettere di cognome e nome, con un messaggio che indica quale parte non torna e se nome e cognome sembrano invertiti. Le ultime cinque
+  posizioni (comune e carattere di controllo) non vengono verificate. Nell'inserimento manuale della segreteria non si controllano i nomi.
+  L'anagrafica dei soci resta invariata; nell'anteprima dell'importazione dei soci un codice fiscale incoerente produce un avviso, ma la
+  riga viene importata comunque.
+
 ## 1.1.11 — 2026-11-02
 - **Risposte ai corsisti**: le email inviate a chi si iscrive a un corso (conferma di iscrizione e riepilogo al referente) hanno come «Rispondi a»
   il primo indirizzo dell'elenco dell'avviso di iscrizione (Posta in uscita, sezione Formazione), se presente; altrimenti vale il «Rispondi a»

@@ -3,6 +3,7 @@
 namespace App\Support;
 
 use Carbon\Carbon;
+use Illuminate\Support\Str;
 
 /**
  * Informazioni ricavabili dal codice fiscale (oggi solo la data di nascita, per il blocco dei
@@ -45,6 +46,101 @@ class CodiceFiscaleInfo
         $data = self::dataNascita($cf);
 
         return $data === null ? null : $data->lte(now()->subYears(18)->startOfDay());
+    }
+
+    /**
+     * Incoerenze del codice fiscale, in italiano e per parte (lista vuota = tutto torna). Si controllano le prime 11 posizioni:
+     * lettere di cognome/nome (3+3, confrontate con quelli indicati se presenti) e data di nascita (anno, mese, giorno).
+     * ⚠️ Le ultime 5 (codice del comune + carattere di controllo) NON si verificano: il comune richiederebbe la tabella
+     * catastale; chi parte da qui può estendere (il carattere di controllo è calcolabile, ma si è scelto di non usarlo).
+     * Omocodia gestita (cifre sostituite da LMNPQRSTUV).
+     *
+     * @return list<string>
+     */
+    public static function incoerenze(string $cf, ?string $nome = null, ?string $cognome = null): array
+    {
+        $cf = strtoupper(trim($cf));
+        if (! preg_match('/^[A-Z0-9]{16}$/', $cf)) {
+            return ['Il codice fiscale deve essere di 16 caratteri alfanumerici.'];
+        }
+
+        $problemi = [];
+
+        if (! preg_match('/^[A-Z]{6}$/', substr($cf, 0, 6))) {
+            $problemi[] = 'Le prime 6 posizioni del codice fiscale (da cognome e nome) devono essere lettere.';
+        } else {
+            $problemi = [...$problemi, ...self::incoerenzeNomi($cf, $nome, $cognome)];
+        }
+
+        if (! preg_match('/^[0-9LMNPQRSTUV]{2}$/', substr($cf, 6, 2))) {
+            $problemi[] = 'L\'anno di nascita nel codice fiscale (7ª e 8ª posizione) non è valido.';
+        }
+
+        $mese = self::MESI[$cf[8]] ?? null;
+        if ($mese === null) {
+            $problemi[] = 'Il mese di nascita nel codice fiscale (9ª posizione) non è valido.';
+        }
+
+        $giorno = preg_match('/^[0-9LMNPQRSTUV]{2}$/', substr($cf, 9, 2)) ? (int) self::cifre(substr($cf, 9, 2)) : 0;
+        $giorno = $giorno > 40 ? $giorno - 40 : $giorno;                      // le donne hanno +40
+        // Anno bisestile come riferimento: il 29/02 è ammesso (l'anno è a 2 cifre e il secolo non è noto).
+        if ($giorno < 1 || ($mese !== null && ! checkdate($mese, $giorno, 2000))) {
+            $problemi[] = 'Il giorno di nascita nel codice fiscale (10ª e 11ª posizione) non è valido per il mese indicato.';
+        }
+
+        return $problemi;
+    }
+
+    /** @return list<string> */
+    private static function incoerenzeNomi(string $cf, ?string $nome, ?string $cognome): array
+    {
+        $codiceCognome = $cognome !== null ? self::codiceCognome($cognome) : null;
+        $codiceNome = $nome !== null ? self::codiceNome($nome) : null;
+        $cfCognome = substr($cf, 0, 3);
+        $cfNome = substr($cf, 3, 3);
+
+        $cognomeOk = $codiceCognome === null || $codiceCognome === $cfCognome;
+        $nomeOk = $codiceNome === null || $codiceNome === $cfNome;
+
+        if (! $cognomeOk && ! $nomeOk && $codiceCognome === $cfNome && $codiceNome === $cfCognome) {
+            return ['Nome e cognome sembrano invertiti rispetto al codice fiscale.'];
+        }
+
+        $problemi = [];
+        if (! $cognomeOk) {
+            $problemi[] = "Il codice fiscale non corrisponde al cognome «{$cognome}» (le prime 3 lettere derivano dal cognome).";
+        }
+        if (! $nomeOk) {
+            $problemi[] = "Il codice fiscale non corrisponde al nome «{$nome}» (la 4ª, 5ª e 6ª lettera derivano dal nome).";
+        }
+
+        return $problemi;
+    }
+
+    /** Lettere (A-Z, senza accenti) del nome, divise in consonanti e vocali; null se non ce ne sono. */
+    private static function lettere(string $s): ?array
+    {
+        $l = preg_replace('/[^A-Z]/', '', strtoupper(Str::ascii($s)));
+
+        return $l === '' ? null : [preg_replace('/[AEIOU]/', '', $l), preg_replace('/[^AEIOU]/', '', $l)];
+    }
+
+    private static function codiceCognome(string $cognome): ?string
+    {
+        $l = self::lettere($cognome);
+
+        return $l === null ? null : substr($l[0].$l[1].'XXX', 0, 3);
+    }
+
+    private static function codiceNome(string $nome): ?string
+    {
+        $l = self::lettere($nome);
+        if ($l === null) {
+            return null;
+        }
+
+        // Con 4 o più consonanti si usano la 1ª, la 3ª e la 4ª.
+        return strlen($l[0]) >= 4 ? $l[0][0].$l[0][2].$l[0][3] : substr($l[0].$l[1].'XXX', 0, 3);
     }
 
     private static function cifre(string $s): string

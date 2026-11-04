@@ -48,7 +48,7 @@ class PagamentoGruppoTest extends TestCase
 
     private function p(string $cf, string $nome, string $email): array
     {
-        return ['nome' => $nome, 'cognome' => 'Test', 'email' => $email, 'telefono' => '333', 'codice_fiscale' => $cf,
+        return ['nome' => self::nomiDaCf($cf)[0], 'cognome' => self::nomiDaCf($cf)[1], 'email' => $email, 'telefono' => '333', 'codice_fiscale' => $cf,
             'via' => 'Via Roma 1', 'comune' => 'Bologna', 'provincia' => 'BO', 'cap' => '40100'];
     }
 
@@ -85,7 +85,7 @@ class PagamentoGruppoTest extends TestCase
         $this->assertSame(2, DatiFatturazioneCorso::count());
         $fBruno = IscrizioneCorso::firstWhere('codice_fiscale', self::BRUNO)->datiFatturazione;
         $this->assertSame('privato', $fBruno->tipo);
-        $this->assertSame(['Bruno', 'Test', self::BRUNO], [$fBruno->nome, $fBruno->cognome, $fBruno->codice_fiscale]);
+        $this->assertSame(['Pla', 'Nri', self::BRUNO], [$fBruno->nome, $fBruno->cognome, $fBruno->codice_fiscale]);
         $this->assertSame('bruno@azienda.test', $fBruno->email);
         $this->assertSame('Bonifico', $fBruno->metodo_pagamento);
         $this->assertSame('Contanti', IscrizioneCorso::firstWhere('codice_fiscale', self::CARLA)->datiFatturazione->metodo_pagamento);
@@ -93,7 +93,7 @@ class PagamentoGruppoTest extends TestCase
         // Bruno (bonifico) ha le coordinate nella sua email, con la sua causale; Carla (contanti) no.
         $mailBruno = $this->html($this->inviata(IscrizioneCorsoMail::class, 'bruno@azienda.test'));
         $this->assertStringContainsString('IT60 X054 2811 1010 0000 0123 456', $mailBruno);
-        $this->assertStringContainsString('Corso BLSD-1 - Test Bruno', $mailBruno);
+        $this->assertStringContainsString('Corso BLSD-1 - Nri Pla', $mailBruno);
         $this->assertStringNotContainsString('IBAN', $this->html($this->inviata(IscrizioneCorsoMail::class, 'carla@azienda.test')));
 
         // Riepilogo a Hilda: chi ha iscritto, ognuno paga per sé, nessuna coordinata.

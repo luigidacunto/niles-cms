@@ -41,7 +41,7 @@ class PuliziaDatiTest extends TestCase
     {
         return array_merge([
             'nome' => '  mARIO ', 'cognome' => "d'ANGELO  rossi", 'email' => ' Mario.Rossi@Example.TEST ', 'telefono' => ' +39  333 111 2222 ',
-            'codice_fiscale' => ' rssmra80a01h501u ', 'via' => 'via roma 12/a', 'comune' => 'MONTE san savino', 'provincia' => 'ar', 'cap' => '52048',
+            'codice_fiscale' => ' dngmra80a01h501u ', 'via' => 'via roma 12/a', 'comune' => 'MONTE san savino', 'provincia' => 'ar', 'cap' => '52048',
         ], $extra);
     }
 
@@ -73,13 +73,13 @@ class PuliziaDatiTest extends TestCase
 
         $i = IscrizioneCorso::first();
         $this->assertSame(['Mario', "D'Angelo Rossi", 'mario.rossi@example.test', '+39 333 111 2222'], [$i->nome, $i->cognome, $i->email, $i->telefono]);
-        $this->assertSame(['RSSMRA80A01H501U', 'Via Roma 12/A', 'Monte San Savino', 'AR', '52048'], [$i->codice_fiscale, $i->via, $i->comune, $i->provincia, $i->cap]);
+        $this->assertSame(['DNGMRA80A01H501U', 'Via Roma 12/A', 'Monte San Savino', 'AR', '52048'], [$i->codice_fiscale, $i->via, $i->comune, $i->provincia, $i->cap]);
 
         $p = Persona::first();
-        $this->assertSame(['Mario', "D'Angelo Rossi", 'RSSMRA80A01H501U', 'mario.rossi@example.test'], [$p->nome, $p->cognome, $p->codice_fiscale, $p->email]);
+        $this->assertSame(['Mario', "D'Angelo Rossi", 'DNGMRA80A01H501U', 'mario.rossi@example.test'], [$p->nome, $p->cognome, $p->codice_fiscale, $p->email]);
 
         $f = $i->datiFatturazione;
-        $this->assertSame(['Mario', "D'Angelo Rossi", 'RSSMRA80A01H501U', 'AR'], [$f->nome, $f->cognome, $f->codice_fiscale, $f->provincia]);
+        $this->assertSame(['Mario', "D'Angelo Rossi", 'DNGMRA80A01H501U', 'AR'], [$f->nome, $f->cognome, $f->codice_fiscale, $f->provincia]);
     }
 
     public function test_fatturazione_azienda_pulita_ma_la_ragione_sociale_resta_com_e(): void
@@ -126,7 +126,7 @@ class PuliziaDatiTest extends TestCase
 
     public function test_nomi_e_indirizzi_legittimi_passano(): void
     {
-        $this->invia($this->sporchi(['nome' => 'Jean-Luc', 'cognome' => "Dell'Orto", 'comune' => "Sant'Angelo in Vado", 'via' => "Via dell'Olmo 12, int. 3/B", 'telefono' => '(0575) 24-398']))
+        $this->invia($this->sporchi(['nome' => 'Jean-Luc', 'cognome' => "Dell'Orto", 'comune' => "Sant'Angelo in Vado", 'via' => "Via dell'Olmo 12, int. 3/B", 'telefono' => '(0575) 24-398', 'codice_fiscale' => 'DLLJLC80A01H501U']))
             ->assertRedirect()->assertSessionHasNoErrors();
 
         $this->assertSame("Via Dell'Olmo 12, Int. 3/B", IscrizioneCorso::first()->via);
@@ -138,7 +138,7 @@ class PuliziaDatiTest extends TestCase
         $payload = ['nominativo' => $this->sporchi(), 'fatturazione_modo' => 'stessi', 'fatturazione' => ['metodo_pagamento' => 'Bonifico'], 'privacy_confermata' => 1];
 
         $this->actingAs($admin, 'admin')->post(route('admin.corsi.iscritti.store', $this->corso), $payload)->assertRedirect()->assertSessionHasNoErrors();
-        $this->assertSame(['Mario', 'RSSMRA80A01H501U', 'AR', 'mario.rossi@example.test'],
+        $this->assertSame(['Mario', 'DNGMRA80A01H501U', 'AR', 'mario.rossi@example.test'],
             [IscrizioneCorso::first()->nome, IscrizioneCorso::first()->codice_fiscale, IscrizioneCorso::first()->provincia, IscrizioneCorso::first()->email]);
 
         $payload['nominativo'] = $this->sporchi(['codice_fiscale' => 'VRDNNA85M41F205Z', 'nome' => 'Anna<b>']);
