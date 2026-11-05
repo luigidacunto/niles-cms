@@ -57,11 +57,16 @@ if [ "$QUICK" = true ]; then
     exit 0
 fi
 
-echo "==> [1/6] Git pull"
+echo "==> [1/7] Backup del database"
+# Copia del database prima di migrazioni e seeder di aggiornamento (le migrazioni non si annullano da sole).
+# Se il backup fallisce, set -e ferma il deploy prima di toccare codice e database.
+bash "$(dirname "${BASH_SOURCE[0]}")/backup.sh"
+
+echo "==> [2/7] Git pull"
 git checkout -- package.json package-lock.json
 git pull
 
-echo "==> [2/6] Composer"
+echo "==> [3/7] Composer"
 if [ "$DEV" = true ]; then
     # Niente --no-dev sulla VM di sviluppo: servono i pacchetti di dev (test, pail, pint).
     composer install --optimize-autoloader
@@ -69,24 +74,24 @@ else
     composer install --no-dev --optimize-autoloader
 fi
 
-echo "==> [3/6] NPM build"
+echo "==> [4/7] NPM build"
 npm ci
 npm run build
 
-echo "==> [4/6] Migrazioni"
+echo "==> [5/7] Migrazioni"
 # --force: il deploy deve girare senza interazione, sia in prod (dove Laravel chiederebbe
 # conferma per APP_ENV=production) sia in dev.
 php artisan migrate --force
 # Seeder di aggiornamento non ancora eseguiti (database/seeders/aggiornamenti), tracciati in seeders_eseguiti.
 php artisan niles:seeders
 
-echo "==> [5/6] Cache"
+echo "==> [6/7] Cache"
 php artisan optimize:clear
 php artisan config:cache
 php artisan route:cache
 php artisan view:cache
 
-echo "==> [6/6] Storage link"
+echo "==> [7/7] Storage link"
 # Laravel scrive "ERROR ... link already exists" su stdout (non stderr), quindi
 # 2>/dev/null non basta a nasconderlo: si controlla prima se esiste già.
 [ -e public/storage ] || php artisan storage:link

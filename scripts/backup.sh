@@ -5,11 +5,11 @@
 # Crea nella home dell'utente corrente (la versione del pannello è nel nome dei file, così restano
 # riconoscibili anche scaricati singolarmente, es. db_v0.16.2.sql.gz):
 #   ~/niles-backups/YYYYMMDD_HHMMSS/db_vX.Y.Z.sql.gz      ← dump completo MariaDB/MySQL
-#   ~/niles-backups/YYYYMMDD_HHMMSS/files_vX.Y.Z.tar.gz   ← archivio della directory del deploy (saltato con --only-db)
+#   ~/niles-backups/YYYYMMDD_HHMMSS/files_vX.Y.Z.tar.gz   ← archivio della directory del deploy (solo con --all)
 #
 # Uso (path del deploy = directory padre di scripts/, rilevato automaticamente):
-#   bash /percorso/del/deploy/scripts/backup.sh
-#   bash /percorso/del/deploy/scripts/backup.sh --only-db   # solo il dump database, niente file
+#   bash /percorso/del/deploy/scripts/backup.sh          # solo il dump database (il codice si recupera da git)
+#   bash /percorso/del/deploy/scripts/backup.sh --all    # anche i file (.env e file caricati dal pannello)
 #
 # Ripristino DB:
 #   gunzip -c ~/niles-backups/YYYYMMDD_HHMMSS/db_vX.Y.Z.sql.gz | mysql -h HOST -u USER -p DBNAME
@@ -23,8 +23,9 @@
 
 set -euo pipefail
 
-ONLY_DB=false
-[[ "${1:-}" == "--only-db" ]] && ONLY_DB=true
+ONLY_DB=true
+# --only-db (vecchio parametro) è accettato e non cambia nulla: il solo database è ora il comportamento predefinito.
+[[ "${1:-}" == "--all" ]] && ONLY_DB=false
 
 APP_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 ENV_FILE="$APP_DIR/.env"
@@ -73,7 +74,7 @@ MYSQL_PWD="$DB_PASS" mysqldump \
 DB_SIZE=$(du -sh "$BACKUP_DIR/db${VTAG}.sql.gz" | cut -f1)
 echo "  ✓ db${VTAG}.sql.gz  ($DB_SIZE)"
 
-# ── 2. Archivio file (saltato con --only-db) ───────────────────────────────────
+# ── 2. Archivio file (solo con --all) ─────────────────────────────────────────
 if ! $ONLY_DB; then
     echo "→ [2/2] Archivio file ($APP_DIR)..."
 

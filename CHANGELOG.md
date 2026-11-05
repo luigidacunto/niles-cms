@@ -31,6 +31,10 @@ incrementano la seconda cifra, le correzioni e i miglioramenti la terza. Le rele
 - **Modulo pubblico di iscrizione**: dopo un errore di validazione tutti i dati inseriti restano compilati (nominativi, residenza, dati di
   nascita, fatturazione e metodo di pagamento), così si corregge solo il campo segnalato. Se Italia o estero non corrispondono al codice
   fiscale, il messaggio indica lo Stato scelto.
+- **Backup automatico del database a ogni aggiornamento**: `scripts/deploy.sh` esegue `backup.sh` prima di scaricare il codice e di
+  aggiornare il database; se il backup non riesce, l'aggiornamento si ferma. `--quick` resta senza backup.
+- **`scripts/backup.sh` salva di default solo il database**; con `--all` aggiunge l'archivio dei file (`.env` e file caricati dal
+  pannello). Il vecchio `--only-db` è ancora accettato e non cambia nulla.
 - **Persone** (anagrafica e consensi dei corsi): visibile solo a chi ha il permesso Corsi in scrittura; la sola lettura dà accesso a corsi
   e iscritti.
 - **Menu del pannello riorganizzato**: due titoli fissi, «Lavoro quotidiano» (Contenuti, Formazione, Area soci) e «Amministrazione»

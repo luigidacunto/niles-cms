@@ -16,25 +16,27 @@ Nel pannello, la dashboard mostra la **versione installata** e, se il controllo 
 
 ## 1. Fare il backup
 
-Prima di ogni aggiornamento:
+`deploy.sh` salva da solo il database prima di aggiornare (vedi sotto). Per una copia a mano:
 
 ```bash
 cd /var/www/niles
-bash scripts/backup.sh
+bash scripts/backup.sh          # solo il database
+bash scripts/backup.sh --all    # database e file
 ```
 
-Lo script crea nella cartella `~/niles-backups/<data_ora>/` due file con la versione di NILES nel nome:
+Lo script crea nella cartella `~/niles-backups/<data_ora>/`, con la versione di NILES nel nome:
 
-- `db_vX.Y.Z.sql.gz`: la copia completa del database;
-- `files_vX.Y.Z.tar.gz`: i file del progetto (compresi il `.env` e i file caricati dal pannello), senza `vendor`, `node_modules` e `.git`.
+- `db_vX.Y.Z.sql.gz`: la copia completa del database (sempre);
+- `files_vX.Y.Z.tar.gz`: solo con `--all`, i file del progetto (compresi il `.env` e i file caricati dal pannello), senza `vendor`,
+  `node_modules` e `.git`. Il codice si recupera comunque da git o dal pacchetto della versione; questo archivio serve per il `.env` e i
+  file caricati, che non sono nel repository.
 
-Con `bash scripts/backup.sh --only-db` si salva solo il database (più veloce). Lo script conserva gli **ultimi 10 backup** e cancella i più
-vecchi.
+Lo script conserva gli **ultimi 10 backup** (automatici e manuali insieme) e cancella i più vecchi.
 
-> Il backup contiene il `.env`, quindi anche le password: tienilo fuori dalla cartella pubblica del sito e, per sicurezza, copia ogni tanto i
+> Il backup con `--all` contiene il `.env`, quindi anche le password: tienilo fuori dalla cartella pubblica del sito e, per sicurezza, copia ogni tanto i
 > backup anche su un altro computer o servizio, perché sullo stesso server non proteggono da un guasto del server.
 
-**Verifica:** al termine lo script mostra le dimensioni dei due file e il percorso della cartella.
+**Verifica:** al termine lo script mostra le dimensioni dei file creati e il percorso della cartella.
 
 ## 2. Aggiornare
 
@@ -44,18 +46,20 @@ bash scripts/deploy.sh
 
 Per un sito in produzione, sul ramo `main`, lo script esegue in ordine:
 
-1. `git pull`: scarica il codice nuovo;
-2. `composer install --no-dev --optimize-autoloader`: aggiorna le librerie;
-3. `npm ci` e `npm run build`: ricostruisce gli stili e gli script;
-4. `php artisan migrate --force`: aggiorna il database alla nuova struttura;
-5. `php artisan niles:seeders`: esegue i **seeder di aggiornamento** non ancora eseguiti, cioè i contenuti da portare ai siti già in
+1. `bash scripts/backup.sh`: copia di sicurezza del database, prima di qualsiasi modifica. Se il backup non riesce il deploy
+   si ferma;
+2. `git pull`: scarica il codice nuovo;
+3. `composer install --no-dev --optimize-autoloader`: aggiorna le librerie;
+4. `npm ci` e `npm run build`: ricostruisce gli stili e gli script;
+5. `php artisan migrate --force`: aggiorna il database alla nuova struttura;
+6. `php artisan niles:seeders`: esegue i **seeder di aggiornamento** non ancora eseguiti, cioè i contenuti da portare ai siti già in
    uso (testi di default, pagine nuove). Ogni seeder viene eseguito una sola volta: il suo nome e la data di esecuzione si registrano nella
    tabella `seeders_eseguiti`. Con `php artisan niles:seeders --stato` si vede l'elenco, con quelli ancora da eseguire;
-6. svuota e ricrea le cache (`config:cache`, `route:cache`, `view:cache`);
-7. controlla il collegamento `public/storage`.
+7. svuota e ricrea le cache (`config:cache`, `route:cache`, `view:cache`);
+8. controlla il collegamento `public/storage`.
 
 Se l'aggiornamento non cambia librerie, struttura del database né contenuti (le note della versione lo dicono), `bash scripts/deploy.sh --quick`
-esegue solo il `git pull` e il rinnovo delle cache, in pochi secondi.
+esegue solo il `git pull` e il rinnovo delle cache, in pochi secondi, senza backup.
 
 ### Aggiornare senza lo script
 
@@ -117,7 +121,7 @@ gunzip -c ~/niles-backups/<data_ora>/db_vX.Y.Z.sql.gz | mysql -h 127.0.0.1 -u ni
 
 (con host, utente e nome del database del proprio `.env`).
 
-**File**, solo se serve ripristinare anche i file caricati o il `.env`: l'archivio contiene i percorsi completi, quindi si estrae dalla
+**File**, solo se serve ripristinare anche i file caricati o il `.env` (backup fatto con `--all`): l'archivio contiene i percorsi completi, quindi si estrae dalla
 radice del filesystem:
 
 ```bash
