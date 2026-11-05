@@ -1,29 +1,34 @@
 /*
- * Menu laterale del pannello: sezioni collassabili + ricerca sotto il logo. JS puro, nessuna dipendenza.
- * Il markup è quello di AdminLTE: <ul class="nav-sidebar"> con <li class="nav-header"> (titolo sezione) seguito dalle
- * sue <li class="nav-item"> fino al titolo successivo.
+ * Menu laterale del pannello: memoria dei gruppi aperti + ricerca sotto il logo. JS puro, nessuna dipendenza.
+ * Il markup è quello di AdminLTE: <ul class="nav-sidebar"> con titoli fissi <li class="nav-header"> e gruppi richiudibili
+ * <li class="nav-item"> che contengono un <ul class="nav-treeview"> con le pagine (apertura/chiusura gestita da AdminLTE).
  *
- * - Clic sul titolo di una sezione: la chiude/apre (stato ricordato nel browser, per titolo). Al caricamento la sezione
- *   che contiene la pagina corrente si apre sempre (poi la si può richiudere a mano).
- * - Ricerca (testo libero, senza distinzione di maiuscole/accenti): nasconde le voci che non corrispondono e le sezioni
- *   senza risultati, e mostra aperte quelle con risultati. Si azzera con la X, con Esc o cliccando una voce.
- *   Se il testo corrisponde al nome di una sezione, la sezione compare intera.
+ * - Gruppi: lo stato aperto/chiuso è ricordato nel browser (per nome del gruppo). Al primo accesso sono tutti chiusi; il gruppo
+ *   che contiene la pagina corrente si apre sempre (lo apre già AdminLTE, classe menu-open).
+ * - Titoli: un titolo senza voci visibili sotto (permessi, ricerca) si nasconde.
+ * - Ricerca (testo libero, senza distinzione di maiuscole/accenti): mostra solo le pagine che corrispondono, con il loro gruppo
+ *   aperto; se il testo corrisponde al nome di un gruppo, il gruppo compare intero. Si azzera con la X, con Esc o cliccando una voce.
  */
 (function () {
     'use strict';
 
-    var CHIAVE = 'nilesMenuChiuso';
+    var CHIAVE = 'nilesMenuAperti';
 
     function normalizza(testo) {
         return (testo || '').normalize('NFD').replace(/[̀-ͯ]/g, '').toLowerCase().replace(/\s+/g, ' ').trim();
     }
 
-    function leggiChiusi() {
+    function leggiAperti() {
         try { return JSON.parse(localStorage.getItem(CHIAVE) || '[]'); } catch (e) { return []; }
     }
 
-    function salvaChiusi(elenco) {
+    function salvaAperti(elenco) {
         try { localStorage.setItem(CHIAVE, JSON.stringify(elenco)); } catch (e) { /* storage non disponibile: funziona comunque, senza memoria */ }
+    }
+
+    function testoLink(a) {
+        var p = a.querySelector('p');
+        return (p ? p.firstChild && p.firstChild.textContent : a.textContent) || '';
     }
 
     function avvia() {
@@ -31,47 +36,32 @@
         var sidebar = document.querySelector('.sidebar');
         if (!nav || !sidebar) { return; }
 
-        // Raggruppa: voci prima del primo titolo (Dashboard) + una sezione per ogni titolo.
-        var iniziali = [];
-        var gruppi = [];
-        var corrente = null;
-        Array.prototype.forEach.call(nav.children, function (li) {
-            if (li.classList.contains('nav-header')) {
-                corrente = { intestazione: li, nome: li.textContent.trim(), voci: [] };
-                gruppi.push(corrente);
-            } else if (li.classList.contains('nav-item')) {
-                (corrente ? corrente.voci : iniziali).push(li);
-            }
-        });
+        // Elementi di primo livello: titoli, voci singole (Dashboard) e gruppi con sottomenu.
+        var elementi = Array.prototype.map.call(nav.children, function (li) {
+            var sotto = li.querySelector(':scope > .nav-treeview');
+            return {
+                li: li,
+                titolo: li.classList.contains('nav-header'),
+                sotto: sotto,
+                nome: li.classList.contains('nav-header') ? li.textContent.trim() : normalizza(testoLink(li.querySelector(':scope > a') || li)),
+                voci: sotto ? Array.prototype.slice.call(sotto.children) : [],
+            };
+        }).filter(function (e) { return e.titolo || e.li.classList.contains('nav-item'); });
 
-        var chiusi = leggiChiusi();
-        var ricerca = '';
-
-        // Titoli cliccabili con freccia.
-        gruppi.forEach(function (g) {
-            var h = g.intestazione;
-            h.classList.add('niles-sezione');
-            h.setAttribute('role', 'button');
-            h.setAttribute('tabindex', '0');
-            var freccia = document.createElement('i');
-            freccia.className = 'fas fa-chevron-down niles-freccia';
-            h.appendChild(freccia);
-            // La sezione con la pagina corrente si apre sempre al caricamento: così si vede dove si è.
-            var attiva = g.voci.some(function (li) { return li.querySelector('a.nav-link.active'); });
-            var i = chiusi.indexOf(g.nome);
-            if (attiva && i !== -1) { chiusi.splice(i, 1); salvaChiusi(chiusi); }
-            h.addEventListener('click', function () { alterna(g); });
-            h.addEventListener('keydown', function (e) {
-                if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); alterna(g); }
+        // Memoria dei gruppi: si applica lo stato salvato (il gruppo con la pagina corrente resta aperto) e si registra ogni clic.
+        var aperti = leggiAperti();
+        elementi.forEach(function (e) {
+            if (!e.sotto) { return; }
+            if (aperti.indexOf(e.nome) !== -1) { e.li.classList.add('menu-open'); }
+            e.li.querySelector(':scope > a').addEventListener('click', function () {
+                if (ricerca) { return; }
+                var apre = !e.li.classList.contains('menu-open');   // lo stato prima del clic: AdminLTE lo inverte subito dopo
+                var i = aperti.indexOf(e.nome);
+                if (apre && i === -1) { aperti.push(e.nome); }
+                if (!apre && i !== -1) { aperti.splice(i, 1); }
+                salvaAperti(aperti);
             });
         });
-
-        function alterna(g) {
-            var i = chiusi.indexOf(g.nome);
-            if (i === -1) { chiusi.push(g.nome); } else { chiusi.splice(i, 1); }
-            salvaChiusi(chiusi);
-            disegna();
-        }
 
         // Casella di ricerca sotto il logo (il .sidebar è subito dopo il brand-link).
         var box = document.createElement('div');
@@ -82,6 +72,7 @@
         sidebar.insertBefore(box, sidebar.firstChild);
         var campo = box.querySelector('input');
         var azzera = box.querySelector('button');
+        var ricerca = '';
 
         var vuoto = document.createElement('li');
         vuoto.className = 'niles-nessun-risultato';
@@ -93,29 +84,33 @@
             var q = ricerca;
             var trovati = 0;
 
-            iniziali.forEach(function (li) {
-                var visibile = !q || normalizza(li.textContent).indexOf(q) !== -1;
-                li.hidden = !visibile;
-                if (visibile) { trovati++; }
+            elementi.forEach(function (e) {
+                if (e.titolo) { return; }
+                if (!e.sotto) {
+                    e.li.hidden = !!q && normalizza(e.li.textContent).indexOf(q) === -1;
+                } else {
+                    var perNome = q && e.nome.indexOf(q) !== -1;
+                    var n = 0;
+                    e.voci.forEach(function (v) {
+                        var ok = !q || perNome || normalizza(v.textContent).indexOf(q) !== -1;
+                        v.hidden = !ok;
+                        if (ok) { n++; }
+                    });
+                    e.li.hidden = !!q && n === 0;
+                    // In ricerca i gruppi con risultati si mostrano aperti senza toccare lo stato salvato; fuori ricerca decide la classe menu-open.
+                    e.sotto.style.display = q ? (n ? 'block' : 'none') : (e.li.classList.contains('menu-open') ? 'block' : 'none');
+                }
+                if (!e.li.hidden) { trovati++; }
             });
 
-            gruppi.forEach(function (g) {
-                var perNome = q && normalizza(g.nome).indexOf(q) !== -1;
-                var corrispondenti = 0;
-                g.voci.forEach(function (li) {
-                    var ok = !q || perNome || normalizza(li.textContent).indexOf(q) !== -1;
-                    if (q) {
-                        li.hidden = !ok;                       // in ricerca: solo le voci che corrispondono
-                        if (ok) { corrispondenti++; }
-                    } else {
-                        li.hidden = chiusi.indexOf(g.nome) !== -1;   // fuori ricerca: sezione chiusa
-                    }
-                });
-                var chiusa = !q && chiusi.indexOf(g.nome) !== -1;
-                g.intestazione.hidden = q ? corrispondenti === 0 : false;
-                g.intestazione.classList.toggle('niles-chiusa', chiusa);
-                g.intestazione.setAttribute('aria-expanded', chiusa ? 'false' : 'true');
-                trovati += corrispondenti;
+            // Titoli: visibili solo se sotto (fino al titolo successivo) c'è almeno un elemento visibile.
+            elementi.forEach(function (e, i) {
+                if (!e.titolo) { return; }
+                var visibile = false;
+                for (var j = i + 1; j < elementi.length && !elementi[j].titolo; j++) {
+                    if (!elementi[j].li.hidden) { visibile = true; break; }
+                }
+                e.li.hidden = !visibile;
             });
 
             vuoto.hidden = !(q && trovati === 0);
@@ -131,8 +126,11 @@
         campo.addEventListener('input', function () { ricerca = normalizza(campo.value); disegna(); });
         campo.addEventListener('keydown', function (e) { if (e.key === 'Escape') { pulisci(); } });
         azzera.addEventListener('click', function () { pulisci(); campo.focus(); });
-        // Cliccare una voce azzera la ricerca (la pagina successiva riparte pulita).
-        nav.addEventListener('click', function (e) { if (ricerca && e.target.closest('a.nav-link')) { pulisci(); } });
+        // Cliccare una pagina azzera la ricerca (la pagina successiva riparte pulita).
+        nav.addEventListener('click', function (e) {
+            var a = e.target.closest('a.nav-link');
+            if (ricerca && a && !a.parentElement.querySelector(':scope > .nav-treeview')) { pulisci(); }
+        });
 
         disegna();
     }

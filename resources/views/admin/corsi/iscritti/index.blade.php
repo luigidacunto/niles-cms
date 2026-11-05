@@ -42,6 +42,9 @@
             <a href="{{ route('admin.corsi.iscritti.index', $corso) }}" class="btn btn-sm {{ $stato === 'attivi' ? 'btn-primary' : 'btn-outline-primary' }}">Attivi ({{ $conteggi['attivi'] }})</a>
             <a href="{{ route('admin.corsi.iscritti.index', [$corso, 'stato' => 'ritirati']) }}" class="btn btn-sm {{ $stato === 'ritirati' ? 'btn-primary' : 'btn-outline-primary' }}">Ritirati ({{ $conteggi['ritirati'] }})</a>
             <a href="{{ route('admin.corsi.iscritti.index', [$corso, 'stato' => 'tutti']) }}" class="btn btn-sm {{ $stato === 'tutti' ? 'btn-primary' : 'btn-outline-primary' }}">Tutti ({{ $conteggi['attivi'] + $conteggi['ritirati'] }})</a>
+            @if ($corso->richiedeAnagraficaCompleta())
+                <a href="{{ route('admin.corsi.iscritti.index', [$corso, 'stato' => 'mancanti']) }}" class="btn btn-sm {{ $stato === 'mancanti' ? 'btn-warning' : 'btn-outline-warning' }}" title="Attivi senza data o luogo di nascita">Dati mancanti ({{ $conteggi['mancanti'] }})</a>
+            @endif
         </div>
         <span class="text-muted">
             @if ($corso->posti_max) Posti indicati: {{ $corso->posti_max }} (limite informativo, non bloccante). @endif
@@ -70,6 +73,9 @@
                             <td>{{ $iscrizione->nome }} {{ $iscrizione->cognome }}
                                 @if ($iscrizione->ritirata())
                                     <span class="badge badge-secondary" title="Ritirato il {{ $iscrizione->ritirata_at->format('d/m/Y H:i') }}{{ $iscrizione->nota_ritiro ? ' — '.$iscrizione->nota_ritiro : '' }}">Ritirato</span>
+                                @endif
+                                @if ($corso->richiedeAnagraficaCompleta() && ! $iscrizione->ritirata() && ($iscrizione->data_nascita === null || ! $iscrizione->luogoNascita()))
+                                    <i class="fas fa-exclamation-triangle text-warning" title="Data o luogo di nascita mancanti"></i>
                                 @endif
                             </td>
                             <td>{{ $iscrizione->email }}</td>

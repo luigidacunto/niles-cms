@@ -6,7 +6,7 @@ use App\Models\Admin;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 
-/** Menu laterale del pannello: sezione Formazione dedicata e file del menu collassabile con ricerca. */
+/** Menu laterale del pannello: titoli fissi, gruppi richiudibili (sottomenu AdminLTE) e file della memoria dei gruppi e della ricerca. */
 class MenuAdminTest extends TestCase
 {
     use RefreshDatabase;
@@ -16,36 +16,36 @@ class MenuAdminTest extends TestCase
         return Admin::create(['name' => ucfirst($role), 'email' => $role.rand(1, 9999).'@example.test', 'password' => 'x', 'role' => $role, 'active' => true, 'permissions' => $permessi]);
     }
 
-    public function test_corsi_persone_e_tipologie_stanno_nella_sezione_formazione(): void
+    public function test_titoli_fissi_e_gruppi_richiudibili_nell_ordine_previsto(): void
     {
         $html = $this->actingAs($this->admin('admin'), 'admin')->get(route('admin.persone.index'))->assertOk()->getContent();
 
         $this->assertMatchesRegularExpression(
-            '/nav-header[^>]*>\s*Contenuti.*nav-header[^>]*>\s*Formazione.*>\s*Corsi\s*<.*>\s*Persone\s*<.*>\s*Tipologie corso\s*<.*nav-header[^>]*>\s*Organizzazione/s',
+            '/nav-header[^>]*>\s*Lavoro quotidiano.*>\s*Contenuti.*>\s*Formazione.*>\s*Corsi\s*<.*>\s*Persone\s*<.*>\s*Tipologie corso\s*<'
+            .'.*nav-header[^>]*>\s*Amministrazione.*>\s*Comitato e sito.*>\s*Configurazione.*>\s*Classificazioni.*>\s*Utenti e controllo/s',
             $html
         );
-
-        // Fuori da "Contenuti": tra le intestazioni Contenuti e Formazione non ci sono più Corsi, Persone, Tipologie corso.
-        preg_match('/nav-header[^>]*>\s*Contenuti(.*?)nav-header[^>]*>\s*Formazione/s', $html, $m);
-        foreach (['Corsi', 'Persone', 'Tipologie corso'] as $voce) {
-            $this->assertDoesNotMatchRegularExpression('/>\s*'.$voce.'\s*</', $m[1], "{$voce} è ancora sotto Contenuti");
-        }
+        // I gruppi sono sottomenu di AdminLTE (richiudibili): le pagine stanno in un nav-treeview.
+        $this->assertMatchesRegularExpression('/nav-treeview.*admin\/corsi-catalogo\/tipologie/s', $html);
+        // Il gruppo con la pagina corrente è aperto (classe menu-open, messa da AdminLTE).
+        $this->assertMatchesRegularExpression('/menu-open[^>]*>\s*<a[^>]*>\s*<i[^>]*fa-graduation-cap/s', $html);
     }
 
-    public function test_formazione_visibile_con_permesso_corsi_e_tipologie_solo_agli_admin(): void
+    public function test_editor_con_corsi_vede_formazione_ma_non_amministrazione_ne_tipologie(): void
     {
-        // L'intestazione di sezione `nav-header` esiste solo nella barra laterale ("Formazione" altrove è un nome di categoria).
+        // Il titolo `nav-header` esiste solo nella barra laterale ("Formazione" altrove è un nome di categoria).
         $editor = $this->actingAs($this->admin('editor', ['corsi' => ['read']]), 'admin')->get(route('admin.persone.index'))->assertOk()->getContent();
-        $this->assertMatchesRegularExpression('/nav-header[^>]*>\s*Formazione/', $editor);
         $this->assertMatchesRegularExpression('/href="[^"]*\/admin\/corsi"/', $editor);
         $this->assertDoesNotMatchRegularExpression('/admin\/corsi-catalogo\/tipologie/', $editor);   // Tipologie corso: solo admin
+        $this->assertDoesNotMatchRegularExpression('/nav-header[^>]*>\s*Amministrazione/', $editor);
+        $this->assertDoesNotMatchRegularExpression('/>\s*Comitato e sito/', $editor);
     }
 
-    public function test_senza_permesso_corsi_la_sezione_formazione_non_compare(): void
+    public function test_senza_permesso_corsi_il_gruppo_formazione_non_compare(): void
     {
         // Test separato: il menu di AdminLTE è costruito una volta per istanza dell'applicazione, nelle richieste vere no.
         $senza = $this->actingAs($this->admin('editor', ['posts' => ['read']]), 'admin')->get(route('admin.posts.index'))->assertOk()->getContent();
-        $this->assertDoesNotMatchRegularExpression('/nav-header[^>]*>\s*Formazione/', $senza);
+        $this->assertDoesNotMatchRegularExpression('/fa-graduation-cap/', $senza);   // gruppo vuoto: AdminLTE lo scarta
         $this->assertDoesNotMatchRegularExpression('/href="[^"]*\/admin\/(corsi|persone)"/', $senza);
     }
 

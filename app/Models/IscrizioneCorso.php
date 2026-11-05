@@ -46,6 +46,14 @@ class IscrizioneCorso extends Model
         $query->whereNull('ritirata_at');
     }
 
+    /** Attivi senza data o luogo di nascita completi (iscritti prima dell'attivazione dell'anagrafica completa). */
+    public function scopeDatiNascitaMancanti(Builder $query): void
+    {
+        $query->whereNull('ritirata_at')->where(fn ($q) => $q->whereNull('data_nascita')
+            ->orWhere(fn ($i) => $i->where('nascita_estero', false)->where(fn ($c) => $c->whereNull('nascita_comune')->orWhereNull('nascita_provincia')))
+            ->orWhere(fn ($e) => $e->where('nascita_estero', true)->whereNull('nascita_stato')));
+    }
+
     public function scopeRitirate(Builder $query): void
     {
         $query->whereNotNull('ritirata_at');

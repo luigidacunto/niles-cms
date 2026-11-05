@@ -9,7 +9,6 @@
 @php
     $euro = fn (int $cent) => number_format($cent / 100, 2, ',', '.').' €';
     $data = fn ($d) => $d?->format('d/m/Y');
-    $dati = fn ($k, $v) => filled($v) ? '<dt class="col-sm-4">'.e($k).'</dt><dd class="col-sm-8">'.e($v).'</dd>' : '';
 @endphp
 
 @section('content')
@@ -93,13 +92,33 @@
             $quotaCent = (int) round($corso->costo * 100);
             $aliquota = $corso->iva_prevista && $corso->aliquota_iva ? (float) $corso->aliquota_iva : null;
             $scorporo = $aliquota ? \App\Support\IvaCorso::scorpora($quotaCent, $aliquota) : null;
-            $aliquotaTesto = $aliquota ? rtrim(rtrim(number_format($aliquota, 2, ',', ''), '0'), ',').'%' : null;
-            $descrizione = fn ($i) => 'Corso '.$corso->tipologia->nome.' ('.$corso->protocollo.') del '.$corso->data_inizio->format('d/m/Y').' per '.$i->nome.' '.$i->cognome;
+            $aliquotaTesto = $aliquota ? \App\Support\IvaCorso::aliquotaTesto($aliquota) : null;
+            $descrizione = fn ($i) => 'Corso '.$corso->protocollo.' del '.$corso->data_inizio->format('d/m/Y').' per '.$i->nome.' '.$i->cognome;
             $dettaglioImporto = $scorporo ? 'imponibile '.$euro($scorporo['imponibile']).' + IVA '.$aliquotaTesto.' '.$euro($scorporo['iva']).' = '.$euro($quotaCent) : $euro($quotaCent);
             $n = $riga['attivi']->count();
             $totaleTesto = $scorporo ? 'Totale: imponibile '.$euro($scorporo['imponibile'] * $n).' + IVA '.$aliquotaTesto.' '.$euro($scorporo['iva'] * $n).' = '.$euro($totale) : 'Totale: '.$euro($totale);
             $testoGuida = $riga['attivi']->map(fn ($i) => $descrizione($i).' — '.$dettaglioImporto)->push($totaleTesto)->join(PHP_EOL);
             $apertoPerErrori = (int) old('_blocco') === $b->id;
+            // Campi della fattura elettronica (FatturaPA): privato = cognome e nome separati, azienda = denominazione. Senza codice
+            // destinatario vale 0000000 (la fattura va nel cassetto fiscale del cliente).
+            $azienda = $b->tipo === 'azienda';
+            $campiDati = collect([
+                ['Tipo', $azienda ? 'Azienda / associazione / libero professionista' : 'Privato', null],
+                ...($azienda ? [['Denominazione', $b->ragione_sociale, null]] : [['Cognome', $b->cognome, null], ['Nome', $b->nome, null]]),
+                ['Partita IVA', $b->partita_iva, null],
+                ['Codice fiscale', $b->codice_fiscale, null],
+                ['Indirizzo', $b->via, null],
+                ['CAP', $b->cap, null],
+                ['Comune', $b->comune, null],
+                ['Provincia', $b->provincia, null],
+                ['Nazione', 'IT', null],
+                ['Codice destinatario', $b->codice_destinatario ?: '0000000', $b->codice_destinatario ? null : 'predefinito: nessun codice indicato'],
+                ['PEC', $b->pec, null],
+                ['Email', $b->email, null],
+                ['Telefono', $b->telefono, null],
+                ['Metodo di pagamento', $b->metodo_pagamento, null],
+            ])->filter(fn ($c) => filled($c[1]))->values();
+            $testoDati = $campiDati->map(fn ($c) => $c[0].': '.$c[1])->join(PHP_EOL);
             $incassato = $apertoPerErrori ? (bool) old('incassato') : $b->incassato_at !== null;
         @endphp
         <div class="modal fade" id="blocco-{{ $b->id }}" tabindex="-1" role="dialog" @if($apertoPerErrori) data-riapri="1" @endif>
@@ -113,23 +132,23 @@
                         <button type="button" class="close" data-dismiss="modal" aria-label="Chiudi"><span aria-hidden="true">&times;</span></button>
                     </div>
                     <div class="modal-body">
-                        <h6 class="text-muted">Dati di fatturazione</h6>
-                        <dl class="row mb-3">
-                            {!! $dati('Tipo', $b->tipo === 'azienda' ? 'Azienda / associazione / libero professionista' : 'Privato') !!}
-                            {!! $dati('Intestatario', $b->intestatario()) !!}
-                            {!! $dati('Partita IVA', $b->partita_iva) !!}
-                            {!! $dati('Codice fiscale', $b->codice_fiscale) !!}
-                            {!! $dati('Indirizzo', trim("{$b->via}, {$b->cap} {$b->comune}".($b->provincia ? " ({$b->provincia})" : ''), ' ,')) !!}
-                            {!! $dati('Codice destinatario', $b->codice_destinatario) !!}
-                            {!! $dati('PEC', $b->pec) !!}
-                            {!! $dati('Email', $b->email) !!}
-                            {!! $dati('Telefono', $b->telefono) !!}
-                            {!! $dati('Metodo di pagamento', $b->metodo_pagamento) !!}
-                        </dl>
+                        <h6 class="text-muted d-flex justify-content-between">
+                            <span>Dati di fatturazione <small>(da copiare nella fattura elettronica)</small></span>
+                            <button type="button" class="btn btn-xs btn-outline-secondary copia" data-testo="{{ $testoDati }}"><i class="fas fa-copy"></i> Copia tutti</button>
+                        </h6>
+                        <table class="table table-sm table-borderless mb-3">
+                            @foreach ($campiDati as [$etichetta, $valore, $nota])
+                                <tr>
+                                    <td class="text-muted" style="width: 25%">{{ $etichetta }}</td>
+                                    <td style="width: 1%"><button type="button" class="btn btn-xs btn-link copia py-0" data-testo="{{ $valore }}" title="Copia {{ $etichetta }}"><i class="fas fa-copy"></i><span class="sr-only">Copia {{ $etichetta }}</span></button></td>
+                                    <td class="pl-0">{{ $valore }} @if ($nota) <small class="text-muted">({{ $nota }})</small> @endif</td>
+                                </tr>
+                            @endforeach
+                        </table>
 
                         <h6 class="text-muted d-flex justify-content-between">
                             <span>Righe da inserire in fattura (guida)</span>
-                            <button type="button" class="btn btn-xs btn-outline-secondary copia-guida" data-testo="{{ $testoGuida }}"><i class="fas fa-copy"></i> Copia</button>
+                            <button type="button" class="btn btn-xs btn-outline-secondary copia" data-testo="{{ $testoGuida }}"><i class="fas fa-copy"></i> Copia</button>
                         </h6>
                         <table class="table table-sm mb-3">
                             @if ($scorporo)
@@ -137,34 +156,34 @@
                             @endif
                             @foreach ($riga['attivi'] as $i)
                                 <tr>
-                                    <td>{{ $descrizione($i) }}</td>
+                                    <td>@include('admin.pagamenti-corsi._copia', ['testo' => $descrizione($i), 'titolo' => 'descrizione']){{ $descrizione($i) }}</td>
                                     @if ($scorporo)
-                                        <td class="text-right">{{ $euro($scorporo['imponibile']) }}</td>
-                                        <td class="text-right">{{ $euro($scorporo['iva']) }}</td>
+                                        <td class="text-right text-nowrap">@include('admin.pagamenti-corsi._copia', ['testo' => number_format($scorporo['imponibile'] / 100, 2, ',', ''), 'titolo' => 'imponibile']){{ $euro($scorporo['imponibile']) }}</td>
+                                        <td class="text-right text-nowrap">{{ $euro($scorporo['iva']) }}</td>
                                     @endif
-                                    <td class="text-right">{{ $euro($quotaCent) }}</td>
+                                    <td class="text-right text-nowrap">@include('admin.pagamenti-corsi._copia', ['testo' => number_format($quotaCent / 100, 2, ',', ''), 'titolo' => 'importo']){{ $euro($quotaCent) }}</td>
                                 </tr>
                             @endforeach
                             <tr class="font-weight-bold">
                                 <td>Totale</td>
                                 @if ($scorporo)
-                                    <td class="text-right">{{ $euro($scorporo['imponibile'] * $n) }}</td>
-                                    <td class="text-right">{{ $euro($scorporo['iva'] * $n) }}</td>
+                                    <td class="text-right text-nowrap">{{ $euro($scorporo['imponibile'] * $n) }}</td>
+                                    <td class="text-right text-nowrap">{{ $euro($scorporo['iva'] * $n) }}</td>
                                 @endif
-                                <td class="text-right">{{ $euro($totale) }}</td>
+                                <td class="text-right text-nowrap">{{ $euro($totale) }}</td>
                             </tr>
                         </table>
 
                         <div class="form-row">
                             <div class="col-md-6">
-                                <h6 class="text-muted">Fattura</h6>
+                                <h6 class="text-muted d-flex justify-content-between"><span>Fattura</span><button type="button" class="btn btn-xs btn-link text-danger py-0 svuota">Svuota</button></h6>
                                 <div class="form-row">
                                     <div class="form-group col-6"><label class="small">Numero</label><input name="fattura_numero" value="{{ $apertoPerErrori ? old('fattura_numero') : $b->fattura_numero }}" maxlength="50" class="form-control"></div>
                                     <div class="form-group col-6"><label class="small">Data</label><input type="date" name="fattura_data" value="{{ $apertoPerErrori ? old('fattura_data') : $b->fattura_data?->format('Y-m-d') }}" class="form-control"></div>
                                 </div>
                             </div>
                             <div class="col-md-6">
-                                <h6 class="text-muted">Ricevuta <small>(facoltativa, in più alla fattura)</small></h6>
+                                <h6 class="text-muted d-flex justify-content-between"><span>Ricevuta <small>(facoltativa, in più alla fattura)</small></span><button type="button" class="btn btn-xs btn-link text-danger py-0 svuota">Svuota</button></h6>
                                 <div class="form-row">
                                     <div class="form-group col-6"><label class="small">Numero</label><input name="ricevuta_numero" value="{{ $apertoPerErrori ? old('ricevuta_numero') : $b->ricevuta_numero }}" maxlength="50" class="form-control"></div>
                                     <div class="form-group col-6"><label class="small">Data</label><input type="date" name="ricevuta_data" value="{{ $apertoPerErrori ? old('ricevuta_data') : $b->ricevuta_data?->format('Y-m-d') }}" class="form-control"></div>
@@ -223,8 +242,20 @@
         importo.addEventListener('input', aggiorna);
         aggiorna();
     });
-    document.querySelectorAll('.copia-guida').forEach(function (btn) {
-        btn.addEventListener('click', function () { navigator.clipboard.writeText(btn.dataset.testo); btn.textContent = 'Copiato'; });
+    // Pulsanti «copia» (dati di fatturazione, guida alla fattura): copiano data-testo e mostrano per un attimo la spunta.
+    document.querySelectorAll('.copia').forEach(function (btn) {
+        btn.addEventListener('click', function () {
+            navigator.clipboard.writeText(btn.dataset.testo);
+            var icona = btn.querySelector('i'), prima = icona.className;
+            icona.className = 'fas fa-check text-success';
+            setTimeout(function () { icona.className = prima; }, 1200);
+        });
+    });
+    // «Svuota» azzera numero e data del documento (fattura o ricevuta) per correggere un inserimento sbagliato.
+    document.querySelectorAll('.svuota').forEach(function (btn) {
+        btn.addEventListener('click', function () {
+            btn.closest('.col-md-6').querySelectorAll('input').forEach(function (i) { i.value = ''; });
+        });
     });
     var daRiaprire = document.querySelector('.modal[data-riapri]');
     if (daRiaprire) { $(daRiaprire).modal('show'); }

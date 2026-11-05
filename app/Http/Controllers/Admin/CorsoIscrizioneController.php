@@ -41,6 +41,7 @@ class CorsoIscrizioneController extends Controller
             'conteggi' => [
                 'attivi' => $corso->iscrizioni()->attive()->count(),
                 'ritirati' => $corso->iscrizioni()->ritirate()->count(),
+                'mancanti' => $corso->richiedeAnagraficaCompleta() ? $corso->iscrizioni()->datiNascitaMancanti()->count() : 0,
             ],
         ]);
     }
@@ -91,7 +92,7 @@ class CorsoIscrizioneController extends Controller
     /** `attivi` (default) | `ritirati` | `tutti`: filtro di elenco ed export. */
     private function stato(Request $request): string
     {
-        return in_array($request->query('stato'), ['ritirati', 'tutti'], true) ? $request->query('stato') : 'attivi';
+        return in_array($request->query('stato'), ['ritirati', 'tutti', 'mancanti'], true) ? $request->query('stato') : 'attivi';
     }
 
     private function elenco(Corso $corso, string $stato)
@@ -101,6 +102,7 @@ class CorsoIscrizioneController extends Controller
         return match ($stato) {
             'ritirati' => $q->ritirate(),
             'tutti' => $q,
+            'mancanti' => $q->datiNascitaMancanti(),
             default => $q->attive(),
         };
     }

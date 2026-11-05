@@ -50,7 +50,6 @@ class AppServiceProvider extends ServiceProvider
         Gate::define('manage-corsi', fn (Admin $admin) => $admin->hasPermission('corsi', 'read') || $admin->hasPermission('corsi', 'write'));
         // Pagamenti dei corsi (fatture/incassi): funzione facoltativa, accesa in Dati comitato; permesso dedicato, distinto da 'corsi'.
         Gate::define('manage-pagamenti-corsi', fn (Admin $admin) => PagamentiCorsi::attivi() && $admin->hasPermission('pagamenti_corsi'));
-        Gate::define('see-formazione', fn (Admin $admin) => Gate::forUser($admin)->allows('manage-corsi') || Gate::forUser($admin)->allows('manage-pagamenti-corsi'));
         Gate::define('manage-corsi-catalogo', fn (Admin $admin) => $admin->role === 'admin');
         // Posta in uscita (SMTP): contiene credenziali, solo admin.
         Gate::define('manage-posta', fn (Admin $admin) => $admin->role === 'admin');
@@ -60,7 +59,8 @@ class AppServiceProvider extends ServiceProvider
         // Voci dell'area soci: nascoste (e rotte 404 via middleware area.soci) se l'interruttore in Dati comitato è spento.
         Gate::define('manage-membri', fn (Admin $admin) => AreaSoci::attiva() && $admin->hasPermission('membri'));
         Gate::define('manage-comunicazioni-soci', fn (Admin $admin) => AreaSoci::attiva() && $admin->hasPermission('comunicazioni_soci'));
-        Gate::define('see-amministrazione', fn (Admin $admin) => $admin->role === 'admin' || Gate::forUser($admin)->allows('manage-membri'));
+        // Titolo «Amministrazione» del menu: sotto ci sono solo sezioni riservate agli amministratori.
+        Gate::define('see-amministrazione', fn (Admin $admin) => $admin->role === 'admin');
         Gate::define('manage-sicurezza-form', fn (Admin $admin) => $admin->role === 'admin');
         // Informative privacy (default+override per tipologia): contenuto legale, solo admin.
         Gate::define('manage-privacy-policies', fn (Admin $admin) => $admin->role === 'admin');

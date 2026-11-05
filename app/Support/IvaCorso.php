@@ -21,6 +21,12 @@ class IvaCorso
         ];
     }
 
+    /** Aliquota per l'interfaccia: «22%», «5,5%». */
+    public static function aliquotaTesto(float|string|null $aliquota): string
+    {
+        return rtrim(rtrim(number_format((float) $aliquota, 2, ',', ''), '0'), ',').'%';
+    }
+
     /** Casella → booleano; aliquota vuota se l'IVA non è prevista. Con costo 0 (campo $costoKey) l'IVA non si può attivare. */
     public static function normalizza(array $data, Request $request, string $costoKey): array
     {

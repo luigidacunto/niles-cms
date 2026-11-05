@@ -18,6 +18,7 @@ class IscrittiCorsoExport implements FromCollection, WithHeadings
         match ($this->stato) {
             'ritirati' => $q->ritirate(),
             'tutti' => null,
+            'mancanti' => $q->datiNascitaMancanti(),
             default => $q->attive(),
         };
 

@@ -197,7 +197,7 @@ return [
     'classes_content_header' => '',
     'classes_content' => '',
     'classes_sidebar' => 'sidebar-dark-primary elevation-4',
-    'classes_sidebar_nav' => '',
+    'classes_sidebar_nav' => 'nav-child-indent',   // pagine rientrate sotto il loro gruppo (stile in public/css/admin-menu.css)
     'classes_topnav' => 'navbar-white navbar-light',
     'classes_topnav_nav' => 'navbar-expand',
     'classes_topnav_container' => 'container',
@@ -221,7 +221,7 @@ return [
     'sidebar_collapse_remember_no_transition' => true,
     'sidebar_scrollbar_theme' => 'os-theme-light',
     'sidebar_scrollbar_auto_hide' => 'l',
-    'sidebar_nav_accordion' => true,
+    'sidebar_nav_accordion' => false,   // gruppi indipendenti: la memoria aperto/chiuso è in public/js/admin-menu.js
     'sidebar_nav_animation_speed' => 300,
 
     /*
@@ -298,181 +298,82 @@ return [
     |
     */
 
-    // Raggruppato per funzione (header di sezione, nessun livello di menu reale):
-    //  - Contenuti: ciò che si pubblica sul sito
-    //  - Organizzazione: le tassonomie con cui i contenuti sono classificati
-    //  - Amministrazione: gestione dello strumento
+    // Titoli fissi (header) che separano gruppi richiudibili (submenu AdminLTE) con le pagine. Un gruppo senza voci visibili
+    // sparisce da solo (AdminLTE scarta i submenu vuoti); un titolo senza gruppi visibili lo nasconde public/js/admin-menu.js.
+    // Lo stato aperto/chiuso dei gruppi è ricordato nel browser (stesso file).
     'menu' => [
-        [
-            'text' => 'Dashboard',
-            'route' => 'admin.dashboard',
-            'icon' => 'fas fa-fw fa-gauge',
-        ],
+        ['text' => 'Dashboard', 'route' => 'admin.dashboard', 'icon' => 'fas fa-fw fa-tachometer-alt'],
 
-        ['header' => 'Contenuti'],
+        ['header' => 'Lavoro quotidiano'],
         [
-            'text' => 'Post',
-            'route' => 'admin.posts.index',
-            'icon' => 'fas fa-fw fa-newspaper',
-            'can' => 'manage-posts',
+            'text' => 'Contenuti',
+            'icon' => 'fas fa-fw fa-pen-nib',
+            'submenu' => [
+                ['text' => 'Post', 'route' => 'admin.posts.index', 'icon' => 'fas fa-fw fa-newspaper', 'can' => 'manage-posts'],
+                ['text' => 'Pagine', 'route' => 'admin.pages.index', 'icon' => 'fas fa-fw fa-file-alt', 'can' => 'manage-pages'],
+                ['text' => 'Struttura organizzativa', 'route' => 'admin.struttura-organizzativa.edit', 'icon' => 'fas fa-fw fa-user-tie', 'can' => 'manage-struttura-organizzativa'],
+                ['text' => 'Trasparenza', 'route' => 'admin.trasparenza-documenti.index', 'icon' => 'fas fa-fw fa-balance-scale', 'can' => 'manage-trasparenza'],
+                ['text' => 'Libreria documenti', 'route' => 'admin.documents.index', 'icon' => 'fas fa-fw fa-folder-open', 'can' => 'manage-documents'],
+            ],
         ],
         [
-            'text' => 'Pagine',
-            'route' => 'admin.pages.index',
-            'icon' => 'fas fa-fw fa-file-alt',
-            'can' => 'manage-pages',
-        ],
-        [
-            'text' => 'Struttura organizzativa',
-            'route' => 'admin.struttura-organizzativa.edit',
-            'icon' => 'fas fa-fw fa-user-tie',
-            'can' => 'manage-struttura-organizzativa',
-        ],
-        [
-            'text' => 'Dati del comitato',
-            'route' => 'admin.comitato.edit',
-            'icon' => 'fas fa-fw fa-address-card',
-            'can' => 'manage-comitato',
-        ],
-        [
-            'text' => 'Link del footer',
-            'route' => 'admin.footer.edit',
-            'icon' => 'fas fa-fw fa-link',
-            'can' => 'manage-footer',
-        ],
-        [
-            'text' => 'Trasparenza',
-            'route' => 'admin.trasparenza-documenti.index',
-            'icon' => 'fas fa-fw fa-balance-scale',
-            'can' => 'manage-trasparenza',
-        ],
-        [
-            'text' => 'Libreria documenti',
-            'route' => 'admin.documents.index',
-            'icon' => 'fas fa-fw fa-folder-open',
-            'can' => 'manage-documents',
-        ],
-
-        ['header' => 'Contenuto riservato', 'can' => 'manage-comunicazioni-soci'],
-        [
-            'text' => 'Comunicazioni soci',
-            'route' => 'admin.comunicazioni-soci.index',
-            'icon' => 'fas fa-fw fa-bullhorn',
-            'can' => 'manage-comunicazioni-soci',
-        ],
-        [
-            'text' => 'Documenti riservati',
-            'route' => 'admin.documenti-riservati.index',
-            'icon' => 'fas fa-fw fa-lock',
-            'can' => 'manage-comunicazioni-soci',
-        ],
-        [
-            'text' => 'Categorie riservate',
-            'route' => 'admin.categorie-riservate.index',
-            'icon' => 'fas fa-fw fa-layer-group',
-            'can' => 'manage-comunicazioni-soci',
-        ],
-
-        ['header' => 'Formazione', 'can' => 'see-formazione'],
-        [
-            'text' => 'Corsi',
-            'route' => 'admin.corsi.index',
+            'text' => 'Formazione',
             'icon' => 'fas fa-fw fa-graduation-cap',
-            'can' => 'manage-corsi',
+            'submenu' => [
+                ['text' => 'Corsi', 'route' => 'admin.corsi.index', 'icon' => 'fas fa-fw fa-chalkboard-teacher', 'can' => 'manage-corsi'],
+                ['text' => 'Persone', 'route' => 'admin.persone.index', 'icon' => 'fas fa-fw fa-address-book', 'can' => 'manage-corsi'],
+                ['text' => 'Pagamenti corsi', 'route' => 'admin.pagamenti-corsi.index', 'icon' => 'fas fa-fw fa-file-invoice-dollar', 'can' => 'manage-pagamenti-corsi'],
+                ['text' => 'Tipologie corso', 'route' => 'admin.corsi-tipologie.index', 'icon' => 'fas fa-fw fa-layer-group', 'can' => 'manage-corsi-catalogo'],
+            ],
         ],
         [
-            'text' => 'Persone',
-            'route' => 'admin.persone.index',
-            'icon' => 'fas fa-fw fa-address-book',
-            'can' => 'manage-corsi',
-        ],
-        [
-            'text' => 'Pagamenti corsi',
-            'route' => 'admin.pagamenti-corsi.index',
-            'icon' => 'fas fa-fw fa-file-invoice-dollar',
-            'can' => 'manage-pagamenti-corsi',
-        ],
-        [
-            'text' => 'Tipologie corso',
-            'route' => 'admin.corsi-tipologie.index',
-            'icon' => 'fas fa-fw fa-layer-group',
-            'can' => 'manage-corsi-catalogo',
-        ],
-
-        ['header' => 'Organizzazione', 'can' => 'manage-categories'],
-        [
-            'text' => 'Categorie',
-            'route' => 'admin.categories.index',
-            'icon' => 'fas fa-fw fa-tags',
-            'can' => 'manage-categories',
-        ],
-        [
-            'text' => 'Aree Trasparenza',
-            'route' => 'admin.trasparenza-aree.index',
-            'icon' => 'fas fa-fw fa-sitemap',
-            'can' => 'manage-trasparenza-aree',
-        ],
-        [
-            'text' => 'Categorie documenti',
-            'route' => 'admin.document-categories.index',
-            'icon' => 'fas fa-fw fa-layer-group',
-            'can' => 'manage-document-categories',
+            'text' => 'Area soci',
+            'icon' => 'fas fa-fw fa-id-badge',
+            'submenu' => [
+                ['text' => 'Membri', 'route' => 'admin.membri.index', 'icon' => 'fas fa-fw fa-id-card', 'can' => 'manage-membri'],
+                ['text' => 'Comunicazioni soci', 'route' => 'admin.comunicazioni-soci.index', 'icon' => 'fas fa-fw fa-bullhorn', 'can' => 'manage-comunicazioni-soci'],
+                ['text' => 'Documenti riservati', 'route' => 'admin.documenti-riservati.index', 'icon' => 'fas fa-fw fa-lock', 'can' => 'manage-comunicazioni-soci'],
+                ['text' => 'Categorie riservate', 'route' => 'admin.categorie-riservate.index', 'icon' => 'fas fa-fw fa-layer-group', 'can' => 'manage-comunicazioni-soci'],
+            ],
         ],
 
         ['header' => 'Amministrazione', 'can' => 'see-amministrazione'],
         [
-            'text' => 'Utenti',
-            'route' => 'admin.users.index',
-            'icon' => 'fas fa-fw fa-users',
-            'can' => 'manage-users',
+            'text' => 'Comitato e sito',
+            'icon' => 'fas fa-fw fa-landmark',
+            'submenu' => [
+                ['text' => 'Dati del comitato', 'route' => 'admin.comitato.edit', 'icon' => 'fas fa-fw fa-address-card', 'can' => 'manage-comitato'],
+                ['text' => 'Link del footer', 'route' => 'admin.footer.edit', 'icon' => 'fas fa-fw fa-link', 'can' => 'manage-footer'],
+                ['text' => 'Informative privacy', 'route' => 'admin.privacy-policies.index', 'icon' => 'fas fa-fw fa-file-contract', 'can' => 'manage-privacy-policies'],
+                ['text' => 'Template email', 'route' => 'admin.email-templates.index', 'icon' => 'fas fa-fw fa-envelope-open-text', 'can' => 'manage-email-templates'],
+            ],
         ],
         [
-            'text' => 'Membri',
-            'route' => 'admin.membri.index',
-            'icon' => 'fas fa-fw fa-id-card',
-            'can' => 'manage-membri',
+            'text' => 'Configurazione',
+            'icon' => 'fas fa-fw fa-cogs',
+            'submenu' => [
+                ['text' => 'Posta in uscita', 'route' => 'admin.posta.edit', 'icon' => 'fas fa-fw fa-envelope', 'can' => 'manage-posta'],
+                ['text' => 'Sicurezza moduli', 'route' => 'admin.sicurezza-form.edit', 'icon' => 'fas fa-fw fa-shield-alt', 'can' => 'manage-sicurezza-form'],
+                ['text' => 'Aggiornamento', 'route' => 'admin.aggiornamento.index', 'icon' => 'fas fa-fw fa-sync-alt', 'can' => 'manage-aggiornamento'],
+            ],
         ],
         [
-            'text' => 'Registro accessi',
-            'route' => 'admin.registro-accessi',
-            'icon' => 'fas fa-fw fa-history',
-            'can' => 'manage-users',
+            'text' => 'Classificazioni',
+            'icon' => 'fas fa-fw fa-tags',
+            'submenu' => [
+                ['text' => 'Categorie', 'route' => 'admin.categories.index', 'icon' => 'fas fa-fw fa-tags', 'can' => 'manage-categories'],
+                ['text' => 'Aree Trasparenza', 'route' => 'admin.trasparenza-aree.index', 'icon' => 'fas fa-fw fa-sitemap', 'can' => 'manage-trasparenza-aree'],
+                ['text' => 'Categorie documenti', 'route' => 'admin.document-categories.index', 'icon' => 'fas fa-fw fa-layer-group', 'can' => 'manage-document-categories'],
+            ],
         ],
         [
-            'text' => 'Registro download',
-            'route' => 'admin.registro-download',
-            'icon' => 'fas fa-fw fa-file-download',
-            'can' => 'manage-users',
-        ],
-        [
-            'text' => 'Posta in uscita',
-            'route' => 'admin.posta.edit',
-            'icon' => 'fas fa-fw fa-envelope',
-            'can' => 'manage-posta',
-        ],
-        [
-            'text' => 'Sicurezza moduli',
-            'route' => 'admin.sicurezza-form.edit',
-            'icon' => 'fas fa-fw fa-shield-alt',
-            'can' => 'manage-sicurezza-form',
-        ],
-        [
-            'text' => 'Informative privacy',
-            'route' => 'admin.privacy-policies.index',
-            'icon' => 'fas fa-fw fa-file-contract',
-            'can' => 'manage-privacy-policies',
-        ],
-        [
-            'text' => 'Aggiornamento',
-            'route' => 'admin.aggiornamento.index',
-            'icon' => 'fas fa-fw fa-sync-alt',
-            'can' => 'manage-aggiornamento',
-        ],
-        [
-            'text' => 'Template email',
-            'route' => 'admin.email-templates.index',
-            'icon' => 'fas fa-fw fa-envelope-open-text',
-            'can' => 'manage-email-templates',
+            'text' => 'Utenti e controllo',
+            'icon' => 'fas fa-fw fa-user-shield',
+            'submenu' => [
+                ['text' => 'Utenti', 'route' => 'admin.users.index', 'icon' => 'fas fa-fw fa-users', 'can' => 'manage-users'],
+                ['text' => 'Registro accessi', 'route' => 'admin.registro-accessi', 'icon' => 'fas fa-fw fa-history', 'can' => 'manage-users'],
+                ['text' => 'Registro download', 'route' => 'admin.registro-download', 'icon' => 'fas fa-fw fa-file-download', 'can' => 'manage-users'],
+            ],
         ],
     ],
 

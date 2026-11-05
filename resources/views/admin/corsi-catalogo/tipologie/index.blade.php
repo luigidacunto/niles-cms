@@ -28,6 +28,7 @@
                         <th>Nome</th>
                         <th>Attestato</th>
                         <th>Costo predefinito</th>
+                        <th>IVA</th>
                         <th>Validità attestato</th>
                         <th>Attiva</th>
                         <th>Corsi</th>
@@ -44,6 +45,7 @@
                             <td>{{ $tipologia->nome }}</td>
                             <td>@if($tipologia->rilascia_attestato) <span class="badge badge-info">Sì</span> @else <span class="text-muted">No</span> @endif</td>
                             <td>{{ number_format($tipologia->costo_predefinito, 2, ',', '.') }} €</td>
+                            <td>{{ $tipologia->iva_prevista ? \App\Support\IvaCorso::aliquotaTesto($tipologia->aliquota_iva) : '-' }}</td>
                             <td>{{ $tipologia->validitaLabel() }}</td>
                             <td>@if($tipologia->attivo) <span class="badge badge-success">Attiva</span> @else <span class="badge badge-secondary">Disattivata</span> @endif</td>
                             <td>{{ $tipologia->corsi_count }}</td>

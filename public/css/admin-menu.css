@@ -1,17 +1,6 @@
-/* Menu laterale del pannello: sezioni collassabili + ricerca (vedi public/js/admin-menu.js). */
-.nav-sidebar .nav-header.niles-sezione {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    cursor: pointer;
-    user-select: none;
-}
-.nav-sidebar .nav-header.niles-sezione:hover { color: #fff; }
-.nav-sidebar .nav-header.niles-sezione:focus-visible { outline: 2px solid #6ea8fe; outline-offset: -2px; }
-.nav-sidebar .nav-header.niles-sezione[hidden],
+/* Menu laterale del pannello: gruppi richiudibili con memoria + ricerca (vedi public/js/admin-menu.js). */
+.nav-sidebar .nav-header[hidden],
 .nav-sidebar .nav-item[hidden] { display: none; }
-.niles-freccia { font-size: .65rem; transition: transform .15s; opacity: .7; }
-.nav-header.niles-chiusa .niles-freccia { transform: rotate(-90deg); }
 
 .niles-menu-search {
     position: relative;
@@ -60,3 +49,15 @@
 
 /* Respiro in fondo a ogni pagina del pannello: sulle pagine lunghe il pulsante finale non resta a filo del bordo finestra. */
 .content-wrapper > .content { padding-bottom: 2.5rem; }
+
+/* Gruppo (menu richiudibile) e pagina (link) si distinguono: gruppo in grassetto; pagine rientrate (nav-child-indent in
+   config/adminlte.php), carattere più piccolo e normale, su un fondo un po' più scuro che lega il blocco al suo gruppo. */
+.nav-sidebar > .nav-item.has-treeview > .nav-link > p { font-weight: 600; }
+/* Selettore rinforzato: AdminLTE forza il fondo trasparente con [class*=sidebar-dark-] .nav-sidebar>.nav-item>.nav-treeview. */
+.main-sidebar[class*=sidebar-] .nav-sidebar > .nav-item > .nav-treeview {
+    background-color: rgba(0, 0, 0, .22);
+    border-radius: .25rem;
+    margin: .1rem 0 .3rem;
+}
+.nav-sidebar .nav-treeview > .nav-item > .nav-link { font-size: .92rem; }
+.nav-sidebar .nav-treeview > .nav-item > .nav-link > p { font-weight: 400; }

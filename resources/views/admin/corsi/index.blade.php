@@ -61,6 +61,7 @@
                         <th class="text-nowrap" style="width:1%"></th>
                         <th>Protocollo</th>
                         <th>Tipologia</th>
+                        <th class="text-center">IVA</th>
                         <th>Data</th>
                         <th>Stato</th>
                         <th>Iscritti</th>
@@ -89,6 +90,7 @@
                             </td>
                             <td><code>{{ $corso->protocollo }}</code></td>
                             <td>{{ $corso->tipologia->nome }}</td>
+                            <td class="text-center">@if ($corso->iva_prevista)<i class="fas fa-check-circle text-success" data-toggle="tooltip" title="IVA {{ \App\Support\IvaCorso::aliquotaTesto($corso->aliquota_iva) }}"></i><span class="sr-only">IVA {{ \App\Support\IvaCorso::aliquotaTesto($corso->aliquota_iva) }}</span>@endif</td>
                             <td>{{ $corso->data_inizio->format('d/m/Y H:i') }}</td>
                             <td>
                                 @if ($corso->annullato())

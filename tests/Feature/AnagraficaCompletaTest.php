@@ -91,6 +91,20 @@ class AnagraficaCompletaTest extends TestCase
         $this->assertNull($i->nascita_stato);
     }
 
+    public function test_filtro_dati_mancanti_sugli_iscritti(): void
+    {
+        $corso = $this->corso(true);
+        $base = ['corso_id' => $corso->id, 'telefono' => '3', 'via' => 'v', 'comune' => 'c', 'provincia' => 'AR', 'cap' => '52100', 'email' => 'x@example.test', 'privacy_accettata_at' => now()];
+        $persona = fn ($n) => \App\Models\Persona::create(['nome' => $n, 'cognome' => 'Test', 'codice_fiscale' => 'FKPANO00X00X00'.$n.'X', 'email' => 'x@example.test', 'cellulare' => '3']);
+        foreach (['1' => 'Vecchio', '2' => 'Completo'] as $n => $nome) {
+            $extra = (string) $n === '2' ? ['data_nascita' => '1990-01-01', 'nascita_estero' => false, 'nascita_comune' => 'Roma', 'nascita_provincia' => 'RM'] : [];
+            IscrizioneCorso::create($base + $extra + ['persona_id' => $persona($n)->id, 'nome' => $nome, 'cognome' => 'Test', 'codice_fiscale' => 'FKPANO00X00X00'.$n.'X']);
+        }
+
+        $r = $this->actingAs($this->admin, 'admin')->get(route('admin.corsi.iscritti.index', [$corso, 'stato' => 'mancanti']));
+        $r->assertOk()->assertSee('Vecchio')->assertDontSee('Completo')->assertSee('Dati mancanti (1)');
+    }
+
     public function test_controlli_rafforzati_sul_codice_fiscale(): void
     {
         $this->corso(true);

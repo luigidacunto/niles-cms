@@ -7,23 +7,28 @@ incrementano la seconda cifra, le correzioni e i miglioramenti la terza. Le rele
 ## 1.2.0 — 2026-11-05
 - **Gestione dei pagamenti dei corsi** (funzione facoltativa, da attivare in Dati comitato): per ogni corso a pagamento una pagina elenca i
   blocchi di fatturazione, cioè una riga per ogni fattura da emettere, con intestatario, metodo di pagamento, iscritti coinvolti e importo
-  totale. Con un clic sulla riga si apre una finestra con i dati completi di fatturazione, una **guida alle righe da inserire in fattura**
+  totale. Con un clic sulla riga si apre una finestra con i **dati di fatturazione pronti da copiare** per la fattura elettronica (un pulsante per
+  ogni campo e uno per copiarli tutti), una **guida alle righe da inserire in fattura**
   (generata dal sistema, copiabile) e i campi per registrare numero e data di **fattura** e, facoltativamente, di **ricevuta** (due documenti
   distinti, che possono coesistere) e l'**incasso**. L'importo incassato è proposto in automatico e, se diverso dal totale, richiede una nota
   che ne spieghi il motivo. Il permesso **Pagamenti corsi** è separato da quello dei Corsi, così l'amministrazione può accedere solo a questa
   parte.
 - **IVA dei corsi** (facoltativa): le tipologie e i singoli corsi possono indicare che il costo è comprensivo di IVA e l'aliquota. Il costo
   resta il prezzo finale mostrato agli iscritti; l'IVA serve a scorporare imponibile e imposta nella guida alla fattura. Con costo zero non è
-  attivabile. Se si modifica l'IVA di un corso con fatture già registrate compare un avviso informativo.
+  attivabile. Gli elenchi di tipologie e corsi mostrano a colpo d'occhio se l'IVA è impostata (con l'aliquota). Se si modifica l'IVA di un corso
+  con fatture già registrate compare un avviso informativo.
 - **Corsi gratuiti**: non richiedono più i dati di fatturazione né il metodo di pagamento, nel modulo pubblico come nell'inserimento manuale.
 - **Anagrafica completa** (per tipologia, pensata per il rilascio degli attestati): data e luogo di nascita richiesti agli iscritti, con la
   comunicazione che servono per l'attestato. Il luogo è Italia (comune e provincia) o uno Stato estero scelto da un elenco aggiornabile, con
   l'opzione «Altro» per gli Stati non presenti; per l'estero la provincia è sempre «EE». Per queste tipologie il controllo del codice fiscale
   è più rigoroso: si verificano anche il carattere di controllo, la corrispondenza con la data di nascita indicata e la coerenza tra Italia e
-  estero. Data e luogo di nascita compaiono nell'esportazione degli iscritti e l'informativa privacy predefinita dei corsi li elenca.
+  estero. Nell'elenco iscritti un filtro «Dati mancanti» (con icona di avviso accanto al nome) segnala chi si è iscritto prima dell'attivazione e non ha data o luogo di nascita. Data e luogo di nascita compaiono nell'esportazione degli iscritti e l'informativa privacy predefinita dei corsi li elenca.
 - **Elenco degli Stati esteri** (tabella riutilizzabile, con circa 200 Stati) e relativo aggiornamento automatico dell'informativa privacy.
 - **Esportazione degli iscritti** (Excel e CSV): non contiene più i dati di fatturazione e di pagamento, che si consultano nella gestione
   dei pagamenti.
+- **Menu del pannello riorganizzato**: due titoli fissi, «Lavoro quotidiano» (Contenuti, Formazione, Area soci) e «Amministrazione»
+  (Comitato e sito, Configurazione, Classificazioni, Utenti e controllo), con gruppi richiudibili che ricordano se sono aperti o chiusi.
+  «Membri» passa nel gruppo Area soci. Nessuna funzione cambiata, solo la posizione delle voci.
 - **Interfaccia del pannello**: le note esplicative dei moduli sono nell'icona «i» accanto al campo, con un suggerimento di lettura più
   grande; le liste a scelta con più di tre voci hanno il campo di ricerca (pannello e moduli pubblici); gli interruttori della tipologia di
   corso sono a scorrimento.

@@ -43,6 +43,15 @@ class PagamentiCorsiTest extends TestCase
         ]);
     }
 
+    public function test_modulo_pubblico_a_pagamento_ha_il_metodo_di_pagamento_senza_doppia_codifica(): void
+    {
+        $this->withoutVite();
+        \App\Models\CommitteeInfo::current()->update(['metodi_pagamento' => ['Bonifico', 'Contanti']]);
+
+        // Il nome del campo è un'espressione Alpine: se l'HTML fosse codificato due volte (&amp;#039;) Alpine darebbe errore di sintassi.
+        $this->get('/corsi/blsd-1/iscrizione')->assertOk()->assertSee('metodo_pagamento')->assertDontSee('&amp;#039;', false);
+    }
+
     private function editor(array $permessi): Admin
     {
         return Admin::create(['name' => 'E', 'email' => 'e'.uniqid().'@example.test', 'password' => 'x', 'role' => 'editor', 'active' => true, 'permissions' => $permessi]);
@@ -226,5 +235,22 @@ class PagamentiCorsiTest extends TestCase
         // Corso a pagamento con IVA, poi portato a 0: l'IVA si spegne.
         $this->corso->update(['iva_prevista' => true, 'aliquota_iva' => 22]);
         $this->actingAs($this->admin, 'admin')->get(route('admin.corsi.edit', $this->corso))->assertOk();
+    }
+
+    public function test_colonne_iva_negli_elenchi_e_dati_di_fatturazione_copiabili_nella_modale(): void
+    {
+        $this->attiva();
+        $this->corso->update(['iva_prevista' => true, 'aliquota_iva' => 22]);
+        $this->corso->tipologia->update(['iva_prevista' => true, 'aliquota_iva' => 5.5]);
+        $this->blocco($this->corso, 1);
+        $admin = $this->actingAs($this->admin, 'admin');
+
+        $admin->get(route('admin.corsi-tipologie.index'))->assertOk()->assertSee('5,5%');
+        $admin->get(route('admin.corsi.index'))->assertOk()->assertSee('IVA 22%');
+
+        // Modale: dati per la fattura elettronica, con codice destinatario predefinito e copia di tutti i dati.
+        $admin->get(route('admin.pagamenti-corsi.show', $this->corso))->assertOk()
+            ->assertSee('Denominazione')->assertSee('ACME srl')->assertSee('0000000')->assertSee('Copia tutti')
+            ->assertSee('Partita IVA: 12345678901', false);
     }
 }
