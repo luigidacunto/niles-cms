@@ -116,15 +116,15 @@ class BonificoCorsiTest extends TestCase
     public function test_pannello_normalizza_e_valida_l_iban(): void
     {
         $admin = Admin::first();
-        $base = ['denominazione' => 'Comitato Prova'];
+        $base = [];
 
-        $this->actingAs($admin, 'admin')->put(route('admin.comitato.update'), $base + ['iban' => 'it60 x054 2811 1010 0000 0123 456'])->assertSessionDoesntHaveErrors();
+        $this->actingAs($admin, 'admin')->put(route('admin.comitato.pagamenti.update'), $base + ['iban' => 'it60 x054 2811 1010 0000 0123 456'])->assertSessionDoesntHaveErrors();
         $this->assertSame('IT60X0542811101000000123456', CommitteeInfo::current()->iban);
 
-        $this->actingAs($admin, 'admin')->put(route('admin.comitato.update'), $base + ['iban' => 'non-un-iban'])->assertSessionHasErrors('iban');
+        $this->actingAs($admin, 'admin')->put(route('admin.comitato.pagamenti.update'), $base + ['iban' => 'non-un-iban'])->assertSessionHasErrors('iban');
 
         // Vuoto = si può togliere.
-        $this->actingAs($admin, 'admin')->put(route('admin.comitato.update'), $base + ['iban' => ''])->assertSessionDoesntHaveErrors();
+        $this->actingAs($admin, 'admin')->put(route('admin.comitato.pagamenti.update'), $base + ['iban' => ''])->assertSessionDoesntHaveErrors();
         $this->assertNull(CommitteeInfo::current()->iban);
     }
 }

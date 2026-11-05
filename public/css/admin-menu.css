@@ -61,3 +61,13 @@
 }
 .nav-sidebar .nav-treeview > .nav-item > .nav-link { font-size: .92rem; }
 .nav-sidebar .nav-treeview > .nav-item > .nav-link > p { font-weight: 400; }
+
+/* Piè di pagina fisso in fondo alla finestra a tutta larghezza, sopra la barra laterale (AdminLTE lo affiancherebbe alla barra):
+   basso e compatto; l'ultima voce del menu resta staccata dal bordo e non finisce sotto il piè di pagina. */
+/* Selettore più forte di quello di AdminLTE (.layout-footer-fixed .wrapper .main-footer, z-index 1032 < barra 1038). */
+body.layout-footer-fixed .wrapper .main-footer {
+    margin-left: 0 !important;
+    z-index: 1040;
+    padding: .4rem 1rem;
+}
+.nav-sidebar { padding-bottom: 3.5rem; }

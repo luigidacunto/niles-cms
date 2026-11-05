@@ -8,7 +8,7 @@ use App\Models\DatiFatturazioneCorso;
 use App\Models\IscrizioneCorso;
 
 /**
- * Istruzioni di pagamento dei corsi. Oggi solo il bonifico: dati dal comitato (Dati comitato) e causale compilata
+ * Istruzioni di pagamento dei corsi. Oggi solo il bonifico: dati dal comitato (Coordinate e pagamenti) e causale compilata
  * ("Corso BLSD-2026-001 - Rossi Mario"). Unico punto che decide *quando* e *a chi* mostrarle (email di iscrizione,
  * pagina personale, riepilogo al referente).
  *

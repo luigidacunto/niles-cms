@@ -35,17 +35,17 @@ class CommitteeInfoTest extends TestCase
         $this->assertSame(['Bonifico', 'Contanti'], CommitteeInfo::current()->metodi_pagamento);
 
         $this->actingAs($this->admin(), 'admin')
-            ->put(route('admin.comitato.update'), ['metodi_pagamento_inviati' => 1, 'metodi_pagamento' => ['bonifico', 'pos', 'bonifico']])
-            ->assertRedirect(route('admin.comitato.edit'));
+            ->put(route('admin.comitato.pagamenti.update'), ['metodi_pagamento_inviati' => 1, 'metodi_pagamento' => ['bonifico', 'pos', 'bonifico']])
+            ->assertRedirect(route('admin.comitato.pagamenti.edit'));
         $this->assertSame(['Bonifico', 'POS'], CommitteeInfo::current()->metodi_pagamento);
 
         // Nessun metodo attivo non è ammesso; un codice sconosciuto neppure.
-        $this->put(route('admin.comitato.update'), ['metodi_pagamento_inviati' => 1])->assertSessionHasErrors('metodi_pagamento');
-        $this->put(route('admin.comitato.update'), ['metodi_pagamento_inviati' => 1, 'metodi_pagamento' => ['carta-di-credito-online']])->assertSessionHasErrors('metodi_pagamento.0');
+        $this->put(route('admin.comitato.pagamenti.update'), ['metodi_pagamento_inviati' => 1])->assertSessionHasErrors('metodi_pagamento');
+        $this->put(route('admin.comitato.pagamenti.update'), ['metodi_pagamento_inviati' => 1, 'metodi_pagamento' => ['carta-di-credito-online']])->assertSessionHasErrors('metodi_pagamento.0');
         $this->assertSame(['Bonifico', 'POS'], CommitteeInfo::current()->metodi_pagamento);
 
         // Aggiornamento parziale senza il campo dei metodi: restano com'erano.
-        $this->put(route('admin.comitato.update'), ['denominazione' => 'X'])->assertSessionDoesntHaveErrors();
+        $this->put(route('admin.comitato.pagamenti.update'), ['iban' => ''])->assertSessionDoesntHaveErrors();
         $this->assertSame(['Bonifico', 'POS'], CommitteeInfo::current()->metodi_pagamento);
 
         // Vecchio formato (elenco di etichette libere): riconosciute quelle del catalogo, ignorate le altre.
@@ -68,17 +68,17 @@ class CommitteeInfoTest extends TestCase
         $admin = $this->admin();
 
         $this->actingAs($admin, 'admin')
-            ->put(route('admin.comitato.update'), [
+            ->put(route('admin.comitato.loghi.update'), [
                 'logo_orizzontale' => UploadedFile::fake()->image('logo.png', 600, 140),
             ])
-            ->assertRedirect(route('admin.comitato.edit'));
+            ->assertRedirect(route('admin.comitato.loghi.edit'));
 
         $path = CommitteeInfo::current()->logo_orizzontale;
         $this->assertNotNull($path);
         Storage::disk('public')->assertExists($path);
 
         $this->actingAs($admin, 'admin')
-            ->put(route('admin.comitato.update'), ['remove_logo_orizzontale' => '1']);
+            ->put(route('admin.comitato.loghi.update'), ['remove_logo_orizzontale' => '1']);
 
         $this->assertNull(CommitteeInfo::current()->logo_orizzontale);
         Storage::disk('public')->assertMissing($path);
@@ -98,11 +98,11 @@ class CommitteeInfoTest extends TestCase
         $admin = $this->admin();
 
         $this->actingAs($admin, 'admin')
-            ->put(route('admin.comitato.update'), [
+            ->put(route('admin.comitato.loghi.update'), [
                 'logo_ifrc' => UploadedFile::fake()->image('ifrc.png', 300, 100),
                 'logo_un_italia' => UploadedFile::fake()->image('uia.png', 300, 100),
             ])
-            ->assertRedirect(route('admin.comitato.edit'));
+            ->assertRedirect(route('admin.comitato.loghi.edit'));
 
         $info = CommitteeInfo::current();
         Storage::disk('public')->assertExists($info->logo_ifrc);
@@ -115,7 +115,7 @@ class CommitteeInfoTest extends TestCase
 
         $path = $info->logo_ifrc;
         $this->actingAs($admin, 'admin')
-            ->put(route('admin.comitato.update'), ['remove_logo_ifrc' => '1']);
+            ->put(route('admin.comitato.loghi.update'), ['remove_logo_ifrc' => '1']);
 
         $this->assertNull(CommitteeInfo::current()->logo_ifrc);
         Storage::disk('public')->assertMissing($path);
@@ -130,14 +130,14 @@ class CommitteeInfoTest extends TestCase
         $this->get('/')->assertSee('favicons/favicon.ico', false);
 
         $this->actingAs($admin, 'admin')
-            ->put(route('admin.comitato.update'), ['favicon' => UploadedFile::fake()->image('f.png', 128, 128)])
-            ->assertRedirect(route('admin.comitato.edit'));
+            ->put(route('admin.comitato.loghi.update'), ['favicon' => UploadedFile::fake()->image('f.png', 128, 128)])
+            ->assertRedirect(route('admin.comitato.loghi.edit'));
 
         $info = CommitteeInfo::current();
         $this->assertNotNull($info->favicon);
         $this->get('/')->assertSee($info->favicon_url, false)->assertDontSee('favicons/favicon.ico', false);
 
-        $this->actingAs($admin, 'admin')->put(route('admin.comitato.update'), ['remove_favicon' => '1']);
+        $this->actingAs($admin, 'admin')->put(route('admin.comitato.loghi.update'), ['remove_favicon' => '1']);
         $this->assertNull(CommitteeInfo::current()->favicon);
     }
 
@@ -186,5 +186,56 @@ class CommitteeInfoTest extends TestCase
             ->assertRedirect(route('admin.comitato.edit'));
 
         $this->assertSame('02174760518', CommitteeInfo::current()->piva);
+    }
+
+    public function test_ogni_pagina_salva_solo_i_suoi_campi(): void
+    {
+        $admin = $this->admin();
+        CommitteeInfo::current()->update([
+            'denominazione' => 'Comitato', 'iban' => 'IT60X0542811101000000123456', 'facebook_url' => 'https://facebook.com/x',
+            'area_soci_attiva' => true, 'pagamenti_corsi_attivi' => true, 'goatcounter_enabled' => true, 'ga_enabled' => true,
+        ]);
+
+        // Dati del comitato: non tocca IBAN, metodi né interruttori.
+        $this->actingAs($admin, 'admin')->put(route('admin.comitato.update'), ['denominazione' => 'Nuovo nome'])->assertRedirect(route('admin.comitato.edit'));
+        // Coordinate e pagamenti: non tocca anagrafica né interruttori.
+        $this->put(route('admin.comitato.pagamenti.update'), ['iban' => 'IT60 X054 2811 1010 0000 0123 457', 'metodi_pagamento_inviati' => 1, 'metodi_pagamento' => ['bonifico']])
+            ->assertRedirect(route('admin.comitato.pagamenti.edit'));
+        // Loghi senza file: non cambia nulla.
+        $this->put(route('admin.comitato.loghi.update'), [])->assertRedirect(route('admin.comitato.loghi.edit'));
+
+        $info = CommitteeInfo::current();
+        $this->assertSame('Nuovo nome', $info->denominazione);
+        $this->assertSame('https://facebook.com/x', $info->facebook_url);
+        $this->assertSame('IT60X0542811101000000123457', $info->iban);
+        $this->assertSame(['Bonifico'], $info->metodi_pagamento);
+        $this->assertTrue($info->area_soci_attiva && $info->pagamenti_corsi_attivi && $info->goatcounter_enabled && $info->ga_enabled);
+    }
+
+    public function test_funzioni_attive_accende_e_spegne_gli_interruttori(): void
+    {
+        $this->actingAs($this->admin(), 'admin')->get(route('admin.funzioni.edit'))->assertOk()->assertSee('custom-switch', false);
+
+        $this->put(route('admin.funzioni.update'), ['area_soci_attiva' => 1, 'pagamenti_corsi_attivi' => 1])->assertRedirect(route('admin.funzioni.edit'));
+        $info = CommitteeInfo::current();
+        $this->assertTrue($info->area_soci_attiva);
+        $this->assertTrue($info->pagamenti_corsi_attivi);
+        $this->assertFalse($info->goatcounter_enabled);   // casella non inviata = spenta
+        $this->assertFalse($info->ga_enabled);
+
+        $this->put(route('admin.funzioni.update'), [])->assertRedirect();
+        $this->assertFalse(CommitteeInfo::current()->area_soci_attiva);
+    }
+
+    public function test_le_quattro_pagine_si_aprono_e_sono_solo_per_admin(): void
+    {
+        $admin = $this->admin();
+        foreach (['admin.comitato.edit', 'admin.comitato.loghi.edit', 'admin.comitato.pagamenti.edit', 'admin.funzioni.edit'] as $rotta) {
+            $this->actingAs($admin, 'admin')->get(route($rotta))->assertOk();
+        }
+        $editor = Admin::create(['name' => 'E', 'email' => 'e@example.test', 'password' => 'x', 'role' => 'editor', 'active' => true, 'permissions' => []]);
+        foreach (['admin.comitato.loghi.update', 'admin.comitato.pagamenti.update', 'admin.funzioni.update'] as $rotta) {
+            $this->actingAs($editor, 'admin')->put(route($rotta), [])->assertForbidden();
+        }
     }
 }

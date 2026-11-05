@@ -4,7 +4,7 @@ namespace App\Support;
 
 use App\Models\CommitteeInfo;
 
-/** Gestione facoltativa dei pagamenti dei corsi (interruttore in Dati comitato). Spenta = nessuna voce di pannello. */
+/** Gestione facoltativa dei pagamenti dei corsi (interruttore in Funzioni attive). Spenta = nessuna voce di pannello. */
 class PagamentiCorsi
 {
     public static function attivi(): bool

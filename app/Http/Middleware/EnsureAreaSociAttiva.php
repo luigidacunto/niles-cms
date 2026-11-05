@@ -7,7 +7,7 @@ use Closure;
 use Illuminate\Http\Request;
 use Symfony\Component\HttpFoundation\Response;
 
-/** Area soci spenta (Dati comitato) → le sue pagine, pubbliche e di pannello, non esistono (404). */
+/** Area soci spenta (Funzioni attive) → le sue pagine, pubbliche e di pannello, non esistono (404). */
 class EnsureAreaSociAttiva
 {
     public function handle(Request $request, Closure $next): Response

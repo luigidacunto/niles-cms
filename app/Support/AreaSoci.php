@@ -6,7 +6,7 @@ use App\Models\CommitteeInfo;
 use App\Models\DocumentCategory;
 
 /**
- * Punto unico per sapere se l'area soci è attiva (interruttore in Dati comitato) e per la categoria
+ * Punto unico per sapere se l'area soci è attiva (interruttore in Funzioni attive) e per la categoria
  * documenti riservata che ospita gli allegati. Spenta = nascosta ovunque, mai cancellato nulla.
  */
 class AreaSoci

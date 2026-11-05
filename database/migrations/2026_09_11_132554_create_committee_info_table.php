@@ -7,7 +7,7 @@ use Illuminate\Support\Facades\Schema;
 return new class extends Migration
 {
     /**
-     * Dati del comitato: riga singola, modificata da «Dati del comitato» nel pannello.
+     * Dati del comitato: riga singola, modificata dalle pagine «Comitato e sito» e «Funzioni attive» del pannello.
      *
      * - Loghi e favicon: percorsi dei file caricati dal pannello, tutti facoltativi. Senza file il sito usa
      *   la grafica generica distribuita con il codice; loghi istituzionali e favicon non sono inclusi nel codice.

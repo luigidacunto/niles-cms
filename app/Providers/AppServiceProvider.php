@@ -48,7 +48,7 @@ class AppServiceProvider extends ServiceProvider
         // Corsi di formazione (permesso 'corsi', flat: nessuno scoping per categoria/sede); il catalogo
         // (tipologie/sedi) è struttura, solo admin.
         Gate::define('manage-corsi', fn (Admin $admin) => $admin->hasPermission('corsi', 'read') || $admin->hasPermission('corsi', 'write'));
-        // Pagamenti dei corsi (fatture/incassi): funzione facoltativa, accesa in Dati comitato; permesso dedicato, distinto da 'corsi'.
+        // Pagamenti dei corsi (fatture/incassi): funzione facoltativa, accesa in Funzioni attive; permesso dedicato, distinto da 'corsi'.
         Gate::define('manage-pagamenti-corsi', fn (Admin $admin) => PagamentiCorsi::attivi() && $admin->hasPermission('pagamenti_corsi'));
         Gate::define('manage-corsi-catalogo', fn (Admin $admin) => $admin->role === 'admin');
         // Posta in uscita (SMTP): contiene credenziali, solo admin.
@@ -56,7 +56,7 @@ class AppServiceProvider extends ServiceProvider
         // Aggiornamento dal pannello: solo admin e solo sulle installazioni con NILES_WEB_UPDATE=true (altrove la pagina è 404).
         Gate::define('manage-aggiornamento', fn (Admin $admin) => $admin->role === 'admin' && WebUpdate::attivo());
         // Impostazioni di sicurezza dei moduli pubblici (rate limiting/captcha): sezione strutturale, solo admin.
-        // Voci dell'area soci: nascoste (e rotte 404 via middleware area.soci) se l'interruttore in Dati comitato è spento.
+        // Voci dell'area soci: nascoste (e rotte 404 via middleware area.soci) se l'interruttore in Funzioni attive è spento.
         Gate::define('manage-membri', fn (Admin $admin) => AreaSoci::attiva() && $admin->hasPermission('membri'));
         Gate::define('manage-comunicazioni-soci', fn (Admin $admin) => AreaSoci::attiva() && $admin->hasPermission('comunicazioni_soci'));
         // Titolo «Amministrazione» del menu: sotto ci sono solo sezioni riservate agli amministratori.
@@ -85,6 +85,16 @@ class AppServiceProvider extends ServiceProvider
         });
 
         // Dati del template di pagina "corsi" (pages.template='corsi'): corsi con iscrizioni aperte.
+        // Piè di pagina del pannello su tutte le pagine adminlte::page: AdminLTE lo mostra solo se esiste la sezione 'footer',
+        // qui la si fornisce una volta per tutte (una vista che la definisce da sé ha la precedenza).
+        View::composer('adminlte::page', function ($view) {
+            $factory = $view->getFactory();
+            if (! $factory->hasSection('footer')) {
+                // Passata come vista, non come stringa: startSection() farebbe l'escape di una stringa (HTML mostrato come testo).
+                $factory->startSection('footer', view('admin.partials.footer'));
+            }
+        });
+
         View::composer('pages.templates.corsi', fn ($view) => $view->with(
             'corsi', Corso::conIscrizioniAperte()->with('tipologia')->get()
         ));

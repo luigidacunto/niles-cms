@@ -14,7 +14,7 @@
     // Link personalizzabili della terza colonna del footer (Amministrazione → Link del footer).
     $footerLinks ??= \App\Models\FooterLink::ordered()->get();
 
-    // Area soci: attiva da Dati comitato; il menu "Area Soci" compare solo a un socio loggato. Le pagine future
+    // Area soci: attiva da Funzioni attive; il menu "Area Soci" compare solo a un socio loggato. Le pagine future
     // (materiali, ecc.) si aggiungono qui come ['titolo', url].
     $areaSociAttiva = (bool) $committeeInfo->area_soci_attiva;
     $areaSociNav = ($areaSociAttiva && auth('member')->check()) ? [
@@ -149,7 +149,7 @@
         {{-- Nav: sfondo bianco, logo a sinistra, menu a destra (struttura cri.it) --}}
         <nav class="bg-white border-b border-gray-200 relative z-20">
             <div class="max-w-6xl mx-auto px-4 flex items-center justify-between py-3">
-                {{-- Logo dal pannello (Dati del comitato), non più un file cablato nel repo. Solo l'orizzontale qui.
+                {{-- Logo dal pannello (Loghi e immagini), non più un file cablato nel repo. Solo l'orizzontale qui.
                      Logo come background CSS (non un <img> semplice): ingrandito e centrato nel box così
                      il margine trasparente del file finisce fuori dai bordi visibili senza ritagliare il
                      PNG — stesso trucco già usato prima di questa sezione admin, ripristinato perché un

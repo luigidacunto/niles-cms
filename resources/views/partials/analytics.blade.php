@@ -4,7 +4,7 @@
     - GA4: caricato SOLO se il visitatore ha accettato la categoria "Statistiche" nel banner
       (cookie `cookie_consent`, gestito da partials/cookie-consent.blade.php). Nessun reload:
       all'accettazione arriva l'evento `consent:updated` e lo script viene iniettato al volo.
-    Ogni strumento ha anche un interruttore rapido da pannello (Dati del comitato →
+    Ogni strumento ha anche un interruttore rapido da pannello (Funzioni attive →
     goatcounter_enabled/ga_enabled, default true): spento da lì, non si carica anche se configurato
     nel .env — comodo per disattivare al volo senza toccare il server.
 --}}

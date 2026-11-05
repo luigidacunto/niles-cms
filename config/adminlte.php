@@ -154,9 +154,9 @@ return [
 
     'layout_topnav' => null,
     'layout_boxed' => null,
-    'layout_fixed_sidebar' => null,
+    'layout_fixed_sidebar' => true,   // barra ferma con scorrimento proprio: con il menu lungo evita il vuoto sotto l'area centrale
     'layout_fixed_navbar' => null,
-    'layout_fixed_footer' => null,
+    'layout_fixed_footer' => true,   // piè di pagina fisso in fondo, a tutta larghezza (anche sotto la barra laterale: public/css/admin-menu.css)
     'layout_dark_mode' => null,
 
     /*
@@ -343,6 +343,8 @@ return [
             'icon' => 'fas fa-fw fa-landmark',
             'submenu' => [
                 ['text' => 'Dati del comitato', 'route' => 'admin.comitato.edit', 'icon' => 'fas fa-fw fa-address-card', 'can' => 'manage-comitato'],
+                ['text' => 'Loghi e immagini', 'route' => 'admin.comitato.loghi.edit', 'icon' => 'fas fa-fw fa-image', 'can' => 'manage-comitato'],
+                ['text' => 'Coordinate e pagamenti', 'route' => 'admin.comitato.pagamenti.edit', 'icon' => 'fas fa-fw fa-money-check-alt', 'can' => 'manage-comitato'],
                 ['text' => 'Link del footer', 'route' => 'admin.footer.edit', 'icon' => 'fas fa-fw fa-link', 'can' => 'manage-footer'],
                 ['text' => 'Informative privacy', 'route' => 'admin.privacy-policies.index', 'icon' => 'fas fa-fw fa-file-contract', 'can' => 'manage-privacy-policies'],
                 ['text' => 'Template email', 'route' => 'admin.email-templates.index', 'icon' => 'fas fa-fw fa-envelope-open-text', 'can' => 'manage-email-templates'],
@@ -352,6 +354,7 @@ return [
             'text' => 'Configurazione',
             'icon' => 'fas fa-fw fa-cogs',
             'submenu' => [
+                ['text' => 'Funzioni attive', 'route' => 'admin.funzioni.edit', 'icon' => 'fas fa-fw fa-toggle-on', 'can' => 'manage-comitato'],
                 ['text' => 'Posta in uscita', 'route' => 'admin.posta.edit', 'icon' => 'fas fa-fw fa-envelope', 'can' => 'manage-posta'],
                 ['text' => 'Sicurezza moduli', 'route' => 'admin.sicurezza-form.edit', 'icon' => 'fas fa-fw fa-shield-alt', 'can' => 'manage-sicurezza-form'],
                 ['text' => 'Aggiornamento', 'route' => 'admin.aggiornamento.index', 'icon' => 'fas fa-fw fa-sync-alt', 'can' => 'manage-aggiornamento'],

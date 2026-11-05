@@ -15,7 +15,7 @@ return [
             '{periodo}' => 'Data e orario del corso',
             '{luogo}' => 'Sede del corso',
             '{costo}' => 'Quota di partecipazione (o "Gratuito")',
-            '{dati_pagamento}' => 'Coordinate del bonifico (importo, IBAN, causale): compaiono solo se l\'iscritto ha scelto il bonifico, il corso ha una quota e l\'IBAN è impostato in Dati del comitato; altrimenti il segnaposto resta vuoto',
+            '{dati_pagamento}' => 'Coordinate del bonifico (importo, IBAN, causale): compaiono solo se l\'iscritto ha scelto il bonifico, il corso ha una quota e l\'IBAN è impostato in Coordinate e pagamenti; altrimenti il segnaposto resta vuoto',
             '{link_preferenze}' => 'Indirizzo della pagina personale (usalo dentro un link: <a href="{link_preferenze}">…</a>)',
         ],
         'predefinito' => [

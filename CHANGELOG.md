@@ -28,7 +28,11 @@ incrementano la seconda cifra, le correzioni e i miglioramenti la terza. Le rele
   dei pagamenti.
 - **Menu del pannello riorganizzato**: due titoli fissi, «Lavoro quotidiano» (Contenuti, Formazione, Area soci) e «Amministrazione»
   (Comitato e sito, Configurazione, Classificazioni, Utenti e controllo), con gruppi richiudibili che ricordano se sono aperti o chiusi.
-  «Membri» passa nel gruppo Area soci. Nessuna funzione cambiata, solo la posizione delle voci.
+  «Membri» passa nel gruppo Area soci. Barra laterale fissa con scorrimento proprio e piè di pagina
+  del pannello con versione e link al progetto. Nessuna funzione cambiata, solo la posizione delle voci.
+- **«Dati del comitato» diviso in quattro pagine**: Dati del comitato (anagrafica, contatti e social), Loghi e immagini, Coordinate e
+  pagamenti (IBAN e metodi accettati) nel gruppo Comitato e sito; **Funzioni attive** (Area soci, Pagamenti dei corsi, Statistiche) nel
+  gruppo Configurazione, con interruttori a scorrimento. Ogni pagina salva solo i propri campi; i dati già inseriti restano invariati.
 - **Interfaccia del pannello**: le note esplicative dei moduli sono nell'icona «i» accanto al campo, con un suggerimento di lettura più
   grande; le liste a scelta con più di tre voci hanno il campo di ricerca (pannello e moduli pubblici); gli interruttori della tipologia di
   corso sono a scorrimento.

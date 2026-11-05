@@ -142,10 +142,18 @@ Route::prefix('admin')->name('admin.')->group(function () {
             Route::delete('{document}', [DocumentController::class, 'destroy'])->name('destroy');
         });
 
-        // Dati anagrafici/contatto del comitato (footer pubblico). Solo admin.
+        // Riga unica committee_info, divisa in quattro pagine (ognuna salva solo i suoi campi). Solo admin.
         Route::middleware('admin.role')->prefix('comitato')->name('comitato.')->group(function () {
-            Route::get('/', [CommitteeInfoController::class, 'edit'])->name('edit');
+            Route::get('/', [CommitteeInfoController::class, 'edit'])->name('edit');                       // dati e social
             Route::put('/', [CommitteeInfoController::class, 'update'])->name('update');
+            Route::get('/loghi', [CommitteeInfoController::class, 'editLoghi'])->name('loghi.edit');
+            Route::put('/loghi', [CommitteeInfoController::class, 'updateLoghi'])->name('loghi.update');
+            Route::get('/pagamenti', [CommitteeInfoController::class, 'editPagamenti'])->name('pagamenti.edit');
+            Route::put('/pagamenti', [CommitteeInfoController::class, 'updatePagamenti'])->name('pagamenti.update');
+        });
+        Route::middleware('admin.role')->prefix('funzioni-attive')->name('funzioni.')->group(function () {
+            Route::get('/', [CommitteeInfoController::class, 'editFunzioni'])->name('edit');
+            Route::put('/', [CommitteeInfoController::class, 'updateFunzioni'])->name('update');
         });
 
         // Link personalizzabili del footer pubblico (terza colonna). Solo admin.
@@ -284,7 +292,7 @@ Route::prefix('admin')->name('admin.')->group(function () {
             Route::delete('{tipologiaCorso}', [TipologiaCorsoController::class, 'destroy'])->name('destroy');
         });
 
-        // Pagamenti dei corsi (fatture/incassi): funzione facoltativa, Gate = interruttore in Dati comitato + permesso dedicato.
+        // Pagamenti dei corsi (fatture/incassi): funzione facoltativa, Gate = interruttore in Funzioni attive + permesso dedicato.
         Route::middleware('can:manage-pagamenti-corsi')->prefix('pagamenti-corsi')->name('pagamenti-corsi.')->group(function () {
             Route::get('/', [PagamentoCorsoController::class, 'index'])->name('index');
             Route::get('{corso}', [PagamentoCorsoController::class, 'show'])->name('show');

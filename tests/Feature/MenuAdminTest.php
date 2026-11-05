@@ -58,4 +58,14 @@ class MenuAdminTest extends TestCase
         $this->assertFileExists(public_path('js/admin-menu.js'));
         $this->assertFileExists(public_path('css/admin-menu.css'));
     }
+
+    public function test_footer_del_pannello_con_versione_e_link_al_progetto(): void
+    {
+        $this->actingAs($this->admin('admin'), 'admin')->get(route('admin.dashboard'))->assertOk()
+            ->assertSee('main-footer', false)
+            ->assertSee('<a href="https://github.com/luigidacunto/niles-cms"', false)   // HTML vero, non testo con l'escape
+            ->assertDontSee('&lt;a href=&quot;https://github.com', false)
+            ->assertSee('v'.config('app.version'))
+            ->assertSee('layout-fixed', false);   // barra laterale fissa
+    }
 }
