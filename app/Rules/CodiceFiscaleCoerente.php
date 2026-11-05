@@ -53,7 +53,8 @@ class CodiceFiscaleCoerente implements DataAwareRule, ValidationRule
                 $data = null;   // data non valida: la segnala la sua regola
             }
 
-            foreach (CodiceFiscaleInfo::incoerenzeAnagrafica((string) $value, $data ?: null, NascitaCorso::estero(is_string($luogo) ? $luogo : null)) as $problema) {
+            $stato = NascitaCorso::stato((array) Arr::get($this->data, $gruppo, []));
+            foreach (CodiceFiscaleInfo::incoerenzeAnagrafica((string) $value, $data ?: null, NascitaCorso::estero(is_string($luogo) ? $luogo : null), is_string($stato) ? $stato : null) as $problema) {
                 $fail($problema);
             }
         }

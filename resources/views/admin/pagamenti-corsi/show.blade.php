@@ -15,6 +15,9 @@
     @if (session('status'))
         <div class="alert alert-success">{{ session('status') }}</div>
     @endif
+    @if (session('avviso'))
+        <div class="alert alert-warning"><i class="fas fa-exclamation-triangle"></i> {{ session('avviso') }}</div>
+    @endif
     @if ($errors->any())
         <div class="alert alert-danger"><ul class="mb-0">@foreach ($errors->all() as $error)<li>{{ $error }}</li>@endforeach</ul></div>
     @endif
@@ -100,25 +103,27 @@
             $testoGuida = $riga['attivi']->map(fn ($i) => $descrizione($i).' — '.$dettaglioImporto)->push($totaleTesto)->join(PHP_EOL);
             $apertoPerErrori = (int) old('_blocco') === $b->id;
             // Campi della fattura elettronica (FatturaPA): privato = cognome e nome separati, azienda = denominazione. Senza codice
-            // destinatario vale 0000000 (la fattura va nel cassetto fiscale del cliente).
+            // destinatario vale 0000000 (la fattura va nel cassetto fiscale del cliente). Quarto elemento = necessario alla fattura:
+            // se vuoto resta visibile come «mancante»; i facoltativi vuoti si nascondono.
             $azienda = $b->tipo === 'azienda';
+            $senzaPivaNeCf = $azienda && blank($b->partita_iva) && blank($b->codice_fiscale);
             $campiDati = collect([
-                ['Tipo', $azienda ? 'Azienda / associazione / libero professionista' : 'Privato', null],
-                ...($azienda ? [['Denominazione', $b->ragione_sociale, null]] : [['Cognome', $b->cognome, null], ['Nome', $b->nome, null]]),
-                ['Partita IVA', $b->partita_iva, null],
-                ['Codice fiscale', $b->codice_fiscale, null],
-                ['Indirizzo', $b->via, null],
-                ['CAP', $b->cap, null],
-                ['Comune', $b->comune, null],
-                ['Provincia', $b->provincia, null],
-                ['Nazione', 'IT', null],
-                ['Codice destinatario', $b->codice_destinatario ?: '0000000', $b->codice_destinatario ? null : 'predefinito: nessun codice indicato'],
-                ['PEC', $b->pec, null],
-                ['Email', $b->email, null],
-                ['Telefono', $b->telefono, null],
-                ['Metodo di pagamento', $b->metodo_pagamento, null],
-            ])->filter(fn ($c) => filled($c[1]))->values();
-            $testoDati = $campiDati->map(fn ($c) => $c[0].': '.$c[1])->join(PHP_EOL);
+                ['Tipo', $azienda ? 'Azienda / associazione / libero professionista' : 'Privato', null, true],
+                ...($azienda ? [['Denominazione', $b->ragione_sociale, null, true]] : [['Cognome', $b->cognome, null, true], ['Nome', $b->nome, null, true]]),
+                ...($senzaPivaNeCf ? [['Partita IVA o codice fiscale', null, null, true]]
+                    : [['Partita IVA', $b->partita_iva, null, false], ['Codice fiscale', $b->codice_fiscale, null, ! $azienda]]),
+                ['Indirizzo', $b->via, null, true],
+                ['CAP', $b->cap, null, true],
+                ['Comune', $b->comune, null, true],
+                ['Provincia', $b->provincia, null, true],
+                ['Nazione', 'IT', null, true],
+                ['Codice destinatario', $b->codice_destinatario ?: '0000000', $b->codice_destinatario ? null : 'predefinito: nessun codice indicato', true],
+                ['PEC', $b->pec, null, false],
+                ['Email', $b->email, null, false],
+                ['Telefono', $b->telefono, null, false],
+                ['Metodo di pagamento', $b->metodo_pagamento, null, false],
+            ])->filter(fn ($c) => filled($c[1]) || $c[3])->values();
+            $testoDati = $campiDati->filter(fn ($c) => filled($c[1]))->map(fn ($c) => $c[0].': '.$c[1])->join(PHP_EOL);
             $incassato = $apertoPerErrori ? (bool) old('incassato') : $b->incassato_at !== null;
         @endphp
         <div class="modal fade" id="blocco-{{ $b->id }}" tabindex="-1" role="dialog" @if($apertoPerErrori) data-riapri="1" @endif>
@@ -140,8 +145,13 @@
                             @foreach ($campiDati as [$etichetta, $valore, $nota])
                                 <tr>
                                     <td class="text-muted" style="width: 25%">{{ $etichetta }}</td>
-                                    <td style="width: 1%"><button type="button" class="btn btn-xs btn-link copia py-0" data-testo="{{ $valore }}" title="Copia {{ $etichetta }}"><i class="fas fa-copy"></i><span class="sr-only">Copia {{ $etichetta }}</span></button></td>
-                                    <td class="pl-0">{{ $valore }} @if ($nota) <small class="text-muted">({{ $nota }})</small> @endif</td>
+                                    @if (filled($valore))
+                                        <td style="width: 1%"><button type="button" class="btn btn-xs btn-link copia py-0" data-testo="{{ $valore }}" title="Copia {{ $etichetta }}"><i class="fas fa-copy"></i><span class="sr-only">Copia {{ $etichetta }}</span></button></td>
+                                        <td class="pl-0">{{ $valore }} @if ($nota) <small class="text-muted">({{ $nota }})</small> @endif</td>
+                                    @else
+                                        <td style="width: 1%"></td>
+                                        <td class="pl-0 text-danger font-weight-bold">— mancante</td>
+                                    @endif
                                 </tr>
                             @endforeach
                         </table>

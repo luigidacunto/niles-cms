@@ -21,8 +21,6 @@
                 <th>Email</th>
                 <th>Telefono</th>
                 <th>Codice fiscale</th>
-                <th>Fatturazione a</th>
-                <th>Metodo pagamento</th>
                 <th>Presenza</th>
                 <th>Iscritto il</th>
             </tr>
@@ -34,10 +32,6 @@
                     <td>{{ $iscrizione->email }}</td>
                     <td>{{ $iscrizione->telefono }}</td>
                     <td>{{ $iscrizione->codice_fiscale }}</td>
-                    <td>
-                        {{ $iscrizione->datiFatturazione?->intestatario() }}
-                    </td>
-                    <td>{{ $iscrizione->datiFatturazione?->metodo_pagamento }}</td>
                     <td>{{ $iscrizione->presenza_confermata_at ? 'Confermata '.$iscrizione->presenza_confermata_at->format('d/m') : '—' }}</td>
                     <td>{{ $iscrizione->created_at->format('d/m/Y H:i') }}</td>
                 </tr>

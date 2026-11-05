@@ -47,7 +47,7 @@ class NascitaCorso
 
         $luogo = (string) ($n['nascita_luogo'] ?? 'italia');
         $estero = $luogo !== 'italia';
-        $stato = ! $estero ? null : ($luogo === 'altro' ? ($n['nascita_stato_altro'] ?? null) : Stato::find($luogo)?->nome);
+        $stato = self::stato($n);
 
         return [
             'data_nascita' => $n['data_nascita'],
@@ -56,6 +56,17 @@ class NascitaCorso
             'nascita_provincia' => $estero ? self::PROVINCIA_ESTERO : ($n['nascita_provincia'] ?? null),
             'nascita_stato' => $stato,
         ];
+    }
+
+    /** Nome dello Stato estero dai campi del modulo (dall'elenco o scritto a mano); null per l'Italia o se manca. */
+    public static function stato(array $n): ?string
+    {
+        $luogo = (string) ($n['nascita_luogo'] ?? 'italia');
+        if ($luogo === 'italia' || $luogo === '') {
+            return null;
+        }
+
+        return $luogo === 'altro' ? ($n['nascita_stato_altro'] ?? null) : Stato::find($luogo)?->nome;
     }
 
     /** «Bologna (BO)» / «Tirana (EE), Albania» / null se non raccolto. */

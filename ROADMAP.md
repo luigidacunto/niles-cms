@@ -30,6 +30,10 @@ Versione attuale e funzioni già rilasciate: vedi il [changelog](CHANGELOG.md) e
   reversibile (i dati restano nel database).
 
 ### Documentazione
+- **Guide d'uso dentro il pannello**: procedure per chi usa il pannello, divise per argomento (accesso, dati del comitato e
+  configurazione, utenti, pagine e pagine di sistema, post e campi utili alla SEO, Trasparenza, formazione), con immagini e scaricabili in
+  PDF, raggiungibili dal menu da tutti gli utenti.
+
 Completamento della [guida](docs/README.md), un argomento per volta. Parti ancora mancanti:
 - area soci: documenti riservati, categorie riservate, registro dei download e uso dell'area dal lato del socio;
 - installazione di un server di sviluppo, con le differenze rispetto alla produzione;
@@ -55,6 +59,9 @@ Idee raccolte, senza una decisione su se e come realizzarle.
 - **Altre sezioni strutturate** di sistema, come Trasparenza e Struttura organizzativa.
 - **Disattivazione di intere sezioni** (non solo pagine) per i comitati che non le usano.
 - **Moduli aggiuntivi**: gallerie, moduli di contatto, ricerca interna.
+- **Elenco degli Stati esteri modificabile dal pannello** (oggi aggiornato con il codice, tramite seeder).
+- **Permesso dedicato ai testi istituzionali** (informative privacy e template delle email), oggi riservati agli amministratori.
+- **Tipologie dei corsi gestibili anche da utenti non amministratori**, con il permesso Corsi in scrittura.
 
 ## Non previsto
 

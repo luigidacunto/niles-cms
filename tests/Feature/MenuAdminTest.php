@@ -34,8 +34,9 @@ class MenuAdminTest extends TestCase
     public function test_editor_con_corsi_vede_formazione_ma_non_amministrazione_ne_tipologie(): void
     {
         // Il titolo `nav-header` esiste solo nella barra laterale ("Formazione" altrove è un nome di categoria).
-        $editor = $this->actingAs($this->admin('editor', ['corsi' => ['read']]), 'admin')->get(route('admin.persone.index'))->assertOk()->getContent();
+        $editor = $this->actingAs($this->admin('editor', ['corsi' => ['read']]), 'admin')->get(route('admin.corsi.index'))->assertOk()->getContent();
         $this->assertMatchesRegularExpression('/href="[^"]*\/admin\/corsi"/', $editor);
+        $this->assertDoesNotMatchRegularExpression('/href="[^"]*\/admin\/persone"/', $editor);   // Persone: solo con i corsi in scrittura
         $this->assertDoesNotMatchRegularExpression('/admin\/corsi-catalogo\/tipologie/', $editor);   // Tipologie corso: solo admin
         $this->assertDoesNotMatchRegularExpression('/nav-header[^>]*>\s*Amministrazione/', $editor);
         $this->assertDoesNotMatchRegularExpression('/>\s*Comitato e sito/', $editor);

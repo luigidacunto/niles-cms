@@ -126,7 +126,8 @@ class IscrittiRitiroStampaTest extends TestCase
         $r = $this->actingAs($this->admin, 'admin')->get(route('admin.corsi.iscritti.stampa', $this->corso))->assertOk();
 
         $r->assertSeeInOrder(['Bianchi', 'Rossi', 'Verdi'])                    // per cognome
-            ->assertSee('RSSMRA80A01H501U')->assertSee('Contanti')
+            ->assertSee('RSSMRA80A01H501U')
+            ->assertDontSee('Contanti')->assertDontSee('Bonifico')             // il metodo di pagamento sta solo in Pagamenti corsi
             ->assertSee('pagamento di gruppo: ACME srl')                       // pagamento unico condiviso
             ->assertDontSee('Neri')->assertDontSee('POS')                      // ritirati fuori
             ->assertSee('Pagato')->assertSee('Presente')->assertSee('class="box"', false)

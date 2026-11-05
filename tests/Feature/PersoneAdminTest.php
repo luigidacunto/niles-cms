@@ -87,7 +87,7 @@ class PersoneAdminTest extends TestCase
         $scrittore = $this->admin('editor', ['corsi' => ['write']]);
         $nessuno = $this->admin('editor', []);
 
-        $this->actingAs($lettore, 'admin')->get(route('admin.persone.index'))->assertOk();
+        $this->actingAs($lettore, 'admin')->get(route('admin.persone.index'))->assertForbidden();   // la sola lettura dei corsi non basta
         $this->actingAs($lettore, 'admin')->post(route('admin.persone.revoca', [$p, 'newsletter']))->assertForbidden();
         $this->actingAs($nessuno, 'admin')->get(route('admin.persone.index'))->assertForbidden();
         $this->actingAs($nessuno, 'admin')->get(route('admin.persone.esporta', ['colonne' => ['email']]))->assertForbidden();

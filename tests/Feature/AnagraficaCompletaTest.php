@@ -130,6 +130,23 @@ class AnagraficaCompletaTest extends TestCase
             }
         }
         $this->assertSame(0, IscrizioneCorso::count());
+
+        // Il messaggio nomina lo Stato scelto, non un generico «Stato estero».
+        $this->invio($this->cf(), ['nascita_luogo' => $albania] + $nascita)->assertSessionHasErrors([
+            'nominativi.0.codice_fiscale' => 'Il codice fiscale è di una persona nata in Italia, ma come luogo di nascita è indicato «Albania»: correggi il luogo di nascita o il codice fiscale.',
+        ]);
+    }
+
+    public function test_dopo_un_errore_il_modulo_riparte_dai_dati_inviati(): void
+    {
+        $this->corso(true);
+        $this->from('/corsi/blsd-1/iscrizione');
+        $this->invio($this->cf(), ['data_nascita' => '1985-12-11', 'nascita_luogo' => 'italia', 'nascita_comune' => 'Fiesole', 'nascita_provincia' => 'FI'])
+            ->assertSessionHasErrors('nominativi.0.codice_fiscale');
+
+        // Lo stato Alpine del modulo parte dai valori inviati, compresi residenza e nascita (prima ripartiva vuoto).
+        $this->get('/corsi/blsd-1/iscrizione')->assertOk()
+            ->assertSee('Via Roma 1')->assertSee('1985-12-11')->assertSee('Fiesole')->assertSee('m@example.test');
     }
 
     public function test_nato_all_estero_stato_da_elenco_provincia_ee_forzata(): void

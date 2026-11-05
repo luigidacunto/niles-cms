@@ -5,13 +5,14 @@ incrementano la seconda cifra, le correzioni e i miglioramenti la terza. Le rele
 [GitHub](https://github.com/luigidacunto/niles-cms/releases). Le direzioni future sono nella [roadmap](ROADMAP.md).
 
 ## 1.2.0 — 2026-11-05
-- **Gestione dei pagamenti dei corsi** (funzione facoltativa, da attivare in Dati comitato): per ogni corso a pagamento una pagina elenca i
+- **Gestione dei pagamenti dei corsi** (funzione facoltativa, da attivare in Funzioni attive): per ogni corso a pagamento una pagina elenca i
   blocchi di fatturazione, cioè una riga per ogni fattura da emettere, con intestatario, metodo di pagamento, iscritti coinvolti e importo
   totale. Con un clic sulla riga si apre una finestra con i **dati di fatturazione pronti da copiare** per la fattura elettronica (un pulsante per
-  ogni campo e uno per copiarli tutti), una **guida alle righe da inserire in fattura**
+  ogni campo e uno per copiarli tutti; i dati necessari alla fattura ancora vuoti sono segnalati come «mancante»), una **guida alle righe da inserire in fattura**
   (generata dal sistema, copiabile) e i campi per registrare numero e data di **fattura** e, facoltativamente, di **ricevuta** (due documenti
   distinti, che possono coesistere) e l'**incasso**. L'importo incassato è proposto in automatico e, se diverso dal totale, richiede una nota
-  che ne spieghi il motivo. Il permesso **Pagamenti corsi** è separato da quello dei Corsi, così l'amministrazione può accedere solo a questa
+  che ne spieghi il motivo. Un numero di fattura già registrato nello stesso anno (anche su un altro corso) produce un avviso, ma il
+  salvataggio avviene comunque; i numeri di ricevuta non sono controllati. Il permesso **Pagamenti corsi** è separato da quello dei Corsi, così l'amministrazione può accedere solo a questa
   parte.
 - **IVA dei corsi** (facoltativa): le tipologie e i singoli corsi possono indicare che il costo è comprensivo di IVA e l'aliquota. Il costo
   resta il prezzo finale mostrato agli iscritti; l'IVA serve a scorporare imponibile e imposta nella guida alla fattura. Con costo zero non è
@@ -24,8 +25,14 @@ incrementano la seconda cifra, le correzioni e i miglioramenti la terza. Le rele
   è più rigoroso: si verificano anche il carattere di controllo, la corrispondenza con la data di nascita indicata e la coerenza tra Italia e
   estero. Nell'elenco iscritti un filtro «Dati mancanti» (con icona di avviso accanto al nome) segnala chi si è iscritto prima dell'attivazione e non ha data o luogo di nascita. Data e luogo di nascita compaiono nell'esportazione degli iscritti e l'informativa privacy predefinita dei corsi li elenca.
 - **Elenco degli Stati esteri** (tabella riutilizzabile, con circa 200 Stati) e relativo aggiornamento automatico dell'informativa privacy.
-- **Esportazione degli iscritti** (Excel e CSV): non contiene più i dati di fatturazione e di pagamento, che si consultano nella gestione
-  dei pagamenti.
+- **Elenco ed esportazioni degli iscritti** (elenco nel pannello, PDF, Excel, CSV ed elenco da stampare): non contengono più intestatario
+  della fatturazione e metodo di pagamento, che si consultano nella gestione dei pagamenti. Nell'elenco da stampare resta l'indicazione
+  «pagamento di gruppo» sotto il nome.
+- **Modulo pubblico di iscrizione**: dopo un errore di validazione tutti i dati inseriti restano compilati (nominativi, residenza, dati di
+  nascita, fatturazione e metodo di pagamento), così si corregge solo il campo segnalato. Se Italia o estero non corrispondono al codice
+  fiscale, il messaggio indica lo Stato scelto.
+- **Persone** (anagrafica e consensi dei corsi): visibile solo a chi ha il permesso Corsi in scrittura; la sola lettura dà accesso a corsi
+  e iscritti.
 - **Menu del pannello riorganizzato**: due titoli fissi, «Lavoro quotidiano» (Contenuti, Formazione, Area soci) e «Amministrazione»
   (Comitato e sito, Configurazione, Classificazioni, Utenti e controllo), con gruppi richiudibili che ricordano se sono aperti o chiusi.
   «Membri» passa nel gruppo Area soci. Barra laterale fissa con scorrimento proprio e piè di pagina

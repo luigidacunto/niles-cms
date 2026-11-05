@@ -321,7 +321,7 @@ return [
             'icon' => 'fas fa-fw fa-graduation-cap',
             'submenu' => [
                 ['text' => 'Corsi', 'route' => 'admin.corsi.index', 'icon' => 'fas fa-fw fa-chalkboard-teacher', 'can' => 'manage-corsi'],
-                ['text' => 'Persone', 'route' => 'admin.persone.index', 'icon' => 'fas fa-fw fa-address-book', 'can' => 'manage-corsi'],
+                ['text' => 'Persone', 'route' => 'admin.persone.index', 'icon' => 'fas fa-fw fa-address-book', 'can' => 'manage-persone'],
                 ['text' => 'Pagamenti corsi', 'route' => 'admin.pagamenti-corsi.index', 'icon' => 'fas fa-fw fa-file-invoice-dollar', 'can' => 'manage-pagamenti-corsi'],
                 ['text' => 'Tipologie corso', 'route' => 'admin.corsi-tipologie.index', 'icon' => 'fas fa-fw fa-layer-group', 'can' => 'manage-corsi-catalogo'],
             ],

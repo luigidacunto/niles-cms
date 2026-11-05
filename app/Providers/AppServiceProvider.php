@@ -49,6 +49,8 @@ class AppServiceProvider extends ServiceProvider
         // (tipologie/sedi) è struttura, solo admin.
         Gate::define('manage-corsi', fn (Admin $admin) => $admin->hasPermission('corsi', 'read') || $admin->hasPermission('corsi', 'write'));
         // Pagamenti dei corsi (fatture/incassi): funzione facoltativa, accesa in Funzioni attive; permesso dedicato, distinto da 'corsi'.
+        // Persone (anagrafica e consensi della popolazione dei corsi): solo con i corsi in scrittura, la sola lettura non serve qui.
+        Gate::define('manage-persone', fn (Admin $admin) => $admin->hasPermission('corsi', 'write'));
         Gate::define('manage-pagamenti-corsi', fn (Admin $admin) => PagamentiCorsi::attivi() && $admin->hasPermission('pagamenti_corsi'));
         Gate::define('manage-corsi-catalogo', fn (Admin $admin) => $admin->role === 'admin');
         // Posta in uscita (SMTP): contiene credenziali, solo admin.

@@ -135,6 +135,24 @@ class PagamentiCorsiTest extends TestCase
         $this->assertSame('parziale', $b->fresh()->statoIncasso(7000));
     }
 
+    public function test_numero_di_fattura_gia_usato_nello_stesso_anno_avvisa_ma_salva(): void
+    {
+        $this->attiva();
+        $altro = $this->nuovoCorso('blsd-2', 35);
+        $this->blocco($altro, 1)->update(['fattura_numero' => '7', 'fattura_data' => '2026-03-01', 'ricevuta_numero' => 'R1', 'ricevuta_data' => '2026-03-01']);
+        $b = $this->blocco($this->corso, 1);
+        $url = route('admin.pagamenti-corsi.update', [$this->corso, $b]);
+
+        // Altro anno: nessun avviso (la numerazione riparte ogni anno). Ricevuta uguale: mai controllata.
+        $this->actingAs($this->admin, 'admin')->put($url, ['fattura_numero' => '7', 'fattura_data' => '2027-01-10', 'ricevuta_numero' => 'R1', 'ricevuta_data' => '2027-01-10'])
+            ->assertSessionDoesntHaveErrors();
+        $this->assertNull(session('avviso'));
+
+        $this->put($url, ['fattura_numero' => '7', 'fattura_data' => '2026-11-10'])->assertSessionDoesntHaveErrors();
+        $this->assertStringContainsString('corso BLSD-2', (string) session('avviso'));
+        $this->assertSame('7', $b->fresh()->fattura_numero);   // salvato comunque
+    }
+
     public function test_blocco_di_un_altro_corso_non_si_modifica(): void
     {
         $this->attiva();
@@ -252,5 +270,22 @@ class PagamentiCorsiTest extends TestCase
         $admin->get(route('admin.pagamenti-corsi.show', $this->corso))->assertOk()
             ->assertSee('Denominazione')->assertSee('ACME srl')->assertSee('0000000')->assertSee('Copia tutti')
             ->assertSee('Partita IVA: 12345678901', false);
+    }
+
+    public function test_la_modale_segnala_i_dati_necessari_mancanti_e_nasconde_i_facoltativi(): void
+    {
+        $this->attiva();
+        $this->blocco($this->corso, 1);                                    // azienda con P.IVA ma senza indirizzo
+        $secondo = $this->nuovoCorso('blsd-2', 35);
+        $senzaPiva = $this->blocco($secondo, 1);
+        $senzaPiva->update(['partita_iva' => null, 'via' => 'Via Roma 1', 'cap' => '40100', 'comune' => 'Bologna', 'provincia' => 'BO']);
+        $admin = $this->actingAs($this->admin, 'admin');
+
+        $r = $admin->get(route('admin.pagamenti-corsi.show', $this->corso))->assertOk();
+        $r->assertSee('— mancante')->assertDontSee('>PEC<', false)->assertDontSee('Partita IVA o codice fiscale');
+        $this->assertSame(4, substr_count($r->getContent(), '— mancante'));   // indirizzo, CAP, comune, provincia
+
+        $admin->get(route('admin.pagamenti-corsi.show', $secondo))->assertOk()
+            ->assertSee('Partita IVA o codice fiscale')->assertSee('Via Roma 1');
     }
 }

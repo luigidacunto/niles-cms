@@ -35,11 +35,12 @@ class CodiceFiscaleInfo
     /**
      * Controlli aggiuntivi per le tipologie con anagrafica completa: carattere di controllo corretto, data di nascita indicata
      * uguale a quella del codice, Italia/estero coerente con la lettera «Z» del codice catastale (comune di nascita, 12ª posizione;
-     * ⚠️ il comune in sé non si verifica: servirebbe la tabella catastale). Lista vuota = tutto torna.
+     * ⚠️ il comune in sé non si verifica: servirebbe la tabella catastale). Lista vuota = tutto torna. $stato = nome dello Stato
+     * estero scelto, solo per il testo del messaggio.
      *
      * @return list<string>
      */
-    public static function incoerenzeAnagrafica(string $cf, ?Carbon $dataNascita, ?bool $estero): array
+    public static function incoerenzeAnagrafica(string $cf, ?Carbon $dataNascita, ?bool $estero, ?string $stato = null): array
     {
         $cf = strtoupper(trim($cf));
         if (! preg_match('/^[A-Z0-9]{16}$/', $cf)) {
@@ -60,8 +61,9 @@ class CodiceFiscaleInfo
 
         if ($estero !== null && $estero !== ($cf[11] === 'Z')) {
             $problemi[] = $estero
-                ? 'Il codice fiscale indica una nascita in Italia, ma hai scelto «Stato estero».'
-                : "Il codice fiscale indica una nascita all'estero, ma hai scelto «Italia».";
+                ? 'Il codice fiscale è di una persona nata in Italia, ma come luogo di nascita è indicato '
+                    .($stato ? "«{$stato}»" : 'uno Stato estero').': correggi il luogo di nascita o il codice fiscale.'
+                : "Il codice fiscale è di una persona nata all'estero, ma come luogo di nascita è indicata l'Italia: correggi il luogo di nascita o il codice fiscale.";
         }
 
         return $problemi;

@@ -44,7 +44,6 @@
                 <th class="num">#</th>
                 <th>Cognome e nome</th>
                 <th>Codice fiscale</th>
-                <th>Pagamento</th>
                 <th class="casella">Pagato</th>
                 <th class="casella">Presente</th>
                 <th>Note</th>
@@ -54,19 +53,18 @@
             @forelse ($iscrizioni as $i)
                 <tr>
                     <td class="num">{{ $loop->iteration }}</td>
-                    <td><strong>{{ $i->cognome }}</strong> {{ $i->nome }}</td>
-                    <td>{{ $i->codice_fiscale }}</td>
-                    <td>{{ $i->datiFatturazione?->metodo_pagamento ?: '—' }}
+                    <td><strong>{{ $i->cognome }}</strong> {{ $i->nome }}
                         @if ($i->dati_fatturazione_corso_id && in_array($i->dati_fatturazione_corso_id, $condivise, true))
                             <span class="gruppo">pagamento di gruppo: {{ $i->datiFatturazione->intestatario() }}</span>
                         @endif
                     </td>
+                    <td>{{ $i->codice_fiscale }}</td>
                     <td class="casella"><span class="box"></span></td>
                     <td class="casella"><span class="box"></span></td>
                     <td class="note"></td>
                 </tr>
             @empty
-                <tr><td colspan="7" style="text-align:center;padding:18px">Nessun iscritto attivo.</td></tr>
+                <tr><td colspan="6" style="text-align:center;padding:18px">Nessun iscritto attivo.</td></tr>
             @endforelse
         </tbody>
     </table>

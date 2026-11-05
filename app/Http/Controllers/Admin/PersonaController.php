@@ -12,8 +12,8 @@ use Illuminate\Validation\Rule;
 
 /**
  * Anagrafica della popolazione dei corsi: elenco con filtri sui consensi, scheda persona, revoca di un consenso,
- * esportazione CSV dei consensi newsletter e anonimizzazione (cancellazione dati, solo admin). Permesso `corsi`
- * come gli iscritti; l'anonimizzazione è riservata al ruolo admin.
+ * esportazione CSV dei consensi newsletter e anonimizzazione (cancellazione dati, solo admin). Permesso `corsi` in
+ * scrittura (chi ha solo la lettura dei corsi non vede l'anagrafica); l'anonimizzazione è riservata al ruolo admin.
  */
 class PersonaController extends Controller
 {
@@ -29,7 +29,7 @@ class PersonaController extends Controller
 
     public function index(Request $request)
     {
-        $this->authorizeRead($request);
+        $this->authorizeWrite($request);
 
         $f = $request->validate([
             'q' => ['nullable', 'string', 'max:100'],
@@ -71,7 +71,7 @@ class PersonaController extends Controller
 
     public function show(Request $request, Persona $persona)
     {
-        $this->authorizeRead($request);
+        $this->authorizeWrite($request);
 
         return view('admin.persone.show', [
             'persona' => $persona,
@@ -150,7 +150,7 @@ class PersonaController extends Controller
     /** CSV dei contatti con consenso newsletter confermato, con le colonne scelte (adattabile alle esigenze di ogni comitato). */
     public function esporta(Request $request)
     {
-        $this->authorizeRead($request);
+        $this->authorizeWrite($request);
 
         $dati = $request->validate([
             'colonne' => ['required', 'array', 'min:1'],
@@ -180,12 +180,6 @@ class PersonaController extends Controller
     private static function cella(?string $valore): string
     {
         return CsvSicuro::cella($valore);
-    }
-
-    private function authorizeRead(Request $request): void
-    {
-        $admin = $request->user('admin');
-        abort_unless($admin->hasPermission('corsi', 'read') || $admin->hasPermission('corsi', 'write'), 403);
     }
 
     private function authorizeWrite(Request $request): void

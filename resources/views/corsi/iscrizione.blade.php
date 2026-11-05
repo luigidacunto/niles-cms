@@ -166,20 +166,20 @@
                     <div class="grid sm:grid-cols-4 gap-4 mb-4">
                         <div class="sm:col-span-2">
                             <label class="block text-xs text-gray-500 mb-1">Via / largo / piazza / località</label>
-                            <input :name="`nominativi[${index}][via]`" required class="form-input">
+                            <input x-model="n.via" :name="`nominativi[${index}][via]`" required class="form-input">
                         </div>
                         <div>
                             <label class="block text-xs text-gray-500 mb-1">Comune</label>
-                            <input :name="`nominativi[${index}][comune]`" required class="form-input">
+                            <input x-model="n.comune" :name="`nominativi[${index}][comune]`" required class="form-input">
                         </div>
                         <div class="grid grid-cols-2 gap-2">
                             <div>
                                 <label class="block text-xs text-gray-500 mb-1">Prov.</label>
-                                <input :name="`nominativi[${index}][provincia]`" required maxlength="2" class="form-input">
+                                <input x-model="n.provincia" :name="`nominativi[${index}][provincia]`" required maxlength="2" class="form-input">
                             </div>
                             <div>
                                 <label class="block text-xs text-gray-500 mb-1">CAP</label>
-                                <input :name="`nominativi[${index}][cap]`" required maxlength="5" class="form-input">
+                                <input x-model="n.cap" :name="`nominativi[${index}][cap]`" required maxlength="5" class="form-input">
                             </div>
                         </div>
                     </div>
@@ -192,7 +192,7 @@
                         <div class="grid sm:grid-cols-4 gap-4 mb-4">
                             <div>
                                 <label class="block text-xs text-gray-500 mb-1">Data di nascita</label>
-                                <input type="date" :name="`nominativi[${index}][data_nascita]`" required max="{{ now()->toDateString() }}" min="1900-01-02" class="form-input">
+                                <input type="date" x-model="n.data_nascita" :name="`nominativi[${index}][data_nascita]`" required max="{{ now()->toDateString() }}" min="1900-01-02" class="form-input">
                             </div>
                             <div>
                                 <label class="block text-xs text-gray-500 mb-1">Nato/a in</label>
@@ -202,11 +202,11 @@
                             </div>
                             <div x-show="n.nascita_luogo === 'altro'">
                                 <label class="block text-xs text-gray-500 mb-1">Stato di nascita</label>
-                                <input :name="`nominativi[${index}][nascita_stato_altro]`" :required="n.nascita_luogo === 'altro'" :disabled="n.nascita_luogo !== 'altro'" class="form-input">
+                                <input x-model="n.nascita_stato_altro" :name="`nominativi[${index}][nascita_stato_altro]`" :required="n.nascita_luogo === 'altro'" :disabled="n.nascita_luogo !== 'altro'" class="form-input">
                             </div>
                             <div>
                                 <label class="block text-xs text-gray-500 mb-1">Comune / città di nascita</label>
-                                <input :name="`nominativi[${index}][nascita_comune]`" required class="form-input">
+                                <input x-model="n.nascita_comune" :name="`nominativi[${index}][nascita_comune]`" required class="form-input">
                             </div>
                             <div>
                                 <label class="block text-xs text-gray-500 mb-1">Prov.</label>
@@ -219,7 +219,7 @@
                     <template x-if="modalita === 'altri' && !fatturazioneUnica">
                         <div class="border-t border-gray-100 pt-4">
                             <p class="text-sm text-gray-600 mb-2">Pagamento di questa persona</p>
-                            @include('corsi.partials.metodo-pagamento', ['base' => '`nominativi[${index}][fatturazione]`'])
+                            @include('corsi.partials.metodo-pagamento', ['base' => '`nominativi[${index}][fatturazione]`', 'iniziale' => 'n.fatturazione?.metodo_pagamento'])
                             <p class="text-xs text-gray-500 mt-2">Ciascuna persona paga per sé e riceve fattura o ricevuta <strong>con i dati inseriti qui sopra, come privato</strong>. Per fatturare a un'azienda o a un unico intestatario seleziona «Pagamento unico» più sotto.</p>
                         </div>
                     </template>
@@ -263,7 +263,7 @@
 
             <template x-if="modalita === 'solo-me' && stessiDati">
                 <div>
-                    @include('corsi.partials.metodo-pagamento', ['base' => "'fatturazione'"])
+                    @include('corsi.partials.metodo-pagamento', ['base' => "'fatturazione'", 'iniziale' => \Illuminate\Support\Js::from(old('fatturazione.metodo_pagamento'))])
                 </div>
             </template>
             <template x-if="fatturazioneUnica && !(modalita === 'solo-me' && stessiDati)">
@@ -327,15 +327,21 @@
     </form>
 </div>
 
+{{-- Stato del modulo: dopo un errore di validazione riparte dai dati inviati (old input), così non si riscrive nulla.
+     I campi dei nominativi sono tutti legati allo stato (x-model): un campo senza legame tornerebbe vuoto. --}}
+@php($nominativiInviati = array_values(array_filter((array) old('nominativi', []), 'is_array')))
 <script>
     function iscrizioneForm() {
+        const vuoto = () => ({ nome: '', cognome: '', email: '', telefono: '', codice_fiscale: '', via: '', comune: '', provincia: '', cap: '',
+            data_nascita: '', nascita_luogo: 'italia', nascita_stato_altro: '', nascita_comune: '', nascita_provincia: '', fatturazione: {} })
+        const inviati = @js($nominativiInviati)
         return {
-            modalita: 'solo-me',
-            fatturazioneUnica: {{ old('fatturazione_unica', true) ? 'true' : 'false' }},
+            modalita: @js(old('modalita_ui') === 'altri' ? 'altri' : 'solo-me'),
+            fatturazioneUnica: {{ old('fatturazione_unica', ! session()->hasOldInput()) ? 'true' : 'false' }},
             stessiDati: {{ (! session()->hasOldInput() || old('fatturazione_come_iscritto')) ? 'true' : 'false' }},
-            richiedenteCf: '',
-            nominativi: [{ nome: '', cognome: '', email: '', telefono: '', codice_fiscale: '', nascita_luogo: 'italia', nascita_provincia: '' }],
-            add() { this.nominativi.push({ nome: '', cognome: '', email: '', telefono: '', codice_fiscale: '', nascita_luogo: 'italia', nascita_provincia: '' }) },
+            richiedenteCf: @js((string) old('richiedente.codice_fiscale', '')),
+            nominativi: inviati.length ? inviati.map(n => ({ ...vuoto(), ...n })) : [vuoto()],
+            add() { this.nominativi.push(vuoto()) },
             remove(index) { this.nominativi.splice(index, 1) },
             // Il referente frequenta anche lui? (da solo: sempre; altrimenti se il suo codice fiscale è tra i nominativi)
             referenteFrequenta() {

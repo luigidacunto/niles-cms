@@ -87,10 +87,37 @@ class PagamentoCorsoController extends Controller
             'incasso_nota' => $incassato && $nota !== '' ? $nota : null,
         ]);
 
+        $fatturaCambiata = $fatturazione->isDirty(['fattura_numero', 'fattura_data']);
         if ($fatturazione->isDirty()) {
             $fatturazione->fill(['pagamento_registrato_da' => $request->user('admin')->id, 'pagamento_registrato_at' => now()])->save();
         }
 
-        return redirect()->route('admin.pagamenti-corsi.show', $corso)->with('status', "Pagamento di {$fatturazione->intestatario()} aggiornato.");
+        return redirect()->route('admin.pagamenti-corsi.show', $corso)
+            ->with('status', "Pagamento di {$fatturazione->intestatario()} aggiornato.")
+            ->with('avviso', $fatturaCambiata ? $this->avvisoFatturaDoppia($fatturazione) : null);
+    }
+
+    /**
+     * Stesso numero di fattura già registrato nello stesso anno, su qualunque corso: solo un avviso, il salvataggio resta valido
+     * (la numerazione la decide il gestionale delle fatture). Le ricevute non si controllano: seguono la numerazione dei blocchetti.
+     */
+    private function avvisoFatturaDoppia(DatiFatturazioneCorso $fatturazione): ?string
+    {
+        if (! $fatturazione->fatturaEmessa()) {
+            return null;
+        }
+
+        $doppia = DatiFatturazioneCorso::where('fattura_numero', $fatturazione->fattura_numero)
+            ->whereYear('fattura_data', $fatturazione->fattura_data->year)
+            ->whereKeyNot($fatturazione->id)
+            ->first();
+        if (! $doppia) {
+            return null;
+        }
+
+        $altroCorso = $doppia->iscrizioni()->with('corso')->first()?->corso?->protocollo;
+
+        return "Attenzione: la fattura n. {$fatturazione->fattura_numero} del {$fatturazione->fattura_data->year} risulta già registrata per "
+            .$doppia->intestatario().($altroCorso ? " (corso {$altroCorso})" : '').'. Il pagamento è stato salvato comunque: controlla il numero.';
     }
 }

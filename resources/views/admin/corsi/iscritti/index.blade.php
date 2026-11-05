@@ -60,8 +60,6 @@
                         <th>Email</th>
                         <th>Telefono</th>
                         <th>Codice fiscale</th>
-                        <th>Fatturazione a</th>
-                        <th>Metodo pagamento</th>
                         <th>Presenza</th>
                         <th>Iscritto il</th>
                         @if ($canWrite)<th></th>@endif
@@ -81,10 +79,6 @@
                             <td>{{ $iscrizione->email }}</td>
                             <td>{{ $iscrizione->telefono }}</td>
                             <td><code>{{ $iscrizione->codice_fiscale }}</code></td>
-                            <td>
-                                {{ $iscrizione->datiFatturazione?->intestatario() ?: '—' }}
-                            </td>
-                            <td>{{ $iscrizione->datiFatturazione?->metodo_pagamento ?: '—' }}</td>
                             <td>
                                 @if ($iscrizione->presenza_confermata_at)
                                     {{-- Data e ora della conferma nel tooltip (nativo) della pillola. --}}
@@ -118,7 +112,7 @@
                         </tr>
                     @empty
                         <tr>
-                            <td colspan="{{ $canWrite ? 9 : 8 }}" class="text-center text-muted py-4">
+                            <td colspan="{{ $canWrite ? 7 : 6 }}" class="text-center text-muted py-4">
                                 {{ $stato === 'ritirati' ? 'Nessun iscritto ritirato.' : 'Nessun iscritto ancora.' }}
                             </td>
                         </tr>
