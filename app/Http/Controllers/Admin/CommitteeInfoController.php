@@ -71,6 +71,7 @@ class CommitteeInfoController extends Controller
         $data['goatcounter_enabled'] = $request->boolean('goatcounter_enabled');
         $data['ga_enabled'] = $request->boolean('ga_enabled');
         $data['area_soci_attiva'] = $request->boolean('area_soci_attiva');
+        $data['pagamenti_corsi_attivi'] = $request->boolean('pagamenti_corsi_attivi');
 
         $info = CommitteeInfo::current();
 

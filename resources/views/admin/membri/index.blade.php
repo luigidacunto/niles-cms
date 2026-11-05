@@ -28,7 +28,7 @@
         </div>
         <div class="col-md-3 mb-2">
             <label class="mb-1 text-muted small">Ruolo</label>
-            <select name="ruolo" class="form-control">
+            <select name="ruolo" class="form-control select-ricerca">
                 <option value="">Tutte</option>
                 @foreach (\App\Models\Member::RUOLI as $value => $label)
                     <option value="{{ $value }}" @selected($filters['ruolo'] === $value)>{{ $label }}</option>
@@ -37,7 +37,7 @@
         </div>
         <div class="col-md-3 mb-2">
             <label class="mb-1 text-muted small">Presenza</label>
-            <select name="presenza" class="form-control">
+            <select name="presenza" class="form-control select-ricerca">
                 <option value="">Attivi</option>
                 <option value="richieste" @selected($filters['presenza'] === 'richieste')>Richiesta di disattivazione</option>
                 <option value="disabilitati" @selected($filters['presenza'] === 'disabilitati')>Disabilitati</option>

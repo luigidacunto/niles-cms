@@ -62,7 +62,7 @@
                     <div class="card-body">
                         <div class="form-group">
                             <label>Categoria</label>
-                            <select name="document_category_id" class="form-control" required>
+                            <select name="document_category_id" class="form-control select-ricerca" required>
                                 @foreach ($categories as $category)
                                     <option value="{{ $category->id }}" @selected((int) old('document_category_id', $document->document_category_id ?? $categories->first()?->id) === $category->id)>
                                         {{ $category->label() }}

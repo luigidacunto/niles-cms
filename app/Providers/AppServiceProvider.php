@@ -6,6 +6,7 @@ use App\Models\Admin;
 use App\Models\Corso;
 use App\Models\SicurezzaForm;
 use App\Support\AreaSoci;
+use App\Support\PagamentiCorsi;
 use App\Support\PostaInUscita;
 use App\Support\WebUpdate;
 use Illuminate\Cache\RateLimiting\Limit;
@@ -47,6 +48,9 @@ class AppServiceProvider extends ServiceProvider
         // Corsi di formazione (permesso 'corsi', flat: nessuno scoping per categoria/sede); il catalogo
         // (tipologie/sedi) è struttura, solo admin.
         Gate::define('manage-corsi', fn (Admin $admin) => $admin->hasPermission('corsi', 'read') || $admin->hasPermission('corsi', 'write'));
+        // Pagamenti dei corsi (fatture/incassi): funzione facoltativa, accesa in Dati comitato; permesso dedicato, distinto da 'corsi'.
+        Gate::define('manage-pagamenti-corsi', fn (Admin $admin) => PagamentiCorsi::attivi() && $admin->hasPermission('pagamenti_corsi'));
+        Gate::define('see-formazione', fn (Admin $admin) => Gate::forUser($admin)->allows('manage-corsi') || Gate::forUser($admin)->allows('manage-pagamenti-corsi'));
         Gate::define('manage-corsi-catalogo', fn (Admin $admin) => $admin->role === 'admin');
         // Posta in uscita (SMTP): contiene credenziali, solo admin.
         Gate::define('manage-posta', fn (Admin $admin) => $admin->role === 'admin');

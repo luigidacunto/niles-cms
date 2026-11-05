@@ -184,6 +184,38 @@
                         </div>
                     </div>
 
+                    {{-- Tipologia con anagrafica completa: data e luogo di nascita, necessari per l'attestato. Estero: provincia fissa EE. --}}
+                    @if ($corso->richiedeAnagraficaCompleta())
+                        @php($stati = \App\Models\Stato::elencoAttivi())
+                        <p class="text-sm text-gray-600 mb-1">Dati di nascita</p>
+                        <p class="text-xs text-gray-500 mb-2">Questi dati sono necessari per il rilascio dell'attestato e devono corrispondere al codice fiscale.</p>
+                        <div class="grid sm:grid-cols-4 gap-4 mb-4">
+                            <div>
+                                <label class="block text-xs text-gray-500 mb-1">Data di nascita</label>
+                                <input type="date" :name="`nominativi[${index}][data_nascita]`" required max="{{ now()->toDateString() }}" min="1900-01-02" class="form-input">
+                            </div>
+                            <div>
+                                <label class="block text-xs text-gray-500 mb-1">Nato/a in</label>
+                                <x-select-ricerca model="n.nascita_luogo" name="`nominativi[${index}][nascita_luogo]`"
+                                    :options="[['v' => 'italia', 'l' => 'Italia'], ...$stati->map(fn ($s) => ['v' => $s->id, 'l' => $s->nome])->all(), ['v' => 'altro', 'l' => 'Altro (Stato non in elenco)']]"
+                                    @scelto="n.nascita_provincia = n.nascita_luogo === 'italia' ? '' : 'EE'" />
+                            </div>
+                            <div x-show="n.nascita_luogo === 'altro'">
+                                <label class="block text-xs text-gray-500 mb-1">Stato di nascita</label>
+                                <input :name="`nominativi[${index}][nascita_stato_altro]`" :required="n.nascita_luogo === 'altro'" :disabled="n.nascita_luogo !== 'altro'" class="form-input">
+                            </div>
+                            <div>
+                                <label class="block text-xs text-gray-500 mb-1">Comune / città di nascita</label>
+                                <input :name="`nominativi[${index}][nascita_comune]`" required class="form-input">
+                            </div>
+                            <div>
+                                <label class="block text-xs text-gray-500 mb-1">Prov.</label>
+                                <input x-model="n.nascita_provincia" :name="`nominativi[${index}][nascita_provincia]`" :readonly="n.nascita_luogo !== 'italia'" required maxlength="2" class="form-input uppercase" :class="n.nascita_luogo !== 'italia' ? 'bg-gray-100' : ''">
+                            </div>
+                        </div>
+                    @endif
+
+                    @if ($corso->costo > 0)
                     <template x-if="modalita === 'altri' && !fatturazioneUnica">
                         <div class="border-t border-gray-100 pt-4">
                             <p class="text-sm text-gray-600 mb-2">Pagamento di questa persona</p>
@@ -191,6 +223,7 @@
                             <p class="text-xs text-gray-500 mt-2">Ciascuna persona paga per sé e riceve fattura o ricevuta <strong>con i dati inseriti qui sopra, come privato</strong>. Per fatturare a un'azienda o a un unico intestatario seleziona «Pagamento unico» più sotto.</p>
                         </div>
                     </template>
+                    @endif
                 </div>
             </template>
 
@@ -202,6 +235,8 @@
         {{-- Fatturazione (dopo i nominativi: prima i dati delle persone, poi come si paga). Con "solo io"
              la spunta copia i dati del nominativo nel server (DatiFatturazioneCorso::inputDaNominativo)
              e restano visibili solo i campi ancora necessari, cioè il metodo di pagamento. --}}
+        {{-- Corsi gratuiti: nessun pagamento, quindi nessun dato di fatturazione. --}}
+        @if ($corso->costo > 0)
         <section class="border border-gray-200 rounded p-5">
             <h2 class="font-semibold text-gray-900 mb-3">Fatturazione</h2>
 
@@ -237,6 +272,7 @@
                 </div>
             </template>
         </section>
+        @endif
 
         {{-- Privacy / autodichiarazione / newsletter --}}
         <section class="border border-gray-200 rounded p-5 space-y-4 text-sm">
@@ -298,8 +334,8 @@
             fatturazioneUnica: {{ old('fatturazione_unica', true) ? 'true' : 'false' }},
             stessiDati: {{ (! session()->hasOldInput() || old('fatturazione_come_iscritto')) ? 'true' : 'false' }},
             richiedenteCf: '',
-            nominativi: [{ nome: '', cognome: '', email: '', telefono: '', codice_fiscale: '' }],
-            add() { this.nominativi.push({ nome: '', cognome: '', email: '', telefono: '', codice_fiscale: '' }) },
+            nominativi: [{ nome: '', cognome: '', email: '', telefono: '', codice_fiscale: '', nascita_luogo: 'italia', nascita_provincia: '' }],
+            add() { this.nominativi.push({ nome: '', cognome: '', email: '', telefono: '', codice_fiscale: '', nascita_luogo: 'italia', nascita_provincia: '' }) },
             remove(index) { this.nominativi.splice(index, 1) },
             // Il referente frequenta anche lui? (da solo: sempre; altrimenti se il suo codice fiscale è tra i nominativi)
             referenteFrequenta() {

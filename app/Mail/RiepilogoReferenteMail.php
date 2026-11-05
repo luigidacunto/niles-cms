@@ -37,8 +37,9 @@ class RiepilogoReferenteMail extends Mailable
             'costo' => $corso->costo > 0 ? number_format($corso->costo, 2, ',', '.').' €' : 'Gratuito',
             'numero_iscritti' => (string) $iscrizioni->count(),
         ], [
-            'elenco_iscritti' => view('emails.partials.elenco-iscritti', ['iscrizioni' => $iscrizioni, 'mostraMetodo' => ! $unica])->render(),
-            'dati_fatturazione' => view('emails.partials.dati-fatturazione', ['f' => $unica])->render(),
+            'elenco_iscritti' => view('emails.partials.elenco-iscritti', ['iscrizioni' => $iscrizioni, 'mostraMetodo' => $corso->costo > 0 && ! $unica])->render(),
+            // Corso gratuito: nessun dato di pagamento né di fatturazione da riepilogare.
+            'dati_fatturazione' => $corso->costo > 0 ? view('emails.partials.dati-fatturazione', ['f' => $unica])->render() : '',
             'dati_pagamento' => $unica ? DatiPagamento::bloccoEmail(DatiPagamento::bonificoGruppo($unica, $corso, $iscrizioni->count())) : '',
         ]);
 

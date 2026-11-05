@@ -62,7 +62,7 @@
                     <div class="card-body">
                         <div class="form-group">
                             <label>Categoria <small class="text-muted">(facoltativa)</small></label>
-                            <select name="document_category_id" class="form-control">
+                            <select name="document_category_id" class="form-control select-ricerca">
                                 <option value="">— nessuna —</option>
                                 @foreach ($categories as $category)
                                     <option value="{{ $category->id }}" @selected((int) old('document_category_id', $document->document_category_id) === $category->id)>

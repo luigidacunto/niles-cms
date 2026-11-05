@@ -33,7 +33,7 @@
 
         <div class="form-group mb-0">
             <label>Aggiungi allegato</label>
-            <select name="attach_documents[]" multiple class="form-control" size="5">
+            <select name="attach_documents[]" multiple class="form-control select-ricerca" size="5">
                 @foreach ($availableDocuments as $doc)
                     @unless ($existingIds->contains($doc->id))
                         <option value="{{ $doc->id }}">{{ $doc->title }} ({{ strtoupper($doc->extension) }})</option>

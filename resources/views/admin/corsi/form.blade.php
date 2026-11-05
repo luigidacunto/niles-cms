@@ -55,21 +55,23 @@
             <div class="card-body">
                 <div class="form-row">
                     <div class="form-group col-md-6">
-                        <label>Tipologia</label>
-                        <select name="tipologia_corso_id" class="form-control" required @if($editing) disabled @endif
-                            @unless($editing) onchange="document.getElementById('costo').value = this.options[this.selectedIndex].dataset.costo" @endunless>
+                        <label>Tipologia
+                            @if ($editing)
+                                <x-admin.aiuto>La tipologia non è modificabile dopo la creazione: il protocollo è già assegnato.</x-admin.aiuto>
+                            @else
+                                <x-admin.aiuto>Cambiando tipologia il costo e l'IVA si precompilano da quelli predefiniti; restano comunque modificabili.</x-admin.aiuto>
+                            @endif
+                        </label>
+                        <select name="tipologia_corso_id" class="form-control select-ricerca" required @if($editing) disabled @endif
+                            @unless($editing) onchange="var o = this.options[this.selectedIndex]; document.getElementById('costo').value = o.dataset.costo; document.getElementById('iva_prevista').checked = o.dataset.iva === '1'; aggiornaIva(); if (o.dataset.aliquota) { document.getElementById('aliquota_iva').value = o.dataset.aliquota; }" @endunless>
                             @foreach ($tipologie as $tipologia)
-                                <option value="{{ $tipologia->id }}" data-costo="{{ $tipologia->costo_predefinito }}"
+                                <option value="{{ $tipologia->id }}" data-costo="{{ $tipologia->costo_predefinito }}" data-iva="{{ $tipologia->iva_prevista ? 1 : 0 }}" data-aliquota="{{ $tipologia->aliquota_iva }}"
                                     @selected(old('tipologia_corso_id', $corso->tipologia_corso_id) == $tipologia->id)>{{ $tipologia->nome }} ({{ $tipologia->sigla }})</option>
                             @endforeach
                         </select>
-                        @unless($editing)
-                            <small class="text-muted">Cambiando tipologia il costo si precompila da quello predefinito — resta comunque modificabile.</small>
-                        @endunless
                         @if ($editing)
                             {{-- disabled non invia il valore: lo riproponiamo hidden per non perderlo in update --}}
                             <input type="hidden" name="tipologia_corso_id" value="{{ $corso->tipologia_corso_id }}">
-                            <small class="text-muted">La tipologia non è modificabile dopo la creazione (il protocollo è già assegnato).</small>
                         @endif
                     </div>
                     <div class="form-group col-md-6">
@@ -77,7 +79,7 @@
                             $sedeSceltaAttuale = old('sede_scelta', $corso->usa_indirizzo_comitato ? 'comitato' : (string) $corso->sede_corso_id);
                         @endphp
                         <label>Sede</label>
-                        <select name="sede_scelta" id="sede_scelta" class="form-control"
+                        <select name="sede_scelta" id="sede_scelta" class="form-control select-ricerca"
                             onchange="document.getElementById('nuova-sede-campi').hidden = (this.value !== 'nuova')">
                             <option value="">— Nessuna —</option>
                             <option value="comitato" @selected($sedeSceltaAttuale === 'comitato')>
@@ -143,6 +145,19 @@
                         <label>Costo (€)</label>
                         <input name="costo" id="costo" type="number" step="0.01" min="0" value="{{ old('costo', $corso->costo ?? 0) }}" class="form-control" required>
                     </div>
+                    @php
+                        $fattureN = $editing ? $corso->fattureRegistrate() : 0;
+                        $avvisoIva = $fattureN > 0
+                            ? "Per questo corso risultano già {$fattureN} ".($fattureN === 1 ? 'fattura registrata' : 'fatture registrate').": se cambi l'IVA verifica che siano corrette anche quelle."
+                            : null;
+                    @endphp
+                    @include('admin.partials.iva-costo', [
+                        'ivaPrevista' => (bool) old('iva_prevista', $corso->iva_prevista ?? false),
+                        'aliquota' => old('aliquota_iva', $corso->aliquota_iva ?? null),
+                        'costoId' => 'costo',
+                        'costo' => old('costo', $corso->costo ?? 0),
+                        'avviso' => $avvisoIva,
+                    ])
                     <div class="form-group col-md-3">
                         <label>Posti massimi</label>
                         <input name="posti_max" type="number" min="1" value="{{ old('posti_max', $corso->posti_max) }}" class="form-control">
@@ -151,14 +166,14 @@
 
                 <div class="form-row">
                     <div class="form-group col-md-3">
-                        <label>Chiusura iscrizioni <small class="text-muted">(il form pubblico si disattiva da solo dopo)</small></label>
+                        <label>Chiusura iscrizioni <x-admin.aiuto>Dopo questa data il modulo pubblico si disattiva da solo.</x-admin.aiuto></label>
                         <input name="iscrizioni_chiusura_at" class="form-control flatpickr-datetime" autocomplete="off"
                             value="{{ old('iscrizioni_chiusura_at', optional($corso->iscrizioni_chiusura_at)->format('Y-m-d H:i')) }}">
                     </div>
                 </div>
 
                 <div class="form-group">
-                    <label>Descrizione <small class="text-muted">(mostrata nella pagina pubblica di iscrizione)</small></label>
+                    <label>Descrizione <x-admin.aiuto>Mostrata nella pagina pubblica di iscrizione.</x-admin.aiuto></label>
                     <textarea name="descrizione" class="form-control" rows="4">{{ old('descrizione', $corso->descrizione) }}</textarea>
                 </div>
 

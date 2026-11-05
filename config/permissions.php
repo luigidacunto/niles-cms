@@ -12,5 +12,6 @@ return [
     'files' => 'File',
     'comunicazioni_soci' => 'Comunicazioni soci', // post e allegati riservati
     'membri' => 'Membri',              // anagrafica membri comitato
+    'pagamenti_corsi' => 'Pagamenti corsi', // fatture/incassi dei corsi (solo se attivi in Dati comitato)
     'corsi' => 'Corsi',                // ultima: è l'unica con lettura e scrittura separate
 ];

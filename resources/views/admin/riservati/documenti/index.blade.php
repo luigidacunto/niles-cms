@@ -25,7 +25,7 @@
                 </div>
                 <div class="form-group col-md-4 mb-2">
                     <label class="mb-1 small text-muted">Categoria</label>
-                    <select name="categoria" class="form-control form-control-sm">
+                    <select name="categoria" class="form-control select-ricerca form-control-sm">
                         <option value="">Tutte</option>
                         @foreach ($categories as $category)
                             <option value="{{ $category->id }}" @selected(request('categoria') == $category->id)>{{ $category->label() }}</option>

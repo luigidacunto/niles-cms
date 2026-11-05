@@ -18,6 +18,7 @@ use App\Http\Controllers\Admin\DocumentoRiservatoController;
 use App\Http\Controllers\Admin\LoginAuditController;
 use App\Http\Controllers\Admin\MemberController;
 use App\Http\Controllers\Admin\OtpController;
+use App\Http\Controllers\Admin\PagamentoCorsoController;
 use App\Http\Controllers\Admin\PageController;
 use App\Http\Controllers\Admin\PostController;
 use App\Http\Controllers\Admin\EmailTemplateController;
@@ -281,6 +282,13 @@ Route::prefix('admin')->name('admin.')->group(function () {
             Route::get('{tipologiaCorso}/modifica', [TipologiaCorsoController::class, 'edit'])->name('edit');
             Route::put('{tipologiaCorso}', [TipologiaCorsoController::class, 'update'])->name('update');
             Route::delete('{tipologiaCorso}', [TipologiaCorsoController::class, 'destroy'])->name('destroy');
+        });
+
+        // Pagamenti dei corsi (fatture/incassi): funzione facoltativa, Gate = interruttore in Dati comitato + permesso dedicato.
+        Route::middleware('can:manage-pagamenti-corsi')->prefix('pagamenti-corsi')->name('pagamenti-corsi.')->group(function () {
+            Route::get('/', [PagamentoCorsoController::class, 'index'])->name('index');
+            Route::get('{corso}', [PagamentoCorsoController::class, 'show'])->name('show');
+            Route::put('{corso}/{fatturazione}', [PagamentoCorsoController::class, 'update'])->name('update');
         });
 
         // Niente admin.role: permesso 'corsi' verificato nel controller (come posts/pages).

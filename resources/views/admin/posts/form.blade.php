@@ -124,7 +124,7 @@
                     <div class="card-body">
                         <div class="form-group">
                             <label>Categoria</label>
-                            <select name="category_id" class="form-control" required>
+                            <select name="category_id" class="form-control select-ricerca" required>
                                 <option value="" disabled @selected(!old('category_id', $post->category_id))>— Seleziona —</option>
                                 @foreach ($categories as $category)
                                     <option value="{{ $category->id }}" @selected(old('category_id', $post->category_id) == $category->id)>

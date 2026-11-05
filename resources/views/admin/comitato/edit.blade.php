@@ -312,6 +312,23 @@
                         </div>
                     </div>
                 </div>
+                <div class="card">
+                    <div class="card-header"><strong>Pagamenti dei corsi</strong></div>
+                    <div class="card-body">
+                        <p class="text-muted">
+                            Funzione facoltativa per chi tiene la contabilità: per ogni corso a pagamento mostra i blocchi di
+                            fatturazione, con una guida alle righe da inserire in fattura, e permette di registrare numero e data
+                            di fattura (e ricevuta) e l'incasso. <strong>Spenta</strong>: la sezione e il relativo permesso
+                            degli utenti non hanno effetto. Non viene cancellato nulla.
+                        </p>
+                        <div class="form-group mb-0">
+                            <label class="mb-0">
+                                <input type="checkbox" name="pagamenti_corsi_attivi" value="1" {{ old('pagamenti_corsi_attivi', $info->pagamenti_corsi_attivi) ? 'checked' : '' }}>
+                                Gestione pagamenti dei corsi attiva
+                            </label>
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
 

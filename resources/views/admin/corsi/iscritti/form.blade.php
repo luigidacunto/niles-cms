@@ -67,9 +67,20 @@
                         <input name="nominativo[cap]" value="{{ old('nominativo.cap') }}" maxlength="5" class="form-control">
                     </div>
                 </div>
+                @if ($corso->richiedeAnagraficaCompleta())
+                    @include('admin.partials.nascita-corso', [
+                        'data' => old('nominativo.data_nascita'),
+                        'luogo' => old('nominativo.nascita_luogo', 'italia'),
+                        'statoAltro' => old('nominativo.nascita_stato_altro'),
+                        'comune' => old('nominativo.nascita_comune'),
+                        'provincia' => old('nominativo.nascita_provincia'),
+                    ])
+                @endif
             </div>
         </div>
 
+        {{-- Corso gratuito: nessun pagamento, quindi nessun dato di fatturazione. --}}
+        @if ($corso->costo > 0)
         <div class="card">
             <div class="card-header"><strong>Fatturazione</strong></div>
             <div class="card-body">
@@ -96,7 +107,7 @@
                 @if ($fatturazioniEsistenti->isNotEmpty())
                     <fieldset id="fatturazione-esistente" class="border-0 p-0 m-0 mb-3" @disabled($modo !== 'esistente') @if($modo !== 'esistente') hidden @endif>
                         <label class="small">Fatturazione esistente</label>
-                        <select name="fatturazione_esistente_id" class="form-control">
+                        <select name="fatturazione_esistente_id" class="form-control select-ricerca">
                             @foreach ($fatturazioniEsistenti as $f)
                                 <option value="{{ $f->id }}" @selected(old('fatturazione_esistente_id') == $f->id)>
                                     {{ $f->intestatario() }} — {{ $f->metodo_pagamento ?: 'metodo n/d' }} ({{ $f->iscrizioni_count }} {{ $f->iscrizioni_count === 1 ? 'iscritto' : 'iscritti' }})
@@ -187,7 +198,7 @@
 
                 <div id="metodo-pagamento" class="form-group col-md-4 pl-0" @if($modo === 'esistente') hidden @endif>
                     <label class="small">Metodo di pagamento</label>
-                    <select name="fatturazione[metodo_pagamento]" class="form-control">
+                    <select name="fatturazione[metodo_pagamento]" class="form-control select-ricerca">
                         @foreach (\App\Models\CommitteeInfo::current()->metodi_pagamento as $metodo)
                             <option value="{{ $metodo }}">{{ $metodo }}</option>
                         @endforeach
@@ -195,6 +206,7 @@
                 </div>
             </div>
         </div>
+        @endif
 
         <div class="card">
             <div class="card-body">

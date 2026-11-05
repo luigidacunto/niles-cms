@@ -17,7 +17,7 @@ class TipologiaCorso extends Model
     public const VALIDITA_TIPI = ['fine_anno' => 'Fine anno, dopo N anni', 'mesi' => 'Data precisa, dopo N mesi'];
 
     protected $fillable = [
-        'nome', 'sigla', 'rilascia_attestato', 'costo_predefinito', 'validita_tipo', 'validita_valore',
+        'nome', 'sigla', 'rilascia_attestato', 'anagrafica_completa', 'costo_predefinito', 'iva_prevista', 'aliquota_iva', 'validita_tipo', 'validita_valore',
         'immagine', 'attivo', 'order',
     ];
 
@@ -25,7 +25,10 @@ class TipologiaCorso extends Model
     {
         return [
             'rilascia_attestato' => 'boolean',
+            'anagrafica_completa' => 'boolean',
             'costo_predefinito' => 'decimal:2',
+            'iva_prevista' => 'boolean',
+            'aliquota_iva' => 'decimal:2',
             'attivo' => 'boolean',
         ];
     }

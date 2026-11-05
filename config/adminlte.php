@@ -373,7 +373,7 @@ return [
             'can' => 'manage-comunicazioni-soci',
         ],
 
-        ['header' => 'Formazione', 'can' => 'manage-corsi'],
+        ['header' => 'Formazione', 'can' => 'see-formazione'],
         [
             'text' => 'Corsi',
             'route' => 'admin.corsi.index',
@@ -385,6 +385,12 @@ return [
             'route' => 'admin.persone.index',
             'icon' => 'fas fa-fw fa-address-book',
             'can' => 'manage-corsi',
+        ],
+        [
+            'text' => 'Pagamenti corsi',
+            'route' => 'admin.pagamenti-corsi.index',
+            'icon' => 'fas fa-fw fa-file-invoice-dollar',
+            'can' => 'manage-pagamenti-corsi',
         ],
         [
             'text' => 'Tipologie corso',
@@ -513,6 +519,13 @@ return [
                 ['type' => 'js', 'asset' => true, 'location' => 'js/admin-menu.js?v='.(include __DIR__.'/app.php')['version']],
             ],
         ],
+        // Convenzioni di interfaccia comuni ai form del pannello (tooltip «i» delle note).
+        'NilesUi' => [
+            'active' => true,
+            'files' => [
+                ['type' => 'css', 'asset' => true, 'location' => 'css/admin-ui.css?v='.(include __DIR__.'/app.php')['version']],
+            ],
+        ],
         'Datatables' => [
             'active' => false,
             'files' => [
@@ -533,19 +546,15 @@ return [
                 ],
             ],
         ],
+        // Select con ricerca (convenzione: ogni select con molte voci usa Select2, classe `select-ricerca`). File locali, nessuna CDN.
         'Select2' => [
-            'active' => false,
+            'active' => true,
             'files' => [
-                [
-                    'type' => 'js',
-                    'asset' => false,
-                    'location' => '//cdnjs.cloudflare.com/ajax/libs/select2/4.0.3/js/select2.min.js',
-                ],
-                [
-                    'type' => 'css',
-                    'asset' => false,
-                    'location' => '//cdnjs.cloudflare.com/ajax/libs/select2/4.0.3/css/select2.css',
-                ],
+                ['type' => 'css', 'asset' => true, 'location' => 'vendor/select2/select2.min.css'],
+                ['type' => 'css', 'asset' => true, 'location' => 'vendor/select2/select2-bootstrap4.min.css'],
+                ['type' => 'js', 'asset' => true, 'location' => 'vendor/select2/select2.min.js'],
+                ['type' => 'js', 'asset' => true, 'location' => 'vendor/select2/select2-it.js'],
+                ['type' => 'js', 'asset' => true, 'location' => 'js/admin-ui.js?v='.(include __DIR__.'/app.php')['version']],
             ],
         ],
         'Chartjs' => [

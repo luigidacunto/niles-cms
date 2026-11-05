@@ -14,7 +14,7 @@ class Admin extends Authenticatable
      * Sezioni con un solo permesso (lettura+scrittura insieme): salvato sempre come ['read','write'].
      * Le altre sezioni di config/permissions.php (oggi solo «corsi») hanno lettura e scrittura separate.
      */
-    public const COMBINED_PERMISSIONS = ['posts', 'pages', 'trasparenza', 'documents', 'images', 'files', 'membri', 'comunicazioni_soci'];
+    public const COMBINED_PERMISSIONS = ['posts', 'pages', 'trasparenza', 'documents', 'images', 'files', 'membri', 'comunicazioni_soci', 'pagamenti_corsi'];
 
     protected $fillable = [
         'name', 'email', 'password', 'role', 'active', 'password_login_enabled',

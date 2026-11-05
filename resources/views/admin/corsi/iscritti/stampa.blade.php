@@ -56,8 +56,8 @@
                     <td class="num">{{ $loop->iteration }}</td>
                     <td><strong>{{ $i->cognome }}</strong> {{ $i->nome }}</td>
                     <td>{{ $i->codice_fiscale }}</td>
-                    <td>{{ $i->datiFatturazione->metodo_pagamento ?: '—' }}
-                        @if (in_array($i->dati_fatturazione_corso_id, $condivise, true))
+                    <td>{{ $i->datiFatturazione?->metodo_pagamento ?: '—' }}
+                        @if ($i->dati_fatturazione_corso_id && in_array($i->dati_fatturazione_corso_id, $condivise, true))
                             <span class="gruppo">pagamento di gruppo: {{ $i->datiFatturazione->intestatario() }}</span>
                         @endif
                     </td>

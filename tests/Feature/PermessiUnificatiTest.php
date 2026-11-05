@@ -43,7 +43,7 @@ class PermessiUnificatiTest extends TestCase
         $crea('due@example.test', ['corsi' => ['write']]);
         $this->assertSame(['read', 'write'], Admin::firstWhere('email', 'due@example.test')->permissions['corsi']);   // scrittura ⇒ lettura
 
-        $this->assertSame(['posts', 'pages', 'trasparenza', 'documents', 'images', 'files', 'comunicazioni_soci', 'membri', 'corsi'], array_keys(config('permissions')));
+        $this->assertSame(['posts', 'pages', 'trasparenza', 'documents', 'images', 'files', 'comunicazioni_soci', 'membri', 'pagamenti_corsi', 'corsi'], array_keys(config('permissions')));
     }
 
     public function test_la_griglia_mostra_corsi_per_ultimo(): void

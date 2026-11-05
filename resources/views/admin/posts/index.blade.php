@@ -33,7 +33,7 @@
         </div>
         <div class="col-md-3 mb-2">
             <label class="mb-1 text-muted small">Categoria</label>
-            <select name="categoria" class="form-control">
+            <select name="categoria" class="form-control select-ricerca">
                 <option value="">Tutte</option>
                 @foreach ($categories as $category)
                     <option value="{{ $category->id }}" @selected((string) $filters['categoria'] === (string) $category->id)>{{ $category->name }}</option>

@@ -34,7 +34,7 @@ return [
     |
     */
 
-    'version' => '1.1.12',
+    'version' => '1.2.0',
 
     /*
     | Controllo aggiornamenti: la dashboard del pannello (solo amministratori) confronta la versione

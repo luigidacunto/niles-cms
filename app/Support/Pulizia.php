@@ -46,6 +46,7 @@ final class Pulizia
             'nome' => 'titolo', 'cognome' => 'titolo', 'via' => 'titolo', 'comune' => 'titolo',
             'email' => 'minuscolo', 'codice_fiscale' => 'maiuscolo', 'provincia' => 'maiuscolo',
             'telefono' => 'spazi', 'cap' => 'spazi',
+            'nascita_comune' => 'titolo', 'nascita_provincia' => 'maiuscolo', 'nascita_stato_altro' => 'titolo',
         ]);
     }
 

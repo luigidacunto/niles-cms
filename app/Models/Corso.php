@@ -7,6 +7,7 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Support\Collection;
 
 class Corso extends Model
 {
@@ -14,7 +15,7 @@ class Corso extends Model
 
     protected $fillable = [
         'tipologia_corso_id', 'sede_corso_id', 'usa_indirizzo_comitato', 'admin_id', 'slug',
-        'protocollo', 'data_inizio', 'data_fine', 'costo', 'posti_max', 'iscrizioni_chiusura_at',
+        'protocollo', 'data_inizio', 'data_fine', 'costo', 'iva_prevista', 'aliquota_iva', 'posti_max', 'iscrizioni_chiusura_at',
         'descrizione', 'pubblicato', 'annullato_at', 'motivo_annullamento', 'annullato_da', 'chiuso',
     ];
 
@@ -24,6 +25,8 @@ class Corso extends Model
             'data_inizio' => 'datetime',
             'data_fine' => 'datetime',
             'costo' => 'decimal:2',
+            'iva_prevista' => 'boolean',
+            'aliquota_iva' => 'decimal:2',
             'usa_indirizzo_comitato' => 'boolean',
             'iscrizioni_chiusura_at' => 'datetime',
             'pubblicato' => 'boolean',
@@ -55,6 +58,44 @@ class Corso extends Model
     public function iscrizioni(): HasMany
     {
         return $this->hasMany(IscrizioneCorso::class);
+    }
+
+    /**
+     * Blocchi di fatturazione del corso per la gestione pagamenti: ognuno con gli iscritti ancora attivi e il totale dovuto
+     * (quota × iscritti attivi, in centesimi). Un blocco con tutti gli iscritti ritirati sparisce, salvo abbia già
+     * una fattura o un incasso registrati (da non perdere di vista).
+     *
+     * @return Collection<int, array{blocco: DatiFatturazioneCorso, attivi: Collection, totale_cent: int}>
+     */
+    public function blocchiPagamento(): Collection
+    {
+        $blocchi = DatiFatturazioneCorso::whereHas('iscrizioni', fn ($q) => $q->where('corso_id', $this->id))
+            ->with(['registratoDa', 'iscrizioni' => fn ($q) => $q->where('corso_id', $this->id)->orderBy('cognome')->orderBy('nome')])
+            ->get();
+
+        return $blocchi
+            ->map(function (DatiFatturazioneCorso $b) {
+                $attivi = $b->iscrizioni->whereNull('ritirata_at')->values();
+
+                return ['blocco' => $b, 'attivi' => $attivi, 'totale_cent' => (int) round($this->costo * 100) * $attivi->count()];
+            })
+            ->filter(fn ($r) => $r['attivi']->isNotEmpty() || $r['blocco']->fatturaEmessa() || $r['blocco']->incassato_at)
+            ->sortBy(fn ($r) => mb_strtolower($r['blocco']->intestatario()))
+            ->values();
+    }
+
+    /** La tipologia richiede data e luogo di nascita (anagrafica completa, per l'attestato). */
+    public function richiedeAnagraficaCompleta(): bool
+    {
+        return (bool) $this->tipologia->anagrafica_completa;
+    }
+
+    /** Fatture già registrate per questo corso (blocchi con numero di fattura): servono per avvisare se si cambia l'IVA. */
+    public function fattureRegistrate(): int
+    {
+        return DatiFatturazioneCorso::whereNotNull('fattura_numero')
+            ->whereHas('iscrizioni', fn ($q) => $q->where('corso_id', $this->id))
+            ->count();
     }
 
     /** Etichetta della sede da mostrare: indirizzo del comitato, una sede del catalogo, o niente. */

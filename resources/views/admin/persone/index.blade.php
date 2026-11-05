@@ -50,7 +50,7 @@
                 @foreach (['newsletter' => 'Newsletter', 'promemoria' => 'Promemoria'] as $chiave => $etichetta)
                     <div class="form-group col-md-2">
                         <label class="small">{{ $etichetta }}</label>
-                        <select name="{{ $chiave }}" class="form-control">
+                        <select name="{{ $chiave }}" class="form-control select-ricerca">
                             <option value="">Tutti</option>
                             @foreach (['confermato' => 'Confermato', 'richiesto' => 'Richiesto (senza risposta)', 'revocato' => 'Revocato', 'nessuno' => 'Nessuna scelta'] as $v => $e)
                                 <option value="{{ $v }}" @selected(($filtri[$chiave] ?? '') === $v)>{{ $e }}</option>

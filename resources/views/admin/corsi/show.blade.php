@@ -45,6 +45,11 @@
         </div>
         <div class="card-footer">
             <a href="{{ route('admin.corsi.iscritti.index', $corso) }}" class="btn btn-secondary"><i class="fas fa-users"></i> Iscritti</a>
+            @can('manage-pagamenti-corsi')
+                @if ($corso->costo > 0)
+                    <a href="{{ route('admin.pagamenti-corsi.show', $corso) }}" class="btn btn-secondary"><i class="fas fa-file-invoice-dollar"></i> Pagamenti</a>
+                @endif
+            @endcan
             <a href="{{ route('admin.corsi.index') }}" class="btn btn-link">Torna all'elenco</a>
         </div>
     </div>

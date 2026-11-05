@@ -170,6 +170,9 @@ class AnonymizePersonalData extends Command
                     'email' => "persona{$r->persona_id}@{$domain}",
                     'telefono' => $this->se($r->telefono, $i['telefono']),
                     'via' => $this->se($r->via, 'Via Fittizia '.($r->persona_id % 200 + 1)),
+                    // Dati di nascita (tipologie con anagrafica completa): data fissa e comune fittizio dove presenti.
+                    'data_nascita' => $this->se($r->data_nascita, '1980-01-01'),
+                    'nascita_comune' => $this->se($r->nascita_comune, 'Comune Fittizio'),
                 ]);
                 $n++;
             });

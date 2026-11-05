@@ -10,6 +10,7 @@ use App\Models\DocumentCategory;
 use App\Models\EmailTemplate;
 use App\Models\Page;
 use App\Models\PrivacyPolicy;
+use App\Models\Stato;
 use App\Models\TipologiaCorso;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Str;
@@ -46,6 +47,7 @@ class FirstInstallSeeder extends Seeder
         $this->pagineLegali();
         $this->documenti();
         $this->tipologieCorso();
+        Stato::popolaPredefiniti();
         $this->informativePrivacy();
         $this->templateEmail();
         $this->areaSoci();
@@ -454,7 +456,8 @@ class FirstInstallSeeder extends Seeder
             .'<h2>Dati trattati</h2>'
             .'<ul>'
             .'<li><strong>Dati anagrafici e di contatto</strong> dei partecipanti (nome, cognome, codice '
-            .'fiscale, residenza, email, telefono).</li>'
+            .'fiscale, residenza, email, telefono) e, per i corsi che rilasciano un attestato che lo richiede, '
+            .'<strong>data e luogo di nascita</strong>, necessari per il rilascio dell\'attestato.</li>'
             .'<li><strong>Dati di fatturazione</strong> (privato o azienda/associazione: eventuale ragione '
             .'sociale, partita IVA, indirizzo di fatturazione, metodo di pagamento indicato).</li>'
             .'</ul>'

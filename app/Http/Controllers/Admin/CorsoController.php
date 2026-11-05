@@ -8,6 +8,7 @@ use App\Models\CommitteeInfo;
 use App\Models\Corso;
 use App\Models\SedeCorso;
 use App\Models\TipologiaCorso;
+use App\Support\IvaCorso;
 use Illuminate\Database\QueryException;
 use Illuminate\Http\Request;
 
@@ -185,6 +186,7 @@ class CorsoController extends Controller
             'data_inizio' => ['required', 'date'],
             'data_fine' => ['required', 'date', 'after_or_equal:data_inizio'],
             'costo' => ['required', 'numeric', 'min:0'],
+            ...IvaCorso::regole(),
             'posti_max' => ['nullable', 'integer', 'min:1'],
             'iscrizioni_chiusura_at' => ['nullable', 'date'],
             'descrizione' => ['nullable', 'string'],
@@ -193,7 +195,7 @@ class CorsoController extends Controller
 
         $data['pubblicato'] = $request->boolean('pubblicato');
 
-        return $data;
+        return IvaCorso::normalizza($data, $request, 'costo');
     }
 
     /**
@@ -252,6 +254,8 @@ class CorsoController extends Controller
         }
 
         $corso->costo = $data['costo'];
+        $corso->iva_prevista = $data['iva_prevista'];
+        $corso->aliquota_iva = $data['aliquota_iva'];
         $corso->posti_max = $data['posti_max'] ?? null;
         $corso->iscrizioni_chiusura_at = $data['iscrizioni_chiusura_at'] ?? null;
         $corso->descrizione = $data['descrizione'] ?? null;

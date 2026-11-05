@@ -35,11 +35,9 @@
                     <td>{{ $iscrizione->telefono }}</td>
                     <td>{{ $iscrizione->codice_fiscale }}</td>
                     <td>
-                        {{ $iscrizione->datiFatturazione->tipo === 'azienda'
-                            ? $iscrizione->datiFatturazione->ragione_sociale
-                            : trim($iscrizione->datiFatturazione->nome.' '.$iscrizione->datiFatturazione->cognome) }}
+                        {{ $iscrizione->datiFatturazione?->intestatario() }}
                     </td>
-                    <td>{{ $iscrizione->datiFatturazione->metodo_pagamento }}</td>
+                    <td>{{ $iscrizione->datiFatturazione?->metodo_pagamento }}</td>
                     <td>{{ $iscrizione->presenza_confermata_at ? 'Confermata '.$iscrizione->presenza_confermata_at->format('d/m') : '—' }}</td>
                     <td>{{ $iscrizione->created_at->format('d/m/Y H:i') }}</td>
                 </tr>

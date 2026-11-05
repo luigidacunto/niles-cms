@@ -25,7 +25,7 @@
         </div>
         <div class="col-md-3 mb-2">
             <label class="mb-1 text-muted small">Tipologia</label>
-            <select name="tipologia" class="form-control">
+            <select name="tipologia" class="form-control select-ricerca">
                 <option value="">Tutte</option>
                 @foreach ($tipologie as $tipologia)
                     <option value="{{ $tipologia->id }}" @selected((string) $filters['tipologia'] === (string) $tipologia->id)>{{ $tipologia->nome }}</option>
@@ -34,7 +34,7 @@
         </div>
         <div class="col-md-3 mb-2">
             <label class="mb-1 text-muted small">Stato</label>
-            <select name="stato" class="form-control">
+            <select name="stato" class="form-control select-ricerca">
                 <option value="">Tutti</option>
                 <option value="attivi" @selected($filters['stato'] === 'attivi')>Attivi</option>
                 <option value="annullati" @selected($filters['stato'] === 'annullati')>Annullati</option>

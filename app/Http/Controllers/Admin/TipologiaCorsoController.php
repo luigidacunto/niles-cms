@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Models\TipologiaCorso;
 use App\Support\ImageUpload;
+use App\Support\IvaCorso;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Validation\Rule;
@@ -58,7 +59,9 @@ class TipologiaCorsoController extends Controller
             'nome' => ['required', 'string', 'max:255'],
             'sigla' => ['required', 'string', 'max:20', 'alpha_dash', Rule::unique('tipologie_corso', 'sigla')->ignore($tipologia)],
             'rilascia_attestato' => ['boolean'],
+            'anagrafica_completa' => ['boolean'],
             'costo_predefinito' => ['nullable', 'numeric', 'min:0'],
+            ...IvaCorso::regole(),
             'attivo' => ['boolean'],
             'order' => ['nullable', 'integer', 'min:0'],
             'immagine' => ['nullable', 'image', 'max:5120'],
@@ -72,7 +75,9 @@ class TipologiaCorsoController extends Controller
         }
 
         $data['rilascia_attestato'] = $request->boolean('rilascia_attestato');
+        $data['anagrafica_completa'] = $request->boolean('anagrafica_completa');
         $data['attivo'] = $request->boolean('attivo');
+        $data = IvaCorso::normalizza($data, $request, 'costo_predefinito');
 
         // Immagine di default della tipologia: nuova => sostituisce (e cancella la vecchia dal disco),
         // "rimuovi" => la toglie. Senza nessuna delle due resta quella attuale.

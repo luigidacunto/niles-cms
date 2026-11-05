@@ -76,11 +76,9 @@
                             <td>{{ $iscrizione->telefono }}</td>
                             <td><code>{{ $iscrizione->codice_fiscale }}</code></td>
                             <td>
-                                {{ $iscrizione->datiFatturazione->tipo === 'azienda'
-                                    ? $iscrizione->datiFatturazione->ragione_sociale
-                                    : trim($iscrizione->datiFatturazione->nome.' '.$iscrizione->datiFatturazione->cognome) }}
+                                {{ $iscrizione->datiFatturazione?->intestatario() ?: '—' }}
                             </td>
-                            <td>{{ $iscrizione->datiFatturazione->metodo_pagamento ?: '—' }}</td>
+                            <td>{{ $iscrizione->datiFatturazione?->metodo_pagamento ?: '—' }}</td>
                             <td>
                                 @if ($iscrizione->presenza_confermata_at)
                                     {{-- Data e ora della conferma nel tooltip (nativo) della pillola. --}}

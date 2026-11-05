@@ -9,7 +9,7 @@
 @php
     // Valore di un campo: input precedente (dopo un errore) oppure dato attuale.
     $n = fn ($campo) => old("nominativo.$campo", $iscrizione->{$campo});
-    $f = fn ($campo) => old("fatturazione.$campo", $fatturazione->{$campo});
+    $f = fn ($campo) => old("fatturazione.$campo", $fatturazione?->{$campo});
     $tipo = $f('tipo');
 @endphp
 
@@ -50,10 +50,24 @@
                     <div class="form-group col-md-2"><label class="small">Prov.</label><input name="nominativo[provincia]" value="{{ $n('provincia') }}" maxlength="2" class="form-control" required></div>
                     <div class="form-group col-md-2"><label class="small">CAP</label><input name="nominativo[cap]" value="{{ $n('cap') }}" maxlength="5" class="form-control" required></div>
                 </div>
+                @if ($corso->richiedeAnagraficaCompleta())
+                    @php
+                        // Estero: lo Stato è salvato come nome; se è ancora in elenco si preseleziona, altrimenti «Altro» con il testo.
+                        $statoId = $iscrizione->nascita_estero ? \App\Models\Stato::where('nome', $iscrizione->nascita_stato)->value('id') : null;
+                    @endphp
+                    @include('admin.partials.nascita-corso', [
+                        'data' => old('nominativo.data_nascita', $iscrizione->data_nascita),
+                        'luogo' => old('nominativo.nascita_luogo', ! $iscrizione->nascita_estero ? 'italia' : ($statoId ?: 'altro')),
+                        'statoAltro' => old('nominativo.nascita_stato_altro', $statoId ? null : $iscrizione->nascita_stato),
+                        'comune' => old('nominativo.nascita_comune', $iscrizione->nascita_comune),
+                        'provincia' => old('nominativo.nascita_provincia', $iscrizione->nascita_provincia),
+                    ])
+                @endif
             </div>
         </div>
 
         <div class="card">
+            @if ($fatturazione)
             <div class="card-header"><strong>Fatturazione e pagamento</strong></div>
             <div class="card-body">
                 @if ($condivisaCon->isNotEmpty())
@@ -92,7 +106,7 @@
                     <div class="form-group col-md-4"><label class="small">Codice fiscale</label><input name="fatturazione[codice_fiscale]" value="{{ $f('codice_fiscale') }}" maxlength="16" class="form-control text-uppercase"></div>
                     <div class="form-group col-md-4">
                         <label class="small">Metodo di pagamento</label>
-                        <select name="fatturazione[metodo_pagamento]" class="form-control">
+                        <select name="fatturazione[metodo_pagamento]" class="form-control select-ricerca">
                             <option value="">—</option>
                             @foreach ($metodi as $metodo)
                                 <option value="{{ $metodo }}" @selected($f('metodo_pagamento') === $metodo)>{{ $metodo }}</option>
@@ -108,6 +122,7 @@
                 </div>
                 <small class="text-muted">Email e telefono di fatturazione non si modificano da qui.</small>
             </div>
+            @endif
             <div class="card-footer">
                 <button type="submit" class="btn btn-primary">Salva correzioni</button>
                 <a href="{{ route('admin.corsi.iscritti.index', $corso) }}" class="btn btn-link">Annulla</a>

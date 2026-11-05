@@ -17,6 +17,56 @@ class CodiceFiscaleInfo
 
     private const MESI = ['A' => 1, 'B' => 2, 'C' => 3, 'D' => 4, 'E' => 5, 'H' => 6, 'L' => 7, 'M' => 8, 'P' => 9, 'R' => 10, 'S' => 11, 'T' => 12];
 
+    /** Valori dei caratteri in posizione dispari (1ª, 3ª…) per il carattere di controllo, indicizzati dal valore del carattere (0-9 / A=0…Z=25). */
+    private const DISPARI = [1, 0, 5, 7, 9, 13, 15, 17, 19, 21, 2, 4, 18, 20, 11, 3, 6, 8, 12, 14, 16, 10, 22, 25, 24, 23];
+
+    /** Carattere di controllo (16ª posizione) calcolato sui primi 15 caratteri: somma dei valori (tabella diversa per posizione dispari/pari) modulo 26, come lettera. */
+    public static function carattereControllo(string $cf15): string
+    {
+        $somma = 0;
+        foreach (str_split(strtoupper($cf15)) as $i => $c) {
+            $v = ctype_digit($c) ? (int) $c : ord($c) - 65;
+            $somma += $i % 2 === 0 ? self::DISPARI[$v] : $v;
+        }
+
+        return chr(65 + $somma % 26);
+    }
+
+    /**
+     * Controlli aggiuntivi per le tipologie con anagrafica completa: carattere di controllo corretto, data di nascita indicata
+     * uguale a quella del codice, Italia/estero coerente con la lettera «Z» del codice catastale (comune di nascita, 12ª posizione;
+     * ⚠️ il comune in sé non si verifica: servirebbe la tabella catastale). Lista vuota = tutto torna.
+     *
+     * @return list<string>
+     */
+    public static function incoerenzeAnagrafica(string $cf, ?Carbon $dataNascita, ?bool $estero): array
+    {
+        $cf = strtoupper(trim($cf));
+        if (! preg_match('/^[A-Z0-9]{16}$/', $cf)) {
+            return [];   // il formato lo segnala già la regola CodiceFiscale
+        }
+
+        $problemi = [];
+
+        if (self::carattereControllo(substr($cf, 0, 15)) !== $cf[15]) {
+            $problemi[] = "L'ultima lettera del codice fiscale (carattere di controllo) non è corretta: controlla di averlo scritto bene.";
+        }
+
+        $dalCodice = self::dataNascita($cf);
+        if ($dataNascita !== null && $dalCodice !== null
+            && ($dataNascita->day !== $dalCodice->day || $dataNascita->month !== $dalCodice->month || $dataNascita->year % 100 !== $dalCodice->year % 100)) {
+            $problemi[] = 'La data di nascita indicata non corrisponde a quella del codice fiscale.';
+        }
+
+        if ($estero !== null && $estero !== ($cf[11] === 'Z')) {
+            $problemi[] = $estero
+                ? 'Il codice fiscale indica una nascita in Italia, ma hai scelto «Stato estero».'
+                : "Il codice fiscale indica una nascita all'estero, ma hai scelto «Italia».";
+        }
+
+        return $problemi;
+    }
+
     /** Data di nascita, o null se il codice non ha una struttura/data valida. */
     public static function dataNascita(string $cf): ?Carbon
     {

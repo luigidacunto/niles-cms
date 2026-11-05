@@ -39,7 +39,7 @@ class IscrizioneConsensiTest extends TestCase
         $tipologia = TipologiaCorso::create(['nome' => 'BLSD', 'sigla' => 'BLSD']);
         $this->corso = Corso::create([
             'tipologia_corso_id' => $tipologia->id, 'slug' => 'blsd-1', 'protocollo' => 'BLSD-1', 'admin_id' => $admin->id,
-            'data_inizio' => now()->addDays(5), 'data_fine' => now()->addDays(5)->addHours(4), 'costo' => 0, 'pubblicato' => true,
+            'data_inizio' => now()->addDays(5), 'data_fine' => now()->addDays(5)->addHours(4), 'costo' => 35, 'pubblicato' => true,
         ]);
     }
 

@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Support\Arr;
 
@@ -13,7 +14,46 @@ class DatiFatturazioneCorso extends Model
     protected $fillable = [
         'tipo', 'nome', 'cognome', 'ragione_sociale', 'partita_iva', 'codice_fiscale',
         'via', 'comune', 'provincia', 'cap', 'codice_destinatario', 'pec', 'email', 'telefono', 'metodo_pagamento',
+        'fattura_numero', 'fattura_data', 'ricevuta_numero', 'ricevuta_data',
+        'incassato_importo', 'incassato_at', 'incasso_nota', 'pagamento_registrato_da', 'pagamento_registrato_at',
     ];
+
+    protected function casts(): array
+    {
+        return [
+            'fattura_data' => 'date',
+            'ricevuta_data' => 'date',
+            'incassato_importo' => 'decimal:2',
+            'incassato_at' => 'datetime',
+            'pagamento_registrato_at' => 'datetime',
+        ];
+    }
+
+    public function registratoDa(): BelongsTo
+    {
+        return $this->belongsTo(Admin::class, 'pagamento_registrato_da');
+    }
+
+    /** Fattura emessa = numero registrato (la data è sempre insieme al numero). */
+    public function fatturaEmessa(): bool
+    {
+        return filled($this->fattura_numero);
+    }
+
+    public function ricevutaEmessa(): bool
+    {
+        return filled($this->ricevuta_numero);
+    }
+
+    /** Incasso registrato: nessuno / parziale (importo sotto il totale dovuto) / completo. $totaleCent = totale dovuto in centesimi. */
+    public function statoIncasso(int $totaleCent): string
+    {
+        if ($this->incassato_at === null) {
+            return 'da_incassare';
+        }
+
+        return (int) round($this->incassato_importo * 100) >= $totaleCent ? 'incassata' : 'parziale';
+    }
 
     public function iscrizioni(): HasMany
     {

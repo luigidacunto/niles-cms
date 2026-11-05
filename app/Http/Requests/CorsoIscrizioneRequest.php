@@ -11,6 +11,7 @@ use App\Rules\CodiceFiscaleCoerente;
 use App\Rules\Maggiorenne;
 use App\Rules\PartitaIva;
 use App\Rules\TurnstileToken;
+use App\Support\NascitaCorso;
 use App\Support\Pulizia;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
@@ -49,7 +50,7 @@ class CorsoIscrizioneRequest extends FormRequest
         $metodiPagamento = CommitteeInfo::current()->metodi_pagamento;
         $comeIscritto = $this->fatturazioneComeIscritto();
 
-        return [
+        $rules = [
             'richiedente.nome' => ['required', 'string', 'max:255', new CampoAnagrafico('nome')],
             'richiedente.cognome' => ['required', 'string', 'max:255', new CampoAnagrafico('nome')],
             'richiedente.email' => ['required', 'email', 'max:255'],
@@ -59,7 +60,8 @@ class CorsoIscrizioneRequest extends FormRequest
             'fatturazione_unica' => ['boolean'],
 
             // Fatturazione unica per il gruppo: un solo blocco, valorizzato qui.
-            'fatturazione.tipo' => [Rule::requiredIf($fatturazioneUnica && ! $comeIscritto), 'in:privato,azienda'],
+            // Corso gratuito: il modulo non chiede la fatturazione (e il controller non la salva).
+            'fatturazione.tipo' => [Rule::requiredIf($fatturazioneUnica && ! $comeIscritto && ! $this->corsoGratuito()), 'in:privato,azienda'],
             'fatturazione.nome' => ['required_if:fatturazione.tipo,privato', 'nullable', 'string', 'max:255', new CampoAnagrafico('nome')],
             'fatturazione.cognome' => ['required_if:fatturazione.tipo,privato', 'nullable', 'string', 'max:255', new CampoAnagrafico('nome')],
             'fatturazione.ragione_sociale' => ['required_if:fatturazione.tipo,azienda', 'nullable', 'string', 'max:255'],
@@ -104,6 +106,19 @@ class CorsoIscrizioneRequest extends FormRequest
             'consenso_promemoria' => ['nullable', 'boolean'],
             'consenso_newsletter' => ['nullable', 'boolean'],
         ];
+
+        // Tipologia con anagrafica completa (attestato): data e luogo di nascita obbligatori e controllo del codice fiscale più rigoroso.
+        if ($this->route('corso')->richiedeAnagraficaCompleta()) {
+            $rules = [...$rules, ...NascitaCorso::regole('nominativi.*')];
+            $rules['nominativi.*.codice_fiscale'] = ['required', new CodiceFiscale, new CodiceFiscaleCoerente(anagraficaCompleta: true)];
+        }
+
+        return $rules;
+    }
+
+    public function corsoGratuito(): bool
+    {
+        return $this->route('corso')->costo <= 0;
     }
 
     /**
@@ -140,6 +155,10 @@ class CorsoIscrizioneRequest extends FormRequest
             'nominativi.*.comune' => 'comune della persona da iscrivere',
             'nominativi.*.provincia' => 'provincia della persona da iscrivere',
             'nominativi.*.cap' => 'CAP della persona da iscrivere',
+            'nominativi.*.data_nascita' => 'data di nascita della persona da iscrivere',
+            'nominativi.*.nascita_luogo' => 'luogo di nascita (Italia o Stato estero) della persona da iscrivere',
+            'nominativi.*.nascita_comune' => 'comune di nascita della persona da iscrivere',
+            'nominativi.*.nascita_provincia' => 'provincia di nascita della persona da iscrivere',
             'fatturazione.nome' => 'nome di fatturazione',
             'fatturazione.cognome' => 'cognome di fatturazione',
             'fatturazione.via' => 'via / largo / piazza / località di fatturazione',

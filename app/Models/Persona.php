@@ -178,6 +178,7 @@ class Persona extends Model
             $this->iscrizioni()->update([
                 'nome' => 'Anonimo', 'cognome' => 'Anonimo', 'email' => 'anonimo@example.invalid', 'telefono' => null,
                 'codice_fiscale' => $cf, 'via' => null, 'comune' => null, 'provincia' => null, 'cap' => null,
+                'data_nascita' => null, 'nascita_estero' => null, 'nascita_comune' => null, 'nascita_provincia' => null, 'nascita_stato' => null,
             ]);
 
             $this->consensi()->delete();

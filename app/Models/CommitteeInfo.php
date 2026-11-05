@@ -22,7 +22,7 @@ class CommitteeInfo extends Model
     protected $fillable = [
         'denominazione', 'piva', 'codice_fiscale', 'codice_fatturazione_elettronica',
         'telefono', 'email', 'pec', 'indirizzo', 'logo_orizzontale', 'logo_verticale',
-        'logo_ifrc', 'logo_un_italia', 'favicon', 'goatcounter_enabled', 'ga_enabled', 'area_soci_attiva',
+        'logo_ifrc', 'logo_un_italia', 'favicon', 'goatcounter_enabled', 'ga_enabled', 'area_soci_attiva', 'pagamenti_corsi_attivi',
         'facebook_url', 'instagram_url', 'youtube_url', 'x_url', 'metodi_pagamento',
         'iban', 'intestatario_conto', 'banca',
         'mail_mailer', 'mail_host', 'mail_port', 'mail_encryption', 'mail_username', 'mail_password',
@@ -37,6 +37,7 @@ class CommitteeInfo extends Model
         'goatcounter_enabled' => 'boolean',
         'ga_enabled' => 'boolean',
         'area_soci_attiva' => 'boolean',
+        'pagamenti_corsi_attivi' => 'boolean',
         'mail_notifica_iscrizioni' => 'boolean',
         // ⚠️ Cifrata con APP_KEY (come la secret Turnstile): se la chiave cambia non è più leggibile, vedi PostaInUscita.
         'mail_password' => 'encrypted',
@@ -50,7 +51,7 @@ class CommitteeInfo extends Model
         // ⚠️ Valori passati esplicitamente (non solo il default a livello DB): firstOrCreate() non
         // ricarica il modello dopo l'insert, quindi un default di schema applicato dal DB resterebbe
         // "invisibile" (null) sull'istanza in memoria appena creata finché non viene ri-letta da zero.
-        return static::firstOrCreate(['id' => 1], ['goatcounter_enabled' => true, 'ga_enabled' => true, 'area_soci_attiva' => false]);
+        return static::firstOrCreate(['id' => 1], ['goatcounter_enabled' => true, 'ga_enabled' => true, 'area_soci_attiva' => false, 'pagamenti_corsi_attivi' => false]);
     }
 
     /**

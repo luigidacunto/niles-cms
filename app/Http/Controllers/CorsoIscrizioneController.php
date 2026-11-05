@@ -9,6 +9,7 @@ use App\Models\IscrizioneCorso;
 use App\Models\Persona;
 use App\Models\SicurezzaForm;
 use App\Support\IscrizioneNotifier;
+use App\Support\NascitaCorso;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\DB;
 
@@ -34,13 +35,16 @@ class CorsoIscrizioneController extends Controller
         $fatturazioneUnica = $request->boolean('fatturazione_unica');
         $autodichiarazioneAt = $request->boolean('autodichiarazione_terzi') ? now() : null;
 
-        if ($request->fatturazioneComeIscritto()) {
+        // Corso gratuito: nessun pagamento, quindi nessuna riga di fatturazione (le iscrizioni restano senza).
+        $gratuito = $corso->costo <= 0;
+
+        if (! $gratuito && $request->fatturazioneComeIscritto()) {
             $data['fatturazione'] = DatiFatturazioneCorso::inputDaNominativo(
                 Arr::first($data['nominativi']), $data['fatturazione']['metodo_pagamento'] ?? null
             );
         }
 
-        $iscrizioni = DB::transaction(function () use ($request, $corso, $data, $fatturazioneUnica, $autodichiarazioneAt) {
+        $iscrizioni = DB::transaction(function () use ($request, $corso, $data, $fatturazioneUnica, $autodichiarazioneAt, $gratuito) {
             $create = collect();
             // Chi compila il modulo è sempre una persona in anagrafica (anche se non frequenta: un HR, un
             // genitore): così lo si può ricontattare, previo consenso. Se frequenta anche lui, è la stessa
@@ -51,21 +55,21 @@ class CorsoIscrizioneController extends Controller
             // Il blocco 'fatturazione' non raccoglie email/telefono propri: per il pagamento unico si
             // riusano i contatti del richiedente; per i pagamenti separati ogni persona è fatturata con i propri
             // dati (privato) e i propri contatti.
-            $fatturazioneCondivisa = $fatturazioneUnica
+            $fatturazioneCondivisa = ! $gratuito && $fatturazioneUnica
                 ? DatiFatturazioneCorso::create(DatiFatturazioneCorso::datiDaInput($data['fatturazione'], $data['richiedente']))
                 : null;
 
             foreach ($data['nominativi'] as $nominativo) {
-                $fatturazione = $fatturazioneCondivisa
+                $fatturazione = $gratuito ? null : ($fatturazioneCondivisa
                     ?? DatiFatturazioneCorso::create(DatiFatturazioneCorso::datiDaInput(
                         DatiFatturazioneCorso::inputDaNominativo($nominativo, $nominativo['fatturazione']['metodo_pagamento'] ?? null), $nominativo
-                    ));
+                    )));
 
                 $persona = Persona::daDati($nominativo);
 
                 $iscrizione = IscrizioneCorso::create([
                     'corso_id' => $corso->id,
-                    'dati_fatturazione_corso_id' => $fatturazione->id,
+                    'dati_fatturazione_corso_id' => $fatturazione?->id,
                     'persona_id' => $persona->id,
                     'referente_persona_id' => $persona->is($referente) ? null : $referente->id,
                     'nome' => $nominativo['nome'],
@@ -79,7 +83,7 @@ class CorsoIscrizioneController extends Controller
                     'cap' => $nominativo['cap'] ?? null,
                     'privacy_accettata_at' => now(),
                     'autodichiarazione_terzi_at' => $autodichiarazioneAt,
-                ]);
+                ] + NascitaCorso::colonne($nominativo, $corso->richiedeAnagraficaCompleta()));
 
                 $create->push($iscrizione);
 

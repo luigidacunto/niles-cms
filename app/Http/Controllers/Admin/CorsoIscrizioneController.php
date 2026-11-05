@@ -14,6 +14,7 @@ use App\Rules\CodiceFiscale;
 use App\Rules\CodiceFiscaleCoerente;
 use App\Rules\PartitaIva;
 use App\Support\CsvSicuro;
+use App\Support\NascitaCorso;
 use App\Support\Pulizia;
 use App\Support\IscrizioneNotifier;
 use Barryvdh\DomPDF\Facade\Pdf;
@@ -127,6 +128,9 @@ class CorsoIscrizioneController extends Controller
             'fatturazione' => is_array($request->input('fatturazione')) ? Pulizia::fatturazione($request->input('fatturazione')) : null,
         ], fn ($v) => $v !== null));
 
+        // Corso gratuito: nessun pagamento, quindi nessuna fatturazione (né campi, né riga salvata).
+        $gratuito = $corso->costo <= 0;
+
         $metodiPagamento = CommitteeInfo::current()->metodi_pagamento;
         // 'stessi' = fatturazione al partecipante, 'esistente' = riga già usata nel corso (condivisa col
         // gruppo, metodo di pagamento ereditato), 'manuale' = dati inseriti a mano.
@@ -135,15 +139,17 @@ class CorsoIscrizioneController extends Controller
         $esistente = $modo === 'esistente';
 
         $data = $request->validate([
-            ...self::regoleNominativo(),
+            ...self::regoleNominativo($corso->richiedeAnagraficaCompleta()),
 
-            'fatturazione_modo' => ['nullable', Rule::in(['stessi', 'esistente', 'manuale'])],
-            'fatturazione_esistente_id' => [
-                Rule::requiredIf($esistente),
-                Rule::exists('iscrizioni_corso', 'dati_fatturazione_corso_id')->where('corso_id', $corso->id),
-            ],
+            ...($gratuito ? [] : [
+                'fatturazione_modo' => ['nullable', Rule::in(['stessi', 'esistente', 'manuale'])],
+                'fatturazione_esistente_id' => [
+                    Rule::requiredIf($esistente),
+                    Rule::exists('iscrizioni_corso', 'dati_fatturazione_corso_id')->where('corso_id', $corso->id),
+                ],
 
-            ...self::regoleFatturazione($metodiPagamento, $modo === 'manuale'),
+                ...self::regoleFatturazione($metodiPagamento, $modo === 'manuale'),
+            ]),
 
             // Nessuna spunta di consenso newsletter/promemoria qui: la persona li sceglie dal link nell'email
             // di iscrizione (un consenso dato a voce non è documentabile).
@@ -154,21 +160,23 @@ class CorsoIscrizioneController extends Controller
             return back()->withInput()->withErrors(['nominativo.codice_fiscale' => 'Questa persona risulta già iscritta a questo corso.']);
         }
 
-        if ($comeIscritto) {
+        if (! $gratuito && $comeIscritto) {
             $data['fatturazione'] = DatiFatturazioneCorso::inputDaNominativo(
                 $data['nominativo'], $data['fatturazione']['metodo_pagamento'] ?? null
             );
         }
 
-        $fatturazione = $esistente
-            ? DatiFatturazioneCorso::findOrFail($data['fatturazione_esistente_id'])
-            : DatiFatturazioneCorso::create(DatiFatturazioneCorso::datiDaInput($data['fatturazione'], $data['nominativo']));
+        $fatturazione = match (true) {
+            $gratuito => null,
+            $esistente => DatiFatturazioneCorso::findOrFail($data['fatturazione_esistente_id']),
+            default => DatiFatturazioneCorso::create(DatiFatturazioneCorso::datiDaInput($data['fatturazione'], $data['nominativo'])),
+        };
 
         $persona = Persona::daDati($data['nominativo']);
 
         $iscrizione = IscrizioneCorso::create([
             'corso_id' => $corso->id,
-            'dati_fatturazione_corso_id' => $fatturazione->id,
+            'dati_fatturazione_corso_id' => $fatturazione?->id,
             'persona_id' => $persona->id,
             'nome' => $data['nominativo']['nome'],
             'cognome' => $data['nominativo']['cognome'],
@@ -180,7 +188,7 @@ class CorsoIscrizioneController extends Controller
             'provincia' => $data['nominativo']['provincia'] ?? null,
             'cap' => $data['nominativo']['cap'] ?? null,
             'privacy_accettata_at' => now(),
-        ]);
+        ] + NascitaCorso::colonne($data['nominativo'], $corso->richiedeAnagraficaCompleta()));
 
         // Anche l'iscritto a mano riceve l'email (promemoria calendario + link ai consensi).
         IscrizioneNotifier::invia([$iscrizione]);
@@ -203,9 +211,9 @@ class CorsoIscrizioneController extends Controller
             'corso' => $corso,
             'iscrizione' => $iscrizione,
             'fatturazione' => $fatturazione,
-            'condivisaCon' => $fatturazione->iscrizioni()->where('id', '!=', $iscrizione->id)->get(),
+            'condivisaCon' => $fatturazione?->iscrizioni()->where('id', '!=', $iscrizione->id)->get() ?? collect(),
             // Metodi attuali del comitato + quello già salvato (può essere un valore storico non più in elenco).
-            'metodi' => array_values(array_unique(array_filter([...CommitteeInfo::current()->metodi_pagamento, $fatturazione->metodo_pagamento]))),
+            'metodi' => array_values(array_unique(array_filter([...CommitteeInfo::current()->metodi_pagamento, $fatturazione?->metodo_pagamento]))),
         ]);
     }
 
@@ -219,9 +227,10 @@ class CorsoIscrizioneController extends Controller
         ], fn ($v) => $v !== null));
 
         $fatturazione = $iscrizione->datiFatturazione;
-        $metodi = array_values(array_unique(array_filter([...CommitteeInfo::current()->metodi_pagamento, $fatturazione->metodo_pagamento])));
+        $metodi = array_values(array_unique(array_filter([...CommitteeInfo::current()->metodi_pagamento, $fatturazione?->metodo_pagamento])));
 
-        $data = $request->validate([...self::regoleNominativo(), ...self::regoleFatturazione($metodi, true)], self::MESSAGGI, self::ATTRIBUTI);
+        // Iscrizione senza fatturazione (corso gratuito): si correggono solo i dati del partecipante.
+        $data = $request->validate([...self::regoleNominativo($corso->richiedeAnagraficaCompleta()), ...($fatturazione ? self::regoleFatturazione($metodi, true) : [])], self::MESSAGGI, self::ATTRIBUTI);
 
         $cf = strtoupper($data['nominativo']['codice_fiscale']);
         $doppione = ! $iscrizione->ritirata() && $corso->iscrizioni()->attive()->where('codice_fiscale', $cf)->where('id', '!=', $iscrizione->id)->exists();
@@ -231,7 +240,7 @@ class CorsoIscrizioneController extends Controller
 
         $vecchia = $iscrizione->persona;
 
-        $modifiche = DB::transaction(function () use ($data, $iscrizione, $fatturazione, $vecchia, $cf) {
+        $modifiche = DB::transaction(function () use ($data, $iscrizione, $fatturazione, $vecchia, $cf, $corso) {
             // Persona del partecipante: quella con il CF indicato (esistente o nuova), con i dati aggiornati.
             $persona = Persona::daDati($data['nominativo']);
 
@@ -249,18 +258,23 @@ class CorsoIscrizioneController extends Controller
                 'comune' => $data['nominativo']['comune'] ?? null,
                 'provincia' => $data['nominativo']['provincia'] ?? null,
                 'cap' => $data['nominativo']['cap'] ?? null,
-            ]);
+            ] + NascitaCorso::colonne($data['nominativo'], $corso->richiedeAnagraficaCompleta()));
 
-            // ⚠️ Email/telefono della fatturazione NON si toccano: in un gruppo sono i contatti di chi ha compilato il modulo.
-            $f = Arr::except(DatiFatturazioneCorso::datiDaInput($data['fatturazione'], []), ['email', 'telefono']);
-            $azienda = $f['tipo'] === 'azienda';
-            $fatturazione->fill($azienda
-                ? ['nome' => null, 'cognome' => null] + $f
-                : ['ragione_sociale' => null, 'partita_iva' => null, 'codice_destinatario' => null, 'pec' => null] + $f);
+            $modifiche = ['iscrizione' => self::differenze($iscrizione)];
 
-            $modifiche = ['iscrizione' => self::differenze($iscrizione), 'fatturazione' => self::differenze($fatturazione)];
+            if ($fatturazione) {
+                // ⚠️ Email/telefono della fatturazione NON si toccano: in un gruppo sono i contatti di chi ha compilato il modulo.
+                $f = Arr::except(DatiFatturazioneCorso::datiDaInput($data['fatturazione'], []), ['email', 'telefono']);
+                $azienda = $f['tipo'] === 'azienda';
+                $fatturazione->fill($azienda
+                    ? ['nome' => null, 'cognome' => null] + $f
+                    : ['ragione_sociale' => null, 'partita_iva' => null, 'codice_destinatario' => null, 'pec' => null] + $f);
+
+                $modifiche['fatturazione'] = self::differenze($fatturazione);
+                $fatturazione->save();
+            }
+
             $iscrizione->save();
-            $fatturazione->save();
 
             // Se la persona precedente è rimasta senza riferimenti, i suoi consensi (dati dalla stessa persona reale
             // tramite il link dell'email) passano a quella corretta, per non perderli con la cancellazione.
@@ -307,6 +321,10 @@ class CorsoIscrizioneController extends Controller
         'nominativo.comune' => 'comune',
         'nominativo.provincia' => 'provincia',
         'nominativo.cap' => 'CAP',
+        'nominativo.data_nascita' => 'data di nascita',
+        'nominativo.nascita_luogo' => 'luogo di nascita (Italia o Stato estero)',
+        'nominativo.nascita_comune' => 'comune di nascita',
+        'nominativo.nascita_provincia' => 'provincia di nascita',
         'fatturazione.nome' => 'nome di fatturazione',
         'fatturazione.cognome' => 'cognome di fatturazione',
         'fatturazione.via' => 'via / largo / piazza / località di fatturazione',
@@ -316,9 +334,10 @@ class CorsoIscrizioneController extends Controller
     ];
 
     /** Regole dei dati del partecipante (inserimento manuale e correzione). */
-    private static function regoleNominativo(): array
+    /** $anagraficaCompleta: tipologia che richiede data/luogo di nascita (per l'attestato), con controllo CF più rigoroso. */
+    private static function regoleNominativo(bool $anagraficaCompleta = false): array
     {
-        return [
+        $regole = [
             'nominativo.nome' => ['required', 'string', 'max:255', new CampoAnagrafico('nome')],
             'nominativo.cognome' => ['required', 'string', 'max:255', new CampoAnagrafico('nome')],
             'nominativo.email' => ['required', 'email', 'max:255'],
@@ -329,6 +348,13 @@ class CorsoIscrizioneController extends Controller
             'nominativo.provincia' => ['required', 'string', new CampoAnagrafico('provincia')],
             'nominativo.cap' => ['required', 'string', new CampoAnagrafico('cap')],
         ];
+
+        if ($anagraficaCompleta) {
+            $regole = [...$regole, ...NascitaCorso::regole('nominativo')];
+            $regole['nominativo.codice_fiscale'] = ['required', new CodiceFiscale, new CodiceFiscaleCoerente(controllaNomi: false, anagraficaCompleta: true)];
+        }
+
+        return $regole;
     }
 
     /** Regole del blocco fatturazione compilato a mano; `$obbligatoria` = il tipo (privato/azienda) è richiesto. */
@@ -370,22 +396,23 @@ class CorsoIscrizioneController extends Controller
 
     private function exportCsv(Corso $corso, string $nomeFile, string $stato)
     {
-        $iscrizioni = $this->elenco($corso, $stato)->with('datiFatturazione')->get();
+        $iscrizioni = $this->elenco($corso, $stato)->get();
 
-        return response()->streamDownload(function () use ($iscrizioni) {
+        // Tipologie con anagrafica completa: in coda data e luogo di nascita (per compilare gli attestati).
+        $nascita = $corso->richiedeAnagraficaCompleta();
+
+        return response()->streamDownload(function () use ($iscrizioni, $nascita) {
             $out = fopen('php://output', 'w');
-            fputcsv($out, ['Nome', 'Cognome', 'Email', 'Telefono', 'Codice fiscale', 'Fatturazione a', 'Metodo pagamento', 'Presenza confermata', 'Ritirato il', 'Iscritto il']);
+            fputcsv($out, ['Nome', 'Cognome', 'Email', 'Telefono', 'Codice fiscale', 'Presenza confermata', 'Ritirato il', 'Iscritto il', ...($nascita ? ['Data di nascita', 'Luogo di nascita'] : [])]);
             foreach ($iscrizioni as $i) {
                 // Telefono: già ristretto a numeri e + ( ) . - (non può contenere formule); gli altri testi arrivano dal pubblico.
                 fputcsv($out, array_merge(array_map([CsvSicuro::class, 'cella'], [$i->nome, $i->cognome, $i->email]), [$i->telefono], array_map([CsvSicuro::class, 'cella'], [
                     $i->codice_fiscale,
-                    $i->datiFatturazione->tipo === 'azienda' ? $i->datiFatturazione->ragione_sociale : trim("{$i->datiFatturazione->nome} {$i->datiFatturazione->cognome}"),
-                    $i->datiFatturazione->metodo_pagamento,
                 ]), [
                     $i->presenza_confermata_at?->format('d/m/Y H:i'),
                     $i->ritirata_at?->format('d/m/Y H:i'),
                     $i->created_at->format('d/m/Y H:i'),
-                ]));
+                ], $nascita ? [$i->data_nascita?->format('d/m/Y'), CsvSicuro::cella((string) $i->luogoNascita())] : []));
             }
             fclose($out);
         }, "{$nomeFile}.csv");

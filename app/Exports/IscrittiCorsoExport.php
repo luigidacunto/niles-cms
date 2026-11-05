@@ -14,7 +14,7 @@ class IscrittiCorsoExport implements FromCollection, WithHeadings
 
     public function collection(): Collection
     {
-        $q = $this->corso->iscrizioni()->with('datiFatturazione');
+        $q = $this->corso->iscrizioni();
         match ($this->stato) {
             'ritirati' => $q->ritirate(),
             'tutti' => null,
@@ -31,14 +31,14 @@ class IscrittiCorsoExport implements FromCollection, WithHeadings
             'Telefono' => $i->telefono,
             'Codice fiscale' => $s($i->codice_fiscale),
             'Indirizzo' => trim("{$i->via}, {$i->cap} {$i->comune}".($i->provincia ? " ({$i->provincia})" : ''), ' ,'),
-            'Fatturazione a' => $s($i->datiFatturazione->tipo === 'azienda'
-                ? $i->datiFatturazione->ragione_sociale
-                : trim("{$i->datiFatturazione->nome} {$i->datiFatturazione->cognome}")),
-            'P.IVA/CF fatturazione' => $i->datiFatturazione->partita_iva ?: $i->datiFatturazione->codice_fiscale,
-            'Metodo pagamento' => $i->datiFatturazione->metodo_pagamento,
             'Presenza confermata' => $i->presenza_confermata_at?->format('d/m/Y H:i'),
             'Ritirato il' => $i->ritirata_at?->format('d/m/Y H:i'),
             'Iscritto il' => $i->created_at->format('d/m/Y H:i'),
+            // Tipologie con anagrafica completa: data e luogo di nascita (per compilare gli attestati).
+            ...($this->corso->richiedeAnagraficaCompleta() ? [
+                'Data di nascita' => $i->data_nascita?->format('d/m/Y'),
+                'Luogo di nascita' => $s((string) $i->luogoNascita()),
+            ] : []),
         ]);
     }
 
@@ -46,7 +46,8 @@ class IscrittiCorsoExport implements FromCollection, WithHeadings
     {
         return [
             'Nome', 'Cognome', 'Email', 'Telefono', 'Codice fiscale', 'Indirizzo',
-            'Fatturazione a', 'P.IVA/CF fatturazione', 'Metodo pagamento', 'Presenza confermata', 'Ritirato il', 'Iscritto il',
+            'Presenza confermata', 'Ritirato il', 'Iscritto il',
+            ...($this->corso->richiedeAnagraficaCompleta() ? ['Data di nascita', 'Luogo di nascita'] : []),
         ];
     }
 }

@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Support\NascitaCorso;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -12,13 +13,15 @@ class IscrizioneCorso extends Model
 
     protected $fillable = [
         'corso_id', 'dati_fatturazione_corso_id', 'persona_id', 'referente_persona_id', 'nome', 'cognome', 'email',
-        'telefono', 'codice_fiscale', 'via', 'comune', 'provincia', 'cap',
+        'telefono', 'codice_fiscale', 'via', 'comune', 'provincia', 'cap', 'data_nascita', 'nascita_estero', 'nascita_comune', 'nascita_provincia', 'nascita_stato',
         'privacy_accettata_at', 'autodichiarazione_terzi_at', 'presenza_confermata_at', 'ritirata_at', 'nota_ritiro',
     ];
 
     protected function casts(): array
     {
         return [
+            'data_nascita' => 'date',
+            'nascita_estero' => 'boolean',
             'privacy_accettata_at' => 'datetime',
             'autodichiarazione_terzi_at' => 'datetime',
             'presenza_confermata_at' => 'datetime',
@@ -30,6 +33,12 @@ class IscrizioneCorso extends Model
     public function ritirata(): bool
     {
         return $this->ritirata_at !== null;
+    }
+
+    /** «Bologna (BO)» / «Tirana (EE), Albania» / null se non raccolto. */
+    public function luogoNascita(): ?string
+    {
+        return NascitaCorso::etichetta($this->nascita_estero, $this->nascita_comune, $this->nascita_provincia, $this->nascita_stato);
     }
 
     public function scopeAttive(Builder $query): void

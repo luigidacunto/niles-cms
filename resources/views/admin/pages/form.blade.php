@@ -136,7 +136,7 @@
 
                             <div class="form-group">
                                 <label>Pagina genitore</label>
-                                <select name="parent_id" class="form-control">
+                                <select name="parent_id" class="form-control select-ricerca">
                                     <option value="">— Nessuna (pagina di primo livello) —</option>
                                     @foreach ($parents as $parent)
                                         <option value="{{ $parent->id }}" @selected(old('parent_id', $page->parent_id) == $parent->id)>

@@ -4,6 +4,30 @@ Elenco delle modifiche di ogni versione, dalla più recente. Le versioni seguono
 incrementano la seconda cifra, le correzioni e i miglioramenti la terza. Le release complete, con i pacchetti scaricabili, sono su
 [GitHub](https://github.com/luigidacunto/niles-cms/releases). Le direzioni future sono nella [roadmap](ROADMAP.md).
 
+## 1.2.0 — 2026-11-05
+- **Gestione dei pagamenti dei corsi** (funzione facoltativa, da attivare in Dati comitato): per ogni corso a pagamento una pagina elenca i
+  blocchi di fatturazione, cioè una riga per ogni fattura da emettere, con intestatario, metodo di pagamento, iscritti coinvolti e importo
+  totale. Con un clic sulla riga si apre una finestra con i dati completi di fatturazione, una **guida alle righe da inserire in fattura**
+  (generata dal sistema, copiabile) e i campi per registrare numero e data di **fattura** e, facoltativamente, di **ricevuta** (due documenti
+  distinti, che possono coesistere) e l'**incasso**. L'importo incassato è proposto in automatico e, se diverso dal totale, richiede una nota
+  che ne spieghi il motivo. Il permesso **Pagamenti corsi** è separato da quello dei Corsi, così l'amministrazione può accedere solo a questa
+  parte.
+- **IVA dei corsi** (facoltativa): le tipologie e i singoli corsi possono indicare che il costo è comprensivo di IVA e l'aliquota. Il costo
+  resta il prezzo finale mostrato agli iscritti; l'IVA serve a scorporare imponibile e imposta nella guida alla fattura. Con costo zero non è
+  attivabile. Se si modifica l'IVA di un corso con fatture già registrate compare un avviso informativo.
+- **Corsi gratuiti**: non richiedono più i dati di fatturazione né il metodo di pagamento, nel modulo pubblico come nell'inserimento manuale.
+- **Anagrafica completa** (per tipologia, pensata per il rilascio degli attestati): data e luogo di nascita richiesti agli iscritti, con la
+  comunicazione che servono per l'attestato. Il luogo è Italia (comune e provincia) o uno Stato estero scelto da un elenco aggiornabile, con
+  l'opzione «Altro» per gli Stati non presenti; per l'estero la provincia è sempre «EE». Per queste tipologie il controllo del codice fiscale
+  è più rigoroso: si verificano anche il carattere di controllo, la corrispondenza con la data di nascita indicata e la coerenza tra Italia e
+  estero. Data e luogo di nascita compaiono nell'esportazione degli iscritti e l'informativa privacy predefinita dei corsi li elenca.
+- **Elenco degli Stati esteri** (tabella riutilizzabile, con circa 200 Stati) e relativo aggiornamento automatico dell'informativa privacy.
+- **Esportazione degli iscritti** (Excel e CSV): non contiene più i dati di fatturazione e di pagamento, che si consultano nella gestione
+  dei pagamenti.
+- **Interfaccia del pannello**: le note esplicative dei moduli sono nell'icona «i» accanto al campo, con un suggerimento di lettura più
+  grande; le liste a scelta con più di tre voci hanno il campo di ricerca (pannello e moduli pubblici); gli interruttori della tipologia di
+  corso sono a scorrimento.
+
 ## 1.1.12 — 2026-11-04
 - **Permessi degli utenti semplificati**: tutte le sezioni (Post, Pagine, Trasparenza, Documenti, Immagini, File, Comunicazioni soci, Membri)
   hanno un solo interruttore «Lettura e scrittura»; solo i Corsi mantengono lettura e scrittura separate. Nel modulo utenti le sezioni a

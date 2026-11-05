@@ -32,7 +32,7 @@ class PuliziaDatiTest extends TestCase
         $admin = Admin::create(['name' => 'A', 'email' => 'a@example.test', 'password' => 'x', 'role' => 'admin', 'active' => true]);
         $this->corso = Corso::create([
             'tipologia_corso_id' => TipologiaCorso::create(['nome' => 'Corso BLSD', 'sigla' => 'BLSD'])->id, 'slug' => 'blsd-1', 'protocollo' => 'BLSD-1',
-            'admin_id' => $admin->id, 'costo' => 0, 'pubblicato' => true,
+            'admin_id' => $admin->id, 'costo' => 35, 'pubblicato' => true,
             'data_inizio' => now()->addDays(5), 'data_fine' => now()->addDays(5)->addHours(4),
         ]);
     }
@@ -163,13 +163,14 @@ class PuliziaDatiTest extends TestCase
         // CSV
         $csv = $this->actingAs(Admin::first(), 'admin')->get(route('admin.corsi.iscritti.export', [$this->corso, 'csv']))->streamedContent();
         $this->assertStringContainsString("'=cmd@example.test", $csv);
-        $this->assertStringContainsString("'=HYPERLINK", $csv);
+        $this->assertStringNotContainsString('HYPERLINK', $csv);                  // fatturazione e pagamento non sono nell'esportazione (vivono in Pagamenti corsi)
         $this->assertStringContainsString('+39 333 1112222', $csv);               // il telefono (solo cifre e + ( ) . -) non ha l'apostrofo
 
         // Excel (stessa neutralizzazione sulla collezione)
         $riga = (new IscrittiCorsoExport($this->corso))->collection()->first();
         $this->assertSame("'=cmd@example.test", $riga['Email']);
-        $this->assertSame("'=HYPERLINK(\"http://x\")", $riga['Fatturazione a']);
+        $this->assertArrayNotHasKey('Fatturazione a', $riga);
+        $this->assertArrayNotHasKey('Metodo pagamento', $riga);
     }
 
     public function test_etichetta_indirizzo_generica(): void
