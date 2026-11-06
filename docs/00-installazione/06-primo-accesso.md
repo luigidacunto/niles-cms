@@ -18,6 +18,8 @@ Apri `https://<dominio>/admin/login/password` e inserisci l'email e la password 
   resta sempre disponibile per gli account in cui è abilitato.
 - «Ricordami» mantiene l'accesso su quel browser più a lungo.
 
+I due modi di accesso, l'uscita e i problemi più comuni sono descritti in [Accesso al pannello](../01-primi-passi/01-accesso-al-pannello.md).
+
 ## Cambiare la password iniziale
 
 Se hai scelto una password provvisoria, cambiala subito: apri **Utenti** (menu *Amministrazione → Utenti e controllo*), modifica il tuo
@@ -25,36 +27,10 @@ utente, scrivi la nuova password nel campo **Password** e salva. Lasciando il ca
 
 Da qui si creano anche gli altri utenti del pannello: vedi [Utenti](../08-utenti-e-controllo/01-utenti.md).
 
-## La dashboard
+## La dashboard e il menu
 
-All'ingresso compare la dashboard, un riepilogo dei contenuti del sito.
-
-![Dashboard del pannello](../immagini/primo-accesso/dashboard.png)
-
-- **Riquadri in alto**: numero di post, pagine, documenti e foto nelle gallerie, ciascuno con il collegamento a «Gestisci».
-- **Indicatori**: post pubblicati, bozze, post senza copertina e pagine fuori dal menu.
-- **Ultimi post** e **Post per categoria**: cosa è stato pubblicato di recente e come sono distribuiti i contenuti.
-- **Riepilogo**: versione di NILES installata e, se il controllo è attivo, se ne esiste una più recente
-  (vedi `NILES_UPDATE_CHECK` in [Configurazione del file .env](03-configurazione-env.md)).
-## Il menu laterale
-
-In alto **Dashboard** e **Guida** (questa documentazione, consultabile dal pannello da tutti gli utenti). Sotto, le sezioni sono
-divise in due parti, ciascuna con gruppi che si aprono e si chiudono con un clic; il pannello ricorda quali gruppi sono aperti.
-
-| Parte | Gruppo | Voci |
-|---|---|---|
-| Lavoro quotidiano | Contenuti | Post, Pagine, Struttura organizzativa, Trasparenza, Libreria documenti |
-| | Formazione | Corsi, Persone, Pagamenti corsi, Tipologie corso |
-| | Area soci | Membri, Comunicazioni soci, Documenti riservati, Categorie riservate |
-| Amministrazione | Comitato e sito | Dati del comitato, Loghi e immagini, Coordinate e pagamenti, Link del footer, Informative privacy, Template email |
-| | Configurazione | Funzioni attive, Posta in uscita, Sicurezza moduli, Aggiornamento |
-| | Classificazioni | Categorie, Aree Trasparenza, Categorie documenti |
-| | Utenti e controllo | Utenti, Registro accessi, Registro download |
-
-- La parte **Amministrazione** è visibile solo agli amministratori; un editor vede soltanto le sezioni per cui ha il permesso.
-- **Area soci** e **Pagamenti corsi** compaiono solo dopo averle attivate in *Configurazione → Funzioni attive*.
-- **Aggiornamento** compare solo nelle installazioni fatte con l'installer per hosting condiviso (vedi
-  [Aggiornamento e backup](04-aggiornamento.md)).
+All'ingresso compare la dashboard, con il riepilogo dei contenuti del sito; a sinistra il menu con tutte le sezioni del pannello. Come sono
+organizzati, e come si usano elenchi e moduli, è spiegato in [Il pannello in breve](../01-primi-passi/02-il-pannello-in-breve.md).
 
 ## Cosa trovi già pronto
 

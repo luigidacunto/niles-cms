@@ -14,6 +14,9 @@ incrementano la seconda cifra, le correzioni e i miglioramenti la terza. Le rele
 - **Installazione su hosting condiviso**: la guida ha le schermate di ogni passaggio e due casi in più tra i problemi (pannelli con nginx
   davanti ad Apache, pagina «504 Gateway Timeout» durante l'estrazione); la pagina finale dell'installer indica la posta in uscita nel menu
   Configurazione.
+- **Guida, sezione Primi passi**: nuovi documenti «Accesso al pannello» e «Il pannello in breve», con le schermate; «Immagini e file»
+  completato con le comunicazioni ai soci e i documenti riservati.
+- **Pannello**: il menu utente in alto a destra dice «Esci» invece di «Logout»; la ricerca nel menu mostra una sola × per svuotarla.
 - **Backup automatico del database a ogni aggiornamento**: `scripts/deploy.sh` esegue `backup.sh` prima di scaricare il codice e di
   aggiornare il database; se il backup non riesce, l'aggiornamento si ferma. `--quick` resta senza backup.
 - **`scripts/backup.sh` salva di default solo il database**; con `--all` aggiunge l'archivio dei file (`.env` e file caricati dal

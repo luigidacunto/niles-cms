@@ -16,12 +16,13 @@ Dove si caricano immagini e documenti dal pannello, in che formato, con quali di
 
 | Dove | Formato | Peso massimo | Dimensione consigliata | Elaborazione e visualizzazione |
 |---|---|---|---|---|
-| Logo orizzontale (Dati del comitato) | immagine, meglio PNG con sfondo trasparente | 4 MB | 700×220 px, con margini liberi del 30% sopra, 20% sotto e 8% per lato | ridotto a 1200 px sul lato lungo; in intestazione viene ingrandito e ritagliato nel riquadro 300×56 px, quindi il margine vuoto sparisce |
+| Logo orizzontale (Loghi e immagini) | immagine, meglio PNG con sfondo trasparente | 4 MB | 700×220 px, con margini liberi del 30% sopra, 20% sotto e 8% per lato | ridotto a 1200 px sul lato lungo; in intestazione viene ingrandito e ritagliato nel riquadro 300×56 px, quindi il margine vuoto sparisce |
 | Logo verticale | immagine, meglio PNG con sfondo trasparente | 4 MB | 500×500 px, con margini del 17% per lato, 24% sopra e 9% sotto | non ancora mostrato sul sito pubblico |
 | Favicon | solo PNG | 1 MB | quadrata, ad esempio 256×256 px | ridotta a 256 px; icona della scheda del browser |
 | Loghi IFRC e «Un'Italia che aiuta» | immagine, meglio PNG con sfondo trasparente | 4 MB | orizzontali, versione chiara adatta a sfondo scuro | alti 36 px nel piè di pagina (IFRC anche 20 px nella barra in alto); senza file resta un link rosso |
 | Copertina di un post | immagine | 8 MB | 1600×900 px (16:9) | ridotta a 1600 px; negli elenchi in 16:9 ritagliata al centro; in home occupa tutta la larghezza, alta 420–520 px, ritagliata al centro; senza copertina compare un segnaposto grafico |
 | Galleria di un post | immagine (JPG o PNG), più file insieme | 8 MB per file | libera, soggetto al centro | ridotta a 1920 px; miniature quadrate 1:1 ritagliate al centro; intera nella visualizzazione a tutto schermo |
+| Copertina e galleria di una comunicazione ai soci | JPG o PNG | 8 MB per file | come per i post | ridotte come quelle dei post (1600 px la copertina, 1920 px la galleria); visibili solo nell'area soci |
 | Immagine di una tipologia di corso | immagine | 5 MB | 1200×630 px, orizzontale | ridotta a 1600 px; mostrata in rapporto 1200:630 ritagliata al centro; usata anche come anteprima sui social |
 | Foto della Struttura Organizzativa (presidente, vice, membri) | immagine | 8 MB | verticale 3:4, ad esempio 600×800 px | ridotta a 800 px; mostrata in rapporto 3:4 ritagliata al centro |
 
@@ -35,6 +36,7 @@ Le indicazioni dettagliate sui margini dei loghi sono nel pannello, negli accord
 | Libreria documenti | pdf, doc, docx, ppt, pptx, xls, xlsx, odt, ods, odp, txt, csv | 20 MB | allegabili a post e pagine |
 | Documenti di Trasparenza | solo PDF | 20 MB | elencati nella sezione Trasparenza |
 | Allegati delle comunicazioni ai soci | gli stessi della libreria documenti | 20 MB per file | scaricabili solo dall'area soci |
+| Documenti riservati (area soci) | gli stessi della libreria documenti | 20 MB | scaricabili solo dai soci delle categorie assegnate |
 
 ## Elenco soci
 

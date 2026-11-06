@@ -17,6 +17,7 @@
 }
 .niles-menu-search input::placeholder { color: rgba(255, 255, 255, .55); }
 .niles-menu-search input:focus { outline: none; border-color: #6ea8fe; background: rgba(255, 255, 255, .16); }
+.niles-menu-search input::-webkit-search-cancel-button { -webkit-appearance: none; appearance: none; }   /* solo la nostra ×, non anche quella del browser */
 .niles-menu-search .niles-lente {
     position: absolute;
     left: 1.1rem;

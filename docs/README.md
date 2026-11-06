@@ -23,6 +23,8 @@ stessa guida si consulta anche dal pannello, alla voce «Guida».
 
 ### 01 · Primi passi
 
+- [Accesso al pannello](01-primi-passi/01-accesso-al-pannello.md): codice via email, password, uscita e problemi frequenti.
+- [Il pannello in breve](01-primi-passi/02-il-pannello-in-breve.md): dashboard, menu e ricerca, pulsanti degli elenchi, moduli e guida.
 - [Immagini e file](01-primi-passi/03-immagini-e-file.md): formati, dimensioni, pesi e margini di loghi, copertine, foto e documenti.
 
 ### 02 · Contenuti
