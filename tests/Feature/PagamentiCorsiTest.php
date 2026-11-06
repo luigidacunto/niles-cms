@@ -49,7 +49,9 @@ class PagamentiCorsiTest extends TestCase
         \App\Models\CommitteeInfo::current()->update(['metodi_pagamento' => ['Bonifico', 'Contanti']]);
 
         // Il nome del campo è un'espressione Alpine: se l'HTML fosse codificato due volte (&amp;#039;) Alpine darebbe errore di sintassi.
-        $this->get('/corsi/blsd-1/iscrizione')->assertOk()->assertSee('metodo_pagamento')->assertDontSee('&amp;#039;', false);
+        $this->get('/corsi/blsd-1/iscrizione')->assertOk()->assertSee('metodo_pagamento')->assertDontSee('&amp;#039;', false)
+            // Blade toglie il ritorno a capo dopo la direttiva js: senza punto e virgola la riga si unisce a «return {» e il modulo non funziona.
+            ->assertSee('const inviati = [];', false);
     }
 
     private function editor(array $permessi): Admin

@@ -30,12 +30,12 @@ Versione attuale e funzioni già rilasciate: vedi il [changelog](CHANGELOG.md) e
   reversibile (i dati restano nel database).
 
 ### Documentazione
-- **Guide d'uso dentro il pannello**: procedure per chi usa il pannello, divise per argomento (accesso, dati del comitato e
-  configurazione, utenti, pagine e pagine di sistema, post e campi utili alla SEO, Trasparenza, formazione), con immagini e scaricabili in
-  PDF, raggiungibili dal menu da tutti gli utenti.
-
-Completamento della [guida](docs/README.md), un argomento per volta. Parti ancora mancanti:
-- area soci: documenti riservati, categorie riservate, registro dei download e uso dell'area dal lato del socio;
+Completamento della [guida](docs/README.md), consultabile anche dal pannello (voce «Guida»), un argomento per volta. Parti ancora mancanti:
+- formazione: pagamenti dei corsi, iscrizione dal lato del sito, aggiornamento di corsi, persone e tipologie alla versione attuale;
+- area soci: documenti riservati, categorie riservate e uso dell'area dal lato del socio;
+- comitato e sito, configurazione: loghi e immagini, coordinate e pagamenti, link del footer, funzioni attive;
+- utenti e controllo: registro dei download, permessi attuali;
+- schermate dell'aggiornamento dal pannello;
 - installazione di un server di sviluppo, con le differenze rispetto alla produzione;
 - migrazione da un CMS esistente, insieme allo strumento di migrazione.
 

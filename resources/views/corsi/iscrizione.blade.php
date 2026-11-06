@@ -334,7 +334,7 @@
     function iscrizioneForm() {
         const vuoto = () => ({ nome: '', cognome: '', email: '', telefono: '', codice_fiscale: '', via: '', comune: '', provincia: '', cap: '',
             data_nascita: '', nascita_luogo: 'italia', nascita_stato_altro: '', nascita_comune: '', nascita_provincia: '', fatturazione: {} })
-        const inviati = @js($nominativiInviati)
+        const inviati = @js($nominativiInviati);   // punto e virgola necessario: Blade toglie il ritorno a capo dopo la direttiva js e senza di esso questa riga si unirebbe alla successiva
         return {
             modalita: @js(old('modalita_ui') === 'altri' ? 'altri' : 'solo-me'),
             fatturazioneUnica: {{ old('fatturazione_unica', ! session()->hasOldInput()) ? 'true' : 'false' }},

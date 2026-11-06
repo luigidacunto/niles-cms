@@ -4,7 +4,9 @@ Elenco delle modifiche di ogni versione, dalla più recente. Le versioni seguono
 incrementano la seconda cifra, le correzioni e i miglioramenti la terza. Le release complete, con i pacchetti scaricabili, sono su
 [GitHub](https://github.com/luigidacunto/niles-cms/releases). Le direzioni future sono nella [roadmap](ROADMAP.md).
 
-## 1.2.1 — 2026-11-05
+## 1.2.1 — 2026-11-06
+- **Correzione importante: modulo pubblico di iscrizione ai corsi.** Nella 1.2.0 un errore nello script della pagina bloccava il modulo
+  (scelta della modalità, nominativi e invio non funzionavano). Chi usa la 1.2.0 deve aggiornare.
 - **Guida nel pannello** (voce «Guida» del menu, per tutti gli utenti): mostra i documenti della cartella `docs/`, gli stessi pubblicati sul
   repository, con indice, immagini e collegamenti tra le pagine; ogni pagina si scarica in PDF. I collegamenti a script e file fuori dalla
   guida aprono il repository alla versione installata.
