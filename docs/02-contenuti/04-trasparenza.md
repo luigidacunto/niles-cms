@@ -12,7 +12,7 @@ aree vedi [Aree Trasparenza](../07-classificazioni/02-aree-trasparenza.md).
 ![Elenco dei documenti di Trasparenza](../immagini/trasparenza/elenco-documenti.png)
 
 L'elenco mostra **Titolo** (apre il PDF), **Area**, **Tipologia**, se il documento è **Pubblicato** e la **Data**. A ogni riga: **Modifica** e
-**Elimina**; a chi ha il solo permesso di lettura compare il pulsante per vederlo senza poterlo cambiare. **Nuovo documento** ne carica
+**Elimina**. **Nuovo documento** ne carica
 uno.
 
 ## Caricare un documento

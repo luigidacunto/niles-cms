@@ -47,8 +47,9 @@ i pulsanti seguono sempre la stessa regola:
 
 ![Pulsanti di un elenco](../immagini/primi-passi/elenco-azioni.png)
 
-- **a sinistra** le azioni sicure, solo icona (passandoci sopra compare il nome): la matita **modifica**, l'occhio apre il **dettaglio**
-  a chi ha solo il permesso di lettura, e le altre azioni della sezione (per esempio l'apertura dell'elemento sul sito);
+- **a sinistra** le azioni sicure, solo icona (passandoci sopra compare il nome): la matita **modifica** e le altre azioni della sezione
+  (per esempio l'apertura dell'elemento sul sito). Dove un utente può solo consultare, come i Corsi con il permesso di sola lettura, al
+  posto della matita c'è l'occhio, che apre il **dettaglio**;
 - **a destra** le azioni che cancellano o tolgono qualcosa: il cestino rosso **elimina**, sempre con una richiesta di conferma. Quando le
   azioni di questo tipo sono più di una, sono raccolte nel pulsante rosso ☰.
 

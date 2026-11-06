@@ -15,8 +15,7 @@ Le pagine sono mostrate come un albero: le figlie sono rientrate sotto la pagina
 
 A ogni riga:
 
-- la **matita** apre la pagina in modifica (a chi ha solo il permesso di lettura compare un occhio, che la mostra senza poterla
-  cambiare);
+- la **matita** apre la pagina in modifica;
 - l'icona con la freccia **apre la pagina sul sito**, anche se è una bozza;
 - il **cestino** elimina la pagina; manca sulle pagine di sistema (vedi sotto). Eliminando una pagina con figlie, queste restano
   nel sito come pagine di primo livello.
@@ -32,7 +31,7 @@ alto a destra, crea una pagina.
 A sinistra il contenuto, a destra la posizione e la pubblicazione.
 
 - **Titolo**: compare in cima alla pagina, nel menu e nel breadcrumb.
-- **Slug**: la parte finale dell'indirizzo (`/statuto`). Se lasci il campo vuoto viene creato dal titolo. Lo può cambiare solo un
+- **Slug**: la parte finale dell'indirizzo (`/statuto`). Si crea dal titolo, con l'anteprima mentre lo si scrive. Lo può cambiare solo un
   amministratore; per una pagina nuova conviene lasciarlo generare. Cambiarlo in seguito cambia l'indirizzo della pagina.
 - **Estratto**: una breve descrizione, fino a 160 caratteri. Compare sotto il titolo e nell'elenco «Approfondisci» delle pagine padre
   (vedi sotto).
@@ -54,7 +53,7 @@ La sezione **Struttura del sito** è riservata agli amministratori. Decide dove 
 - **Template** (tecnico): la chiave di una vista scritta nel codice che si aggiunge sotto il testo, per esempio l'elenco dei corsi.
   Va lasciato vuoto per una pagina normale.
 
-Un editor con il permesso di scrittura sulle pagine modifica titolo, testo, estratto, ordine e pubblicazione; slug, struttura, template e
+Un editor con il permesso sulle Pagine modifica titolo, testo, estratto, ordine e pubblicazione; slug, struttura, template e
 codice embed li gestisce solo un amministratore (vedi [Utenti](../08-utenti-e-controllo/01-utenti.md)).
 
 ## Il menu del sito

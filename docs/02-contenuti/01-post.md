@@ -9,7 +9,7 @@ appartiene a una [categoria](../07-classificazioni/01-categorie.md) e compare in
 
 L'elenco mostra **Titolo**, **Categoria**, se è **Pubblicato** e la **Data**, dal più recente. In alto i filtri **Cerca** (nel titolo o nello slug),
 **Stato** (tutti, solo pubblicati, solo bozze) e **Categoria** aiutano a ritrovare un post; **Nuovo post** ne crea uno. A ogni riga la
-matita apre il post in modifica (a chi ha il solo permesso di lettura compare un occhio, che lo mostra senza poterlo cambiare), l'icona con la freccia lo apre sul sito e il cestino lo elimina. Un editor
+matita apre il post in modifica, l'icona con la freccia lo apre sul sito e il cestino lo elimina. Un editor
 vede e modifica soltanto i post delle categorie che gli sono state assegnate (vedi [Utenti](../08-utenti-e-controllo/01-utenti.md)).
 
 ## Scrivere un post
@@ -20,7 +20,8 @@ A sinistra il contenuto, a destra la categoria, la copertina e la pubblicazione.
 
 - **Titolo**: l'unico campo indispensabile, insieme alla categoria.
 - **Sottotitolo**: una riga facoltativa che compare sotto il titolo, nella pagina del post.
-- **Slug**: la parte finale dell'indirizzo del post. Lasciandolo vuoto si crea dal titolo; lo può cambiare solo un amministratore.
+- **Slug**: la parte finale dell'indirizzo del post. Si crea da solo dal titolo, con l'anteprima mentre lo si scrive; solo un amministratore
+  può modificarlo (per gli editor il campo è bloccato). Cambiarlo su un post già online rompe i collegamenti esistenti.
 - **Estratto**: un riassunto breve, fino a 160 caratteri, che spiega di cosa parla il post. Compare negli elenchi (home, archivio) e nei
   risultati dei motori di ricerca. Non è il testo del post.
 - **Testo**: l'editor ha i comandi per stili di titolo, grassetto, corsivo, sottolineato, elenchi, allineamento, collegamenti, immagini,
@@ -43,6 +44,23 @@ Nella colonna a destra:
 - **Pubblicato**: se spento il post è una bozza e non compare sul sito.
 
 Il pulsante **Salva** (o **Crea post**) registra le modifiche.
+
+## Campi utili alla SEO
+
+Il pannello non ha campi SEO separati: i motori di ricerca e i social leggono quelli del post. Conviene quindi curarli così:
+
+- **Titolo**: diventa il titolo della pagina, quello mostrato nei risultati di ricerca e nell'anteprima quando il post si condivide.
+  Meglio chiaro e specifico (che cosa, dove, quando) che generico.
+- **Estratto**: diventa la descrizione mostrata sotto il titolo nei risultati di ricerca e nell'anteprima sui social. Se è vuoto si usa
+  l'inizio del testo, che spesso non riassume bene il contenuto: conviene scriverlo sempre, entro i 160 caratteri del contatore.
+- **Copertina**: è l'immagine dell'anteprima sui social (Facebook, WhatsApp, Telegram…). Senza copertina si usa il logo del comitato.
+  Formato consigliato in [Immagini e file](../01-primi-passi/03-immagini-e-file.md).
+- **Slug**: un indirizzo leggibile, generato dal titolo. Non va cambiato dopo la pubblicazione, perché i link già condivisi smetterebbero
+  di funzionare.
+- **Testo**: i titoli interni (dal menu degli stili dell'editor) aiutano lettori e motori di ricerca a capire la struttura; i collegamenti
+  vanno su parole che descrivono la destinazione, non su «clicca qui».
+- **Data pubblicazione** e **Pubblicato**: solo i post pubblicati entrano nella mappa del sito (`/sitemap.xml`), che si aggiorna da sola
+  e indica ai motori di ricerca le pagine da visitare.
 
 ## Dove compare un post
 

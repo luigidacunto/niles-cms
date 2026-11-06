@@ -16,6 +16,8 @@ incrementano la seconda cifra, le correzioni e i miglioramenti la terza. Le rele
   Configurazione.
 - **Guida, sezione Primi passi**: nuovi documenti «Accesso al pannello» e «Il pannello in breve», con le schermate; «Immagini e file»
   completato con le comunicazioni ai soci e i documenti riservati.
+- **Guida, sezione Contenuti**: schermate rifatte sulla versione attuale; nel documento dei post una sezione sui campi utili alla SEO;
+  tolti i riferimenti al permesso di sola lettura, che per queste sezioni non esiste più.
 - **Pannello**: il menu utente in alto a destra dice «Esci» invece di «Logout»; la ricerca nel menu mostra una sola × per svuotarla.
 - **Backup automatico del database a ogni aggiornamento**: `scripts/deploy.sh` esegue `backup.sh` prima di scaricare il codice e di
   aggiornare il database; se il backup non riesce, l'aggiornamento si ferma. `--quick` resta senza backup.

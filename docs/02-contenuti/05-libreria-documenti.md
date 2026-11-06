@@ -30,14 +30,11 @@ categoria precisa). **Nuovo documento** ne carica uno; a ogni riga ci sono la ma
 
 Formati e limiti di peso sono in [Immagini e file](../01-primi-passi/03-immagini-e-file.md).
 
-## Il dettaglio e il link pubblico
+## Il link pubblico
 
-![Dettaglio di un documento](../immagini/libreria-documenti/dettaglio.png)
-
-Il titolo apre direttamente il file. A chi ha il solo permesso di lettura l'occhio mostra il dettaglio, con la descrizione, il file,
-l'**URL pubblico** (del tipo `https://<dominio>/documenti/1`), la categoria e lo stato. Chi può modificare trova gli stessi dati
-nella pagina di modifica; l'indirizzo si copia con il pulsante **Link** dell'elenco. Si può incollare dove serve, per esempio come
-collegamento nel testo di una pagina, o inviare per email: chi lo apre scarica il file.
+Il titolo apre direttamente il file. L'**URL pubblico** del documento (del tipo `https://<dominio>/documenti/1`) si copia con il pulsante
+**Link** dell'elenco e compare anche nella pagina di modifica. Si può incollare dove serve, per esempio come collegamento nel testo di una
+pagina, o inviare per email: chi lo apre scarica il file.
 
 Sostituire il file di un documento esistente mantiene lo stesso indirizzo, quindi i collegamenti già diffusi continuano a funzionare.
 Eliminare un documento (cestino) cancella il file, i collegamenti diffusi smettono di funzionare e il documento sparisce anche dagli
