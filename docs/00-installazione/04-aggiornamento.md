@@ -80,15 +80,6 @@ php artisan config:cache && php artisan route:cache && php artisan view:cache
 Il passo `php artisan niles:seeders` non va saltato: senza, i contenuti di aggiornamento previsti dalla nuova versione non vengono applicati. È
 sicuro rilanciarlo: se non c'è niente da eseguire, termina con «Nessun seeder da eseguire.».
 
-### Installazioni su hosting condiviso
-
-Le installazioni fatte con l'installer per hosting condiviso (senza accesso da riga di comando) si aggiornano dal pannello: in dashboard,
-quando esiste una versione più recente, compare il pulsante **Aggiorna**, che guida l'operazione (scarica e verifica il pacchetto, fa una
-copia di sicurezza del database, sostituisce il codice, aggiorna le tabelle ed esegue i seeder di aggiornamento). Quel pulsante è attivo
-solo su quelle installazioni (vedi [Installazione su un hosting condiviso](05-installazione-su-hosting-condiviso.md)); sulle altre si usa la
-procedura di questa pagina. La disponibilità di una versione nuova viene verificata una volta al giorno: se una release è appena uscita e il
-pulsante non compare, nella pagina **Aggiornamento** il pulsante **Controlla ora** ripete subito la verifica.
-
 **Verifica:** lo script termina con «Deploy completato.»; aprendo il sito e la dashboard del pannello, la **versione corrente** è quella
 nuova.
 
@@ -108,6 +99,39 @@ Note utili:
   ```php
   <?php http_response_code(503); header('Retry-After: 60'); echo 'Sito in manutenzione'; exit;
   ```
+
+## Aggiornare dal pannello (hosting condiviso)
+
+Le installazioni fatte con l'[installer per hosting condiviso](05-installazione-su-hosting-condiviso.md), senza accesso da riga di comando,
+si aggiornano dal pannello. Il pulsante è disponibile solo su queste installazioni; sulle altre si usa `deploy.sh` (sezione 2).
+
+1. Quando esiste una versione più recente, nella dashboard il riquadro **Riepilogo** mostra la versione disponibile e il pulsante
+   **Aggiorna**. La verifica si fa una volta al giorno: se una release è appena uscita e il pulsante non compare, la pagina
+   *Configurazione → Aggiornamento* ha il pulsante **Controlla ora**.
+
+   ![Riepilogo della dashboard con il pulsante Aggiorna](../immagini/aggiornamento/dashboard-aggiorna.png)
+
+2. La pagina **Aggiornamento** controlla i requisiti (cartelle scrivibili, estensione zip, download, spazio libero, database), spiega cosa
+   succederà e propone il pulsante **Aggiorna a X.Y.Z**, con un collegamento alle note di versione. Dopo la conferma l'operazione parte.
+
+   ![Pagina Aggiornamento, pronta per l'aggiornamento](../immagini/aggiornamento/pagina-aggiornamento.png)
+
+3. Una schermata di attesa mostra la fase in corso e il tempo trascorso: download e verifica del pacchetto, copia di sicurezza del
+   database, poi qualche secondo di manutenzione mentre si sostituisce il codice e si aggiornano le tabelle. **Non chiudere né ricaricare
+   la pagina.**
+
+   ![Aggiornamento in corso](../immagini/aggiornamento/avanzamento.png)
+
+4. Alla fine compare «Aggiornamento completato» con la nuova versione, e dopo pochi secondi si torna da soli al pannello.
+
+   ![Aggiornamento completato](../immagini/aggiornamento/completato.png)
+
+**Verifica:** nella dashboard la versione corrente è quella nuova.
+
+L'aggiornamento non tocca il file `.env`, i file caricati dal pannello né la configurazione. La **copia del database** fatta prima di
+sostituire il codice resta sul server, in una cartella non raggiungibile dal web, e si scarica dalla pagina Aggiornamento (si conservano le
+ultime due): per ripristinarla si importa il file, ad esempio con phpMyAdmin. Se qualcosa va storto durante la sostituzione, il codice
+precedente viene rimesso al suo posto da solo e il messaggio spiega cosa è successo.
 
 ## Ripristinare un backup
 

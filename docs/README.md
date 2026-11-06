@@ -38,8 +38,10 @@ stessa guida si consulta anche dal pannello, alla voce «Guida».
 ### 03 · Formazione
 
 - [Corsi](03-formazione/01-corsi.md): creare i corsi, gestire le iscrizioni, esportare e stampare gli elenchi.
-- [Persone](03-formazione/02-persone.md): anagrafica di chi si è iscritto, consensi e richieste di cancellazione.
+- [Persone](03-formazione/02-persone.md): anagrafica di chi si è iscritto, consensi, richieste di cancellazione e correzione degli errori.
+- [Pagamenti corsi](03-formazione/03-pagamenti-corsi.md): fatture, ricevute e incassi di ogni corso a pagamento, con i dati da copiare per la fattura.
 - [Tipologie corso](03-formazione/04-tipologie-corso.md): il catalogo dei tipi di corso: sigla, costo, validità, attestato e immagine.
+- [Iscrizione dal sito](03-formazione/05-iscrizione-dal-sito.md): come si iscrive una persona dal sito, messaggi di errore ed email, per dare indicazioni a chi chiede aiuto.
 
 ### 04 · Area soci
 

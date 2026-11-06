@@ -21,7 +21,8 @@ class PagamentoCorsoController extends Controller
             return [$corso->id => [
                 'blocchi' => $blocchi->count(),
                 'da_fatturare' => $blocchi->filter(fn ($r) => ! $r['blocco']->fatturaEmessa())->count(),
-                'da_incassare' => $blocchi->filter(fn ($r) => $r['blocco']->statoIncasso($r['totale_cent']) !== 'incassata')->count(),
+                'da_incassare' => $blocchi->filter(fn ($r) => $r['blocco']->daIncassare($r['totale_cent']))->count(),
+                'eccesso' => $blocchi->filter(fn ($r) => $r['blocco']->statoIncasso($r['totale_cent']) === 'eccesso')->count(),
             ]];
         });
 
@@ -33,12 +34,14 @@ class PagamentoCorsoController extends Controller
         abort_unless($corso->costo > 0, 404);
 
         $blocchi = $corso->blocchiPagamento();
-        $stato = (string) $request->input('stato'); // '' | da_fatturare | da_incassare
+        $stato = (string) $request->input('stato'); // '' | da_fatturare | da_incassare | eccesso
 
         if ($stato === 'da_fatturare') {
             $blocchi = $blocchi->filter(fn ($r) => ! $r['blocco']->fatturaEmessa())->values();
         } elseif ($stato === 'da_incassare') {
-            $blocchi = $blocchi->filter(fn ($r) => $r['blocco']->statoIncasso($r['totale_cent']) !== 'incassata')->values();
+            $blocchi = $blocchi->filter(fn ($r) => $r['blocco']->daIncassare($r['totale_cent']))->values();
+        } elseif ($stato === 'eccesso') {
+            $blocchi = $blocchi->filter(fn ($r) => $r['blocco']->statoIncasso($r['totale_cent']) === 'eccesso')->values();
         }
 
         // Iscritti attivi senza dati di fatturazione (es. corso diventato a pagamento dopo le iscrizioni): vanno completati a parte.

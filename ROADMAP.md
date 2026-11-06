@@ -31,11 +31,9 @@ Versione attuale e funzioni già rilasciate: vedi il [changelog](CHANGELOG.md) e
 
 ### Documentazione
 Completamento della [guida](docs/README.md), consultabile anche dal pannello (voce «Guida»), un argomento per volta. Parti ancora mancanti:
-- formazione: pagamenti dei corsi, iscrizione dal lato del sito, aggiornamento di corsi, persone e tipologie alla versione attuale;
 - area soci: documenti riservati, categorie riservate e uso dell'area dal lato del socio;
 - comitato e sito, configurazione: loghi e immagini, coordinate e pagamenti, link del footer, funzioni attive;
 - utenti e controllo: registro dei download, permessi attuali;
-- schermate dell'aggiornamento dal pannello;
 - installazione di un server di sviluppo, con le differenze rispetto alla produzione;
 - migrazione da un CMS esistente, insieme allo strumento di migrazione.
 

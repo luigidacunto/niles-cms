@@ -67,6 +67,18 @@ class PuliziaDatiTest extends TestCase
         $this->assertSame('', Pulizia::titolo('   '));
     }
 
+    public function test_nei_luoghi_preposizioni_minuscole_e_numeri_romani_maiuscoli(): void
+    {
+        $this->assertSame('Via delle Imprese 10', Pulizia::luogo('VIA DELLE IMPRESE 10'));
+        $this->assertSame("Reggio nell'Emilia", Pulizia::luogo("reggio nell'emilia"));
+        $this->assertSame('San Giovanni in Fiore', Pulizia::luogo('san giovanni in fiore'));
+        $this->assertSame('La Spezia', Pulizia::luogo('la spezia'));                       // la prima parola resta maiuscola
+        $this->assertSame('Via XX Settembre', Pulizia::luogo('via xx settembre'));
+        $this->assertSame('Corso Vittorio Emanuele II', Pulizia::luogo('corso vittorio emanuele ii'));
+        $this->assertSame('Di Maio', Pulizia::persona(['cognome' => 'di maio'])['cognome']); // i cognomi no
+        $this->assertSame('Via di Francia', Pulizia::persona(['via' => 'via di francia'])['via']);
+    }
+
     public function test_il_modulo_pubblico_salva_i_dati_puliti(): void
     {
         $this->invia($this->sporchi())->assertRedirect()->assertSessionHasNoErrors();
@@ -129,7 +141,7 @@ class PuliziaDatiTest extends TestCase
         $this->invia($this->sporchi(['nome' => 'Jean-Luc', 'cognome' => "Dell'Orto", 'comune' => "Sant'Angelo in Vado", 'via' => "Via dell'Olmo 12, int. 3/B", 'telefono' => '(0575) 24-398', 'codice_fiscale' => 'DLLJLC80A01H501U']))
             ->assertRedirect()->assertSessionHasNoErrors();
 
-        $this->assertSame("Via Dell'Olmo 12, Int. 3/B", IscrizioneCorso::first()->via);
+        $this->assertSame("Via dell'Olmo 12, Int. 3/B", IscrizioneCorso::first()->via);
     }
 
     public function test_inserimento_a_mano_dall_admin_pulisce_e_valida_allo_stesso_modo(): void

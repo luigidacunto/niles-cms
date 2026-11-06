@@ -2,14 +2,18 @@
 
 In **Corsi** (menu *Formazione*) si organizzano i corsi di formazione aperti alla popolazione: si crea il corso scegliendo una
 [tipologia](04-tipologie-corso.md), si pubblica il link di iscrizione, si seguono gli iscritti e si esportano gli elenchi. Non c'è un
-pagamento online: il comitato incassa e fattura per conto proprio, e il modulo raccoglie anche i dati di fatturazione. Per lavorare qui un
-editor ha bisogno del permesso «Corsi».
+pagamento online: il comitato incassa e fattura per conto proprio, e per i corsi a pagamento il modulo raccoglie anche i dati di
+fatturazione. Fatture e incassi si registrano in [Pagamenti corsi](03-pagamenti-corsi.md); come si iscrive una persona dal sito è
+spiegato in [Iscrizione dal sito](05-iscrizione-dal-sito.md).
+
+Per lavorare qui un editor ha bisogno del permesso «Corsi»: con la sola **lettura** consulta corsi, iscritti ed elenchi; con la **scrittura**
+crea e modifica i corsi, gestisce gli iscritti e vede anche [Persone](02-persone.md).
 
 ## L'elenco dei corsi
 
 ![Elenco dei corsi](../immagini/corsi/elenco.png)
 
-L'elenco mostra **Protocollo**, **Tipologia**, **Data**, **Stato** e numero di **Iscritti**. In alto si cerca per protocollo e si filtra per
+L'elenco mostra **Protocollo**, **Tipologia** (con l'aliquota, se il corso prevede l'IVA), **Data**, **Stato** e numero di **Iscritti**. In alto si cerca per protocollo e si filtra per
 **Tipologia** e per **Stato** (tutti, attivi, annullati, chiusi). **Nuovo corso** ne crea uno.
 
 A ogni riga:
@@ -20,7 +24,7 @@ A ogni riga:
 
 ## Creare o modificare un corso
 
-![Modifica di un corso](../immagini/corsi/modifica.png)
+![Nuovo corso](../immagini/corsi/nuovo-corso.png)
 
 - **Tipologia**: sceglie il tipo di corso; precompila il costo con quello predefinito della tipologia. **Non si può cambiare dopo la
   creazione**, perché il protocollo è già assegnato.
@@ -30,7 +34,11 @@ A ogni riga:
   apre i campi per nome, via, comune, provincia e CAP; la nuova sede resta poi disponibile per i corsi successivi. Non c'è una sezione
   separata per le sedi.
 - **Inizio** e **Fine**: data e ora, scelte con il calendario. Il corso può durare più giorni.
-- **Costo (€)**: precompilato dalla tipologia, modificabile per il singolo corso.
+- **Costo (€)**: precompilato dalla tipologia, modificabile per il singolo corso. È il prezzo finale mostrato agli iscritti. Con costo
+  zero il corso è **gratuito**: il modulo non chiede dati di fatturazione né metodo di pagamento.
+- **IVA**: «Il costo è comprensivo di IVA» e l'aliquota, precompilati dalla tipologia. Non cambia il prezzo mostrato: serve solo a
+  scorporare imponibile e imposta nella guida alla fattura (vedi [Pagamenti corsi](03-pagamenti-corsi.md)). Con costo zero non è
+  attivabile; se si cambia l'IVA di un corso che ha già fatture registrate compare un avviso.
 - **Posti massimi**: indicativo; il numero viene mostrato ma **non blocca** le iscrizioni oltre il limite.
 - **Chiusura iscrizioni**: data e ora dopo le quali il modulo pubblico si disattiva da solo.
 - **Descrizione**: mostrata nella pagina pubblica di iscrizione.
@@ -57,45 +65,50 @@ Dal pannello:
 
 ![Iscritti a un corso](../immagini/corsi/iscritti.png)
 
-**Iscritti** apre l'elenco di un corso, con **Nome**, **Email**, **Telefono**, **Codice fiscale**, **Fatturazione a**, **Metodo di
-pagamento**, **Presenza** e data di iscrizione. I pulsanti **Attivi**, **Ritirati** e **Tutti** filtrano l'elenco; sopra compare il
-numero di posti indicati.
+**Iscritti** apre l'elenco di un corso, con **Nome**, **Email**, **Telefono**, **Codice fiscale**, **Presenza** e data di iscrizione. I dati
+di fatturazione e il metodo di pagamento non compaiono qui: si consultano in [Pagamenti corsi](03-pagamenti-corsi.md). I pulsanti
+**Attivi**, **Ritirati** e **Tutti** filtrano l'elenco; sopra compare il numero di posti indicati.
 
 - **Presenza**: «Confermata» compare quando la persona, dalla propria pagina personale raggiunta dal link nell'email, conferma di
   partecipare.
-- **Ritira**: segna l'iscritto come ritirato (con un motivo facoltativo) senza cancellarlo; **Ripristina** lo rimette tra gli attivi.
-- **Stampa elenco**, **CSV**, **Excel** e **PDF** esportano l'elenco secondo il filtro scelto (attivi, ritirati o tutti).
+- **Ritira** (icona a destra della riga): chiede un motivo facoltativo e segna l'iscritto come ritirato, senza cancellarlo; dai
+  **Ritirati**, **Ripristina** lo rimette tra gli attivi. Un ritirato non conta più nei totali dei pagamenti: se aveva già pagato, il
+  pagamento risulta «in eccesso» e va verificato (rimborso o donazione).
+- **Dati mancanti**: compare per i corsi di tipologie con *anagrafica completa* ed elenca chi non ha data o luogo di nascita (per esempio
+  chi si è iscritto prima che la tipologia li richiedesse); accanto al nome c'è un'icona di avviso. Si completano con **Correggi**.
+- **CSV**, **Excel** e **PDF** esportano l'elenco secondo il filtro scelto; per i corsi con anagrafica completa CSV ed Excel hanno anche
+  data e luogo di nascita.
+- **Stampa elenco** apre una pagina da stampare con i soli iscritti attivi, in ordine di cognome, con le caselle **Pagato** e **Presente**
+  da spuntare a mano e una colonna per le note. Sotto il nome di chi è iscritto con un pagamento unico compare «pagamento di gruppo» e
+  l'intestatario.
+
+![Elenco da stampare](../immagini/corsi/elenco-da-stampare.png)
+
+### Correggere un'iscrizione
+
+![Correggi iscritto](../immagini/corsi/correggi.png)
+
+**Correggi** (solo amministratori) modifica i dati di un iscritto e quelli di fatturazione e pagamento, per sistemare un errore di
+inserimento. Se la fatturazione è condivisa con altri iscritti la modifica vale per tutti, e la pagina lo segnala. Cambiando il codice
+fiscale l'iscrizione viene ricollegata alla persona giusta (vedi [Persone](02-persone.md)). Ogni correzione resta registrata.
 
 ### Iscrivere una persona a mano
 
 ![Nuovo iscritto](../immagini/corsi/nuovo-iscritto.png)
 
 **Nuovo iscritto** serve per le iscrizioni raccolte al telefono o di persona. I dati sono gli stessi del modulo pubblico: nome, cognome,
-email, telefono, codice fiscale, residenza, fatturazione (agli stessi dati del partecipante, con dati inseriti a mano, o con quelli di
-un'altra iscrizione dello stesso corso) e metodo di pagamento. Al posto delle caselle di consenso c'è un'unica conferma obbligatoria che
+email, telefono, codice fiscale, residenza, data e luogo di nascita (per le tipologie con anagrafica completa) e, se il corso è a
+pagamento, fatturazione (agli stessi dati del partecipante, con dati inseriti a mano, o con quelli di un'altra iscrizione dello stesso
+corso) e metodo di pagamento. A differenza del modulo pubblico, qui non si controlla che nome e cognome corrispondano al codice fiscale. Al posto delle caselle di consenso c'è un'unica conferma obbligatoria che
 il consenso privacy è stato raccolto da quella persona. I consensi per promemoria e newsletter non si registrano da qui: la persona li
 sceglie dal link che riceve via email.
 
 ## Come funziona sul sito
 
-![Corsi di formazione sul sito](../immagini/corsi/elenco-sul-sito.png)
-
-La pagina **Servizi → Corsi di Formazione** mostra una scheda per ogni corso con iscrizioni aperte: l'immagine della tipologia, il nome, la
-data, la sede, la quota e il pulsante **Iscriviti**. Il corso è raggiungibile anche dal solo link diretto.
-
-![Modulo di iscrizione](../immagini/corsi/modulo-di-iscrizione.png)
-
-Il modulo di iscrizione è riservato ai maggiorenni (per un minorenne si contatta la segreteria). Chi si iscrive sceglie se lo fa **solo
-lui** o **anche altre persone** (in questo caso ripete i dati per ciascuna). Compila i dati personali e quelli di fatturazione, sceglie il
-metodo di pagamento tra quelli attivi in [Dati del comitato](../05-comitato-e-sito/01-dati-del-comitato.md#coordinate-bancarie-e-metodi-di-pagamento),
-accetta l'informativa privacy (obbligatoria) e può dare, facoltativamente, due consensi distinti: i promemoria sulla scadenza
-dell'attestato e la newsletter. Dopo l'invio compare la pagina di conferma e riceve un'email con le istruzioni di pagamento; le persone che ha iscritto
-ricevono la propria. 
-
-![Conferma di iscrizione](../immagini/corsi/iscrizione-confermata.png)
-
-I moduli sono protetti contro i robot: vedi [Sicurezza moduli](../06-configurazione/03-sicurezza-moduli.md). Le persone
-iscritte e i loro consensi si consultano in [Persone](02-persone.md).
+La pagina **Servizi → Corsi di Formazione** elenca i corsi con iscrizioni aperte; ogni corso è raggiungibile anche dal solo link diretto.
+Il modulo, i messaggi di errore più comuni e le email che arrivano a chi si iscrive sono descritti in
+[Iscrizione dal sito](05-iscrizione-dal-sito.md). I moduli sono protetti contro i robot: vedi
+[Sicurezza moduli](../06-configurazione/03-sicurezza-moduli.md).
 
 ## Eliminare un corso
 

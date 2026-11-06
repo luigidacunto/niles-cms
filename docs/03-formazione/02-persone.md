@@ -2,7 +2,8 @@
 
 In **Persone** (menu *Formazione*) si consulta l'anagrafica di chi si è iscritto ai [corsi](01-corsi.md), con i **consensi** che ha dato e le
 **richieste di cancellazione dei dati**. Le persone non si creano da qui: nascono dalle iscrizioni (dal modulo pubblico o inserite a mano
-da un operatore) e si aggiornano a ogni nuova iscrizione. La voce è visibile a chi ha il permesso «Corsi».
+da un operatore) e si aggiornano a ogni nuova iscrizione. La voce è visibile a chi ha il permesso «Corsi» in **scrittura**: con la
+sola lettura si consultano corsi e iscritti, non l'anagrafica.
 
 ## L'anagrafica
 
@@ -23,6 +24,19 @@ in quel momento.
 Nella scheda **Consensi** ogni consenso ha lo stato (richiesto, confermato, revocato) e il pulsante **Revoca**; lo **Storico dei consensi** indica
 quando e da dove è arrivata ogni scelta (per esempio «form pubblico» o «email iscrizione»); in fondo, la scheda **Cancellazione dei dati** con il
 pulsante **Anonimizza i dati**, riservato agli amministratori.
+
+## Correggere gli errori di inserimento
+
+Il riquadro **Correzione errori di inserimento** (solo amministratori) serve quando una persona è stata creata con dati sbagliati, per
+esempio un codice fiscale scritto male che ha generato un doppione:
+
+- **Correggi** nell'elenco iscritti del corso (vedi [Corsi](01-corsi.md#correggere-uniscrizione)) sistema i dati di un'iscrizione;
+  cambiando il codice fiscale l'iscrizione passa alla persona giusta e i consensi dati per errore alla persona sbagliata la seguono.
+- **Sostituisci referente** sposta tutte le iscrizioni fatte da un referente sbagliato su un'altra persona già presente, indicata dal
+  codice fiscale.
+- **Elimina persona** è possibile solo quando la persona non ha più iscrizioni e non è referente di nessuno: prima si correggono quelle.
+
+Ogni correzione resta registrata nel log dell'applicazione.
 
 ## I consensi
 

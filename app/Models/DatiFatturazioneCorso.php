@@ -45,14 +45,28 @@ class DatiFatturazioneCorso extends Model
         return filled($this->ricevuta_numero);
     }
 
-    /** Incasso registrato: nessuno / parziale (importo sotto il totale dovuto) / completo. $totaleCent = totale dovuto in centesimi. */
+    /**
+     * Incasso registrato: da_incassare / parziale (sotto il totale dovuto) / incassata / eccesso (sopra il totale: donazione in più,
+     * oppure un iscritto si è ritirato dopo aver pagato e la quota va rimborsata; la nota lo spiega). $totaleCent = totale in centesimi.
+     */
     public function statoIncasso(int $totaleCent): string
     {
         if ($this->incassato_at === null) {
             return 'da_incassare';
         }
+        $incassatoCent = (int) round($this->incassato_importo * 100);
 
-        return (int) round($this->incassato_importo * 100) >= $totaleCent ? 'incassata' : 'parziale';
+        return match (true) {
+            $incassatoCent < $totaleCent => 'parziale',
+            $incassatoCent > $totaleCent => 'eccesso',
+            default => 'incassata',
+        };
+    }
+
+    /** Ancora da incassare, in tutto o in parte (l'eccesso no: è incassato, da verificare). */
+    public function daIncassare(int $totaleCent): bool
+    {
+        return in_array($this->statoIncasso($totaleCent), ['da_incassare', 'parziale'], true);
     }
 
     public function iscrizioni(): HasMany

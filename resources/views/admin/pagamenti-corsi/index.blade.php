@@ -33,7 +33,8 @@
                             <td class="text-right">{{ number_format($corso->costo, 2, ',', '.') }} €</td>
                             <td class="text-center">{{ $r['blocchi'] }}</td>
                             <td class="text-center">@if ($r['da_fatturare'])<span class="badge badge-warning">{{ $r['da_fatturare'] }}</span>@else<span class="text-muted">—</span>@endif</td>
-                            <td class="text-center">@if ($r['da_incassare'])<span class="badge badge-warning">{{ $r['da_incassare'] }}</span>@else<span class="text-muted">—</span>@endif</td>
+                            <td class="text-center">@if ($r['da_incassare'])<span class="badge badge-warning">{{ $r['da_incassare'] }}</span>@else<span class="text-muted">—</span>@endif
+                                @if ($r['eccesso']) <span class="badge badge-info" title="Incassato più del dovuto: da verificare (donazione o rimborso)">{{ $r['eccesso'] }} in eccesso</span> @endif</td>
                             <td class="text-right"><a href="{{ route('admin.pagamenti-corsi.show', $corso) }}" class="btn btn-sm btn-primary">Apri</a></td>
                         </tr>
                     @empty

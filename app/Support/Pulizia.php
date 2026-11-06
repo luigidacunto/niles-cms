@@ -39,14 +39,44 @@ final class Pulizia
         return preg_replace_callback('/(^|[\s\-\'’.,\/])(\p{L})/u', fn ($m) => $m[1].mb_strtoupper($m[2]), mb_strtolower($valore));
     }
 
+    /** Preposizioni e articoli che nei nomi di luogo restano minuscoli (tranne in prima posizione). */
+    private const PARTICELLE = ['di', 'd', 'del', 'dello', 'della', 'dell', 'dei', 'degli', 'delle', 'da', 'dal', 'dallo', 'dalla', 'dall',
+        'dai', 'dagli', 'dalle', 'in', 'nel', 'nello', 'nella', 'nell', 'nei', 'negli', 'nelle', 'su', 'sul', 'sullo', 'sulla', 'sull',
+        'sui', 'sugli', 'sulle', 'a', 'al', 'allo', 'alla', 'all', 'ai', 'agli', 'alle', 'e', 'ed', 'con', 'per', 'tra', 'fra'];
+
+    /**
+     * Nome di luogo (via, comune): come titolo(), ma preposizioni e articoli dopo la prima parola restano minuscoli
+     * («Via delle Imprese», «Reggio nell'Emilia», «San Giovanni in Fiore»). Non per nomi e cognomi («Di Maio», «De Luca»).
+     */
+    public static function luogo(?string $valore): ?string
+    {
+        $valore = self::titolo($valore);
+        if ($valore === null || $valore === '') {
+            return $valore;
+        }
+
+        // Numeri romani di almeno due lettere in maiuscolo («Via XX Settembre»), escluse le particelle (DI, DAI…).
+        // ponytail: una parola che è anche un numero romano valido («Mix», «Vi») diventa maiuscola; elenco di eccezioni se capita.
+        $valore = preg_replace_callback('/\b(\p{L}{2,})\b/u', function ($m) {
+            $p = mb_strtolower($m[1]);
+
+            return ! in_array($p, self::PARTICELLE, true) && preg_match('/^m{0,3}(c[md]|d?c{0,3})(x[cl]|l?x{0,3})(i[xv]|v?i{0,3})$/', $p)
+                ? mb_strtoupper($p) : $m[1];
+        }, $valore);
+
+        // Parola preceduta da uno spazio (quindi mai la prima) e seguita da spazio, apostrofo o fine del testo.
+        return preg_replace_callback('/(?<=\s)(\p{L}+)(?=[\s\'’]|$)/u',
+            fn ($m) => in_array(mb_strtolower($m[1]), self::PARTICELLE, true) ? mb_strtolower($m[1]) : $m[1], $valore);
+    }
+
     /** Dati di una persona (nominativo/referente): ripulisce solo le chiavi presenti, lascia le altre. */
     public static function persona(array $d): array
     {
         return self::applica($d, [
-            'nome' => 'titolo', 'cognome' => 'titolo', 'via' => 'titolo', 'comune' => 'titolo',
+            'nome' => 'titolo', 'cognome' => 'titolo', 'via' => 'luogo', 'comune' => 'luogo',
             'email' => 'minuscolo', 'codice_fiscale' => 'maiuscolo', 'provincia' => 'maiuscolo',
             'telefono' => 'spazi', 'cap' => 'spazi',
-            'nascita_comune' => 'titolo', 'nascita_provincia' => 'maiuscolo', 'nascita_stato_altro' => 'titolo',
+            'nascita_comune' => 'luogo', 'nascita_provincia' => 'maiuscolo', 'nascita_stato_altro' => 'luogo',
         ]);
     }
 
@@ -54,7 +84,7 @@ final class Pulizia
     public static function fatturazione(array $d): array
     {
         return self::applica($d, [
-            'nome' => 'titolo', 'cognome' => 'titolo', 'via' => 'titolo', 'comune' => 'titolo',
+            'nome' => 'titolo', 'cognome' => 'titolo', 'via' => 'luogo', 'comune' => 'luogo',
             'ragione_sociale' => 'spazi', 'partita_iva' => 'maiuscolo', 'codice_fiscale' => 'maiuscolo',
             'provincia' => 'maiuscolo', 'cap' => 'spazi', 'codice_destinatario' => 'maiuscolo', 'pec' => 'minuscolo',
         ]);

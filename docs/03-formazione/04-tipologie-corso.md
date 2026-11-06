@@ -13,7 +13,7 @@ L'installazione crea cinque tipologie comuni: **BLSD** (rianimazione cardiopolmo
 BLSD), **PSA** (primo soccorso aziendale), **MSP** (manovre salvavita pediatriche) e **PSP** (primo soccorso alla popolazione). Vanno
 adattate: si possono modificare, disattivare o eliminare, e se ne aggiungono altre con **Nuova tipologia**.
 
-L'elenco mostra **Sigla**, **Nome**, se rilascia l'**Attestato**, il **Costo predefinito**, la **Validità** dell'attestato, se è **Attiva** e
+L'elenco mostra **Sigla**, **Nome**, se rilascia l'**Attestato**, il **Costo predefinito** (con l'aliquota, se è prevista l'IVA), la **Validità** dell'attestato, se è **Attiva** e
 quanti **Corsi** la usano.
 
 ## Creare o modificare una tipologia
@@ -27,8 +27,16 @@ quanti **Corsi** la usano.
 - **Attiva (selezionabile nei nuovi corsi)**: se spenta, la tipologia non compare più nella scelta quando si crea un corso; i corsi già
   esistenti non cambiano.
 - **Ordine**: la posizione nell'elenco e nella scelta (0 = prima).
+- **Richiesta anagrafica completa**: per i corsi che rilasciano un attestato che lo richiede. Agli iscritti si chiedono anche **data e
+  luogo di nascita** (Italia, con comune e provincia, oppure uno Stato estero da un elenco, con «Altro» per quelli non presenti; per
+  l'estero la provincia è sempre «EE»), e il modulo spiega che servono per l'attestato. Il controllo del codice fiscale diventa più
+  rigoroso: devono tornare anche il carattere di controllo, la data di nascita e Italia o estero. Le iscrizioni fatte prima di accenderla
+  restano senza questi dati: si trovano con il filtro «Dati mancanti» dell'elenco iscritti (vedi [Corsi](01-corsi.md#gli-iscritti)).
 - **Costo predefinito (€)**: precompila il costo alla creazione di un corso; si può cambiare per il singolo corso. Con 0 il corso è
-  gratuito.
+  gratuito e il modulo non chiede dati di fatturazione.
+- **IVA**: «Il costo è comprensivo di IVA» e l'aliquota (22% proposta, modificabile), riprese dai nuovi corsi di questa tipologia. Il
+  costo resta il prezzo finale; l'IVA serve a scorporare imponibile e imposta nella guida alla fattura di
+  [Pagamenti corsi](03-pagamenti-corsi.md). Con costo 0 non è attivabile.
 - **Validità dell'attestato**: «Non scade» oppure una scadenza calcolata dalla data del corso. Con **Fine anno, dopo N anni** l'attestato
   scade il 31 dicembre dopo N anni (corso a ottobre 2026, 2 anni: scade il 31/12/2028). Con **Data precisa, dopo N mesi** scade N mesi dopo
   la data del corso (24 mesi: lo stesso giorno, due anni dopo). Il dato serve per i promemoria di scadenza.

@@ -113,7 +113,7 @@
                     @empty
                         <tr>
                             <td colspan="{{ $canWrite ? 7 : 6 }}" class="text-center text-muted py-4">
-                                {{ $stato === 'ritirati' ? 'Nessun iscritto ritirato.' : 'Nessun iscritto ancora.' }}
+                                {{ match ($stato) { 'ritirati' => 'Nessun iscritto ritirato.', 'mancanti' => 'Nessun iscritto con dati di nascita mancanti.', default => 'Nessun iscritto ancora.' } }}
                             </td>
                         </tr>
                     @endforelse

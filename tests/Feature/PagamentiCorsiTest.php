@@ -123,6 +123,29 @@ class PagamentiCorsiTest extends TestCase
         $this->assertSame($this->admin->id, $b->pagamento_registrato_da);
     }
 
+    public function test_incasso_in_eccesso_segnalato_anche_dopo_un_ritiro(): void
+    {
+        $this->attiva();
+        $b = $this->blocco($this->corso, 2);                                       // 70 € dovuti
+        $admin = $this->actingAs($this->admin, 'admin');
+        $url = route('admin.pagamenti-corsi.show', $this->corso);
+
+        // Più del dovuto: serve la nota, poi «In eccesso» (non «da incassare»).
+        $admin->put(route('admin.pagamenti-corsi.update', [$this->corso, $b]), ['incassato' => 1, 'incassato_importo' => '80.00'])
+            ->assertSessionHasErrors('incasso_nota');
+        $admin->put(route('admin.pagamenti-corsi.update', [$this->corso, $b]), ['incassato' => 1, 'incassato_importo' => '80.00', 'incasso_nota' => 'Donazione di 10 €']);
+        $this->assertSame('eccesso', $b->fresh()->statoIncasso(7000));
+        $admin->get($url)->assertSee('In eccesso 80,00 €');
+        $admin->get($url.'?stato=da_incassare')->assertDontSee('In eccesso 80,00 €');
+        $admin->get($url.'?stato=eccesso')->assertSee('In eccesso 80,00 €');
+        $admin->get(route('admin.pagamenti-corsi.index'))->assertSee('1 in eccesso');
+
+        // Incasso pieno, poi un iscritto si ritira: il totale scende a 35 e il blocco risulta in eccesso (rimborso o donazione).
+        $admin->put(route('admin.pagamenti-corsi.update', [$this->corso, $b]), ['incassato' => 1, 'incassato_importo' => '70.00']);
+        $b->iscrizioni()->first()->update(['ritirata_at' => now()]);
+        $admin->get($url)->assertSee('In eccesso 70,00 €');
+    }
+
     public function test_numero_senza_data_e_importo_diverso_senza_nota_sono_respinti(): void
     {
         $this->attiva();

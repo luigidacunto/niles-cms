@@ -4,6 +4,18 @@ Elenco delle modifiche di ogni versione, dalla più recente. Le versioni seguono
 incrementano la seconda cifra, le correzioni e i miglioramenti la terza. Le release complete, con i pacchetti scaricabili, sono su
 [GitHub](https://github.com/luigidacunto/niles-cms/releases). Le direzioni future sono nella [roadmap](ROADMAP.md).
 
+## 1.2.2 — 2026-11-06
+- **Pagamenti corsi: incasso in eccesso.** Un importo incassato superiore al totale è segnalato come «In eccesso» (badge, filtro «In
+  eccesso (da verificare)» e conteggio nell'elenco dei corsi), con la nota obbligatoria come per l'incasso parziale: si indica se è una
+  donazione o una quota da rimborsare. Succede da solo anche quando un iscritto si ritira dopo aver pagato.
+- **Indirizzi e luoghi di nascita**: preposizioni e articoli dopo la prima parola restano minuscoli («Via delle Imprese», «Reggio
+  nell'Emilia») e i numeri romani maiuscoli («Via XX Settembre»). Vale per i nuovi inserimenti; nomi e cognomi invariati.
+- Elenco iscritti: con il filtro «Dati mancanti» senza risultati il messaggio lo dice esplicitamente.
+- **Guida, sezione Formazione**: Corsi, Persone e Tipologie aggiornati alla 1.2; nuovi documenti «Pagamenti corsi» e «Iscrizione dal sito»
+  (il modulo pubblico visto da chi si iscrive, con i messaggi di errore e le email, per dare indicazioni a chi chiede aiuto).
+- **Guida, aggiornamento dal pannello**: procedura passo per passo con le schermate; schermate rifatte senza le indicazioni della versione
+  dimostrativa.
+
 ## 1.2.1 — 2026-11-06
 - **Correzione importante: modulo pubblico di iscrizione ai corsi.** Nella 1.2.0 un errore nello script della pagina bloccava il modulo
   (scelta della modalità, nominativi e invio non funzionavano). Chi usa la 1.2.0 deve aggiornare.

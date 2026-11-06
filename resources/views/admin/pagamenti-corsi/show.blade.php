@@ -37,6 +37,7 @@
             <option value="">Tutti</option>
             <option value="da_fatturare" @selected($stato === 'da_fatturare')>Da fatturare</option>
             <option value="da_incassare" @selected($stato === 'da_incassare')>Da incassare</option>
+            <option value="eccesso" @selected($stato === 'eccesso')>In eccesso (da verificare)</option>
         </select>
         <a href="{{ route('admin.pagamenti-corsi.index') }}" class="btn btn-link">Tutti i corsi</a>
     </form>
@@ -76,6 +77,7 @@
                             <td>
                                 @if ($stIncasso === 'incassata') <span class="badge badge-success">Incassata</span>
                                 @elseif ($stIncasso === 'parziale') <span class="badge badge-danger">Parziale {{ number_format($b->incassato_importo, 2, ',', '.') }} €</span>
+                                @elseif ($stIncasso === 'eccesso') <span class="badge badge-info" title="Incassato più del dovuto: verificare se è una donazione o se va rimborsato (vedi nota)">In eccesso {{ number_format($b->incassato_importo, 2, ',', '.') }} €</span>
                                 @else <span class="badge badge-warning">Da incassare</span>
                                 @endif
                             </td>
