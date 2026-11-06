@@ -6,6 +6,7 @@ use App\Http\Controllers\Admin\AuthController;
 use App\Http\Controllers\Admin\CategoryController;
 use App\Http\Controllers\Admin\CommitteeInfoController;
 use App\Http\Controllers\Admin\FooterLinkController;
+use App\Http\Controllers\Admin\GuidaController;
 use App\Http\Controllers\Admin\CorsoController;
 use App\Http\Controllers\Admin\CategoriaRiservataController;
 use App\Http\Controllers\Admin\ComunicazioneSociController;
@@ -30,6 +31,7 @@ use App\Http\Controllers\Admin\StrutturaOrganizzativaController;
 use App\Http\Controllers\Admin\TipologiaCorsoController;
 use App\Http\Controllers\Admin\TrasparenzaAreaController;
 use App\Http\Controllers\Admin\TrasparenzaDocumentController;
+use App\Support\Guida;
 use Illuminate\Support\Facades\Route;
 
 Route::prefix('admin')->name('admin.')->group(function () {
@@ -54,6 +56,14 @@ Route::prefix('admin')->name('admin.')->group(function () {
         Route::get('/', [DashboardController::class, 'index'])->name('dashboard');
         // JSON per la dashboard (chiamata in async): esito del confronto con l'ultima versione pubblicata.
         Route::get('aggiornamenti', [DashboardController::class, 'aggiornamenti'])->middleware('admin.role')->name('aggiornamenti');
+
+        // Guida: i documenti di docs/, per tutti gli utenti del pannello (nessun permesso: la guida è pubblica anche sul repository).
+        Route::prefix('guida')->name('guida.')->group(function () {
+            Route::get('/', [GuidaController::class, 'index'])->name('index');
+            Route::get('immagini/{file}', [GuidaController::class, 'immagine'])->where('file', Guida::IMMAGINE)->name('immagine');
+            Route::get('{percorso}/pdf', [GuidaController::class, 'pdf'])->where('percorso', Guida::PERCORSO)->name('pdf');
+            Route::get('{percorso}', [GuidaController::class, 'show'])->where('percorso', Guida::PERCORSO)->name('show');
+        });
 
         // Aggiornamento dal pannello (installazioni senza riga di comando: NILES_WEB_UPDATE=true, 404 altrimenti).
         Route::middleware('admin.role')->prefix('aggiornamento')->name('aggiornamento.')->group(function () {

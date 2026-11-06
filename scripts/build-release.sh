@@ -15,9 +15,10 @@ OUT="${NILES_BUILD_DIR:-dist}"   # cartella di lavoro e di destinazione (ricreat
 STAGE="$OUT/niles"
 VERSIONE=$(grep -oP "'version'\s*=>\s*'\K[^']+" config/app.php | head -n1)
 
-# Esclusi dal pacchetto: sviluppo, test, documentazione, strumenti per i server con SSH. Di scripts/ resta solo l'installer,
-# che nella versione nuova applica l'aggiornamento dal pannello (vedi App\Support\WebUpdate).
-ESCLUSI='^(\.github/|tests/|docs/|scripts/(?!niles-installer\.php$)|phpunit\.xml$|package(-lock)?\.json$|vite\.config\.js$|\.editorconfig$|\.gitattributes$|CONTRIBUTING\.md$|SECURITY\.md$)'
+# Esclusi dal pacchetto: sviluppo, test, strumenti per i server con SSH. docs/ resta: è la guida mostrata nel pannello
+# (App\Support\Guida). Di scripts/ resta solo l'installer, che nella versione nuova applica l'aggiornamento dal pannello
+# (vedi App\Support\WebUpdate).
+ESCLUSI='^(\.github/|tests/|scripts/(?!niles-installer\.php$)|phpunit\.xml$|package(-lock)?\.json$|vite\.config\.js$|\.editorconfig$|\.gitattributes$|CONTRIBUTING\.md$|SECURITY\.md$)'
 
 echo "==> NILES $VERSIONE: preparazione in $STAGE"
 rm -rf "$OUT"

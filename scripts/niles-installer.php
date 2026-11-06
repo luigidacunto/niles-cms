@@ -17,7 +17,7 @@ declare(strict_types=1);
 const NILES_REPO = 'luigidacunto/niles-cms';
 
 /** Cartelle di codice sostituite in blocco durante un aggiornamento (le altre voci del pacchetto si copiano sopra). */
-const NILES_CODE_PATHS = ['app', 'bootstrap', 'config', 'database', 'lang', 'resources', 'routes', 'vendor', 'scripts', 'public/build'];
+const NILES_CODE_PATHS = ['app', 'bootstrap', 'config', 'database', 'lang', 'resources', 'routes', 'vendor', 'scripts', 'public/build', 'docs'];
 
 /** URL di un allegato della release: l'ultima, oppure una versione precisa (es. '1.2.0'). */
 function nilesReleaseUrl(string $file, ?string $versione = null): string
@@ -627,7 +627,7 @@ function nilesScreenDone(string $url, string $email, string $log, bool $installe
 {
     $c = nilesBox('good', '<b>NILES è installato.</b>').'<p>Accedi al pannello con l\'email <b>'.h($email).'</b> e la password scelta:</p>'
         .'<p><a href="'.h(rtrim($url, '/')).'/admin/login/password"><b>'.h(rtrim($url, '/')).'/admin/login/password</b></a></p>'
-        .'<p>Il codice di accesso via email funzionerà dopo aver configurato la posta in uscita (menu Amministrazione → Posta in uscita); finché non è configurata, usa l\'accesso con password.</p>'
+        .'<p>Il codice di accesso via email funzionerà dopo aver configurato la posta in uscita (menu Configurazione → Posta in uscita); finché non è configurata, usa l\'accesso con password.</p>'
         .($installerCancellato ? '' : nilesBox('err', '<b>Cancella a mano il file <code>niles-installer.php</code> dalla radice del sito</b> (non è stato possibile farlo in automatico).'))
         .'<details><summary>Dettagli tecnici</summary><pre>'.h($log).'</pre></details>';
     nilesPage('Fatto', $c, 3);

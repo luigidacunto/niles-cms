@@ -1,79 +1,89 @@
 # Documentazione di NILES
 
 Guide per installare, configurare e usare NILES, il CMS per i comitati locali della Croce Rossa Italiana. Per una panoramica del
-progetto e per l'installazione in breve vedi il [README](README.md).
+progetto e per l'installazione in breve vedi il [README](../README.md).
 
-## Installazione
+## 00 · Installazione
 
-Per mettere NILES online su un server.
+Per mettere NILES online e tenerlo aggiornato.
 
-1. [Requisiti](01-installazione/01-requisiti.md): versioni di PHP, database, Node e Composer, estensioni e limiti di caricamento.
-2. [Installazione su un server](01-installazione/02-installazione-su-server.md): la procedura passo per passo.
-3. [Configurazione del file .env](01-installazione/03-configurazione-env.md): tutte le variabili, spiegate.
-4. [Aggiornamento e backup](01-installazione/04-aggiornamento.md): nuove versioni e copie di sicurezza.
-5. [Installazione su un hosting condiviso](01-installazione/05-installazione-su-hosting-condiviso.md): senza riga di comando, solo FTP e un
+1. [Requisiti](00-installazione/01-requisiti.md): versioni di PHP, database, Node e Composer, estensioni e limiti di caricamento.
+2. [Installazione su un server](00-installazione/02-installazione-su-server.md): la procedura passo per passo.
+3. [Configurazione del file .env](00-installazione/03-configurazione-env.md): tutte le variabili, spiegate.
+4. [Aggiornamento e backup](00-installazione/04-aggiornamento.md): nuove versioni e copie di sicurezza.
+5. [Installazione su un hosting condiviso](00-installazione/05-installazione-su-hosting-condiviso.md): senza riga di comando, solo FTP e un
    database, con il programma di installazione.
-
-## Configurazione iniziale
-
-Cosa fare dopo l'installazione.
-
-- [Primo accesso al pannello](02-configurazione-iniziale/01-primo-accesso.md): come entrare, cosa trovi già pronto e l'ordine consigliato
-  della configurazione.
-- [Immagini e file](02-configurazione-iniziale/02-immagini-e-file.md): formati, dimensioni, pesi e margini di loghi, copertine, foto e
-  documenti.
+6. [Primo accesso al pannello](00-installazione/06-primo-accesso.md): come entrare, cosa trovi già pronto e l'ordine consigliato
+   della configurazione.
 
 ## Guida al pannello
 
-Un documento per ogni voce del menu laterale del pannello, nello stesso ordine e con gli stessi gruppi.
+Dalla cartella `01` in poi, un documento per ogni voce del menu laterale del pannello, nello stesso ordine e con gli stessi gruppi. La
+stessa guida si consulta anche dal pannello, alla voce «Guida».
 
-### Contenuti
+### 01 · Primi passi
 
-- [Post](03-pannello/01-contenuti/01-post.md): Scrivere e pubblicare le notizie: titolo, testo, copertina, galleria, allegati e categorie.
-- [Pagine](03-pannello/01-contenuti/02-pagine.md): Pagine del sito e menu di navigazione: struttura, ordine, bozze, pagine di sistema e pagine padre.
-- [Struttura organizzativa](03-pannello/01-contenuti/03-struttura-organizzativa.md): Presidente, vice presidente, consiglio e organigramma, con le foto.
-- [Dati del comitato](03-pannello/01-contenuti/04-dati-del-comitato.md): Denominazione, contatti, loghi e favicon, coordinate bancarie, social, statistiche.
-- [Trasparenza](03-pannello/01-contenuti/05-trasparenza.md): Pubblicazione dei documenti della sezione Trasparenza.
-- [Libreria documenti](03-pannello/01-contenuti/06-libreria-documenti.md): Caricare i documenti e allegarli a post e pagine.
-- [Comunicazioni soci](03-pannello/01-contenuti/07-comunicazioni-soci.md): Comunicazioni interne visibili solo ai soci, con allegati riservati.
+- [Immagini e file](01-primi-passi/03-immagini-e-file.md): formati, dimensioni, pesi e margini di loghi, copertine, foto e documenti.
 
-### Formazione
+### 02 · Contenuti
 
-- [Corsi](03-pannello/02-formazione/01-corsi.md): Creare i corsi, gestire le iscrizioni, esportare e stampare gli elenchi.
-- [Persone](03-pannello/02-formazione/02-persone.md): Anagrafica di chi si è iscritto, consensi e richieste di cancellazione.
-- [Tipologie corso](03-pannello/02-formazione/03-tipologie-corso.md): Il catalogo dei tipi di corso: sigla, costo, validità, attestato e immagine.
+- [Post](02-contenuti/01-post.md): scrivere e pubblicare le notizie: titolo, testo, copertina, galleria, allegati e categorie.
+- [Pagine](02-contenuti/02-pagine.md): pagine del sito e menu di navigazione: struttura, ordine, bozze, pagine di sistema e pagine padre.
+- [Struttura organizzativa](02-contenuti/03-struttura-organizzativa.md): presidente, vice presidente, consiglio e organigramma, con le foto.
+- [Trasparenza](02-contenuti/04-trasparenza.md): pubblicazione dei documenti della sezione Trasparenza.
+- [Libreria documenti](02-contenuti/05-libreria-documenti.md): caricare i documenti e allegarli a post e pagine.
 
-### Organizzazione
+### 03 · Formazione
 
-- [Categorie](03-pannello/03-organizzazione/01-categorie.md): Le categorie delle notizie.
-- [Aree Trasparenza](03-pannello/03-organizzazione/02-aree-trasparenza.md): Le aree in cui si organizzano i documenti della Trasparenza.
-- [Categorie documenti](03-pannello/03-organizzazione/03-categorie-documenti.md): Le categorie della libreria documenti.
+- [Corsi](03-formazione/01-corsi.md): creare i corsi, gestire le iscrizioni, esportare e stampare gli elenchi.
+- [Persone](03-formazione/02-persone.md): anagrafica di chi si è iscritto, consensi e richieste di cancellazione.
+- [Tipologie corso](03-formazione/04-tipologie-corso.md): il catalogo dei tipi di corso: sigla, costo, validità, attestato e immagine.
 
-### Amministrazione
+### 04 · Area soci
 
-- [Utenti](03-pannello/04-amministrazione/01-utenti.md): Amministratori ed editor del pannello, permessi e modalità di accesso.
-- [Membri](03-pannello/04-amministrazione/02-membri.md): Elenco dei soci, importazione da Excel e accesso all'area soci.
-- [Registro accessi](03-pannello/04-amministrazione/03-registro-accessi.md): Chi è entrato nel pannello e nell'area soci, e quando.
-- [Sicurezza moduli](03-pannello/04-amministrazione/04-sicurezza-moduli.md): Limiti di invio e protezione anti-bot (CAPTCHA) dei moduli pubblici.
-- [Informative privacy](03-pannello/04-amministrazione/05-informative-privacy.md): Le informative per i soci e per i corsi e come personalizzarle.
-- [Template email](03-pannello/04-amministrazione/06-template-email.md): I testi delle email di sistema e come ripristinarli.
-- [Posta in uscita](03-pannello/04-amministrazione/07-posta-in-uscita.md): Server di invio delle email, email di prova e precedenza del file .env.
+- [Membri](04-area-soci/01-membri.md): elenco dei soci, importazione da Excel e accesso all'area soci.
+- [Comunicazioni soci](04-area-soci/02-comunicazioni-soci.md): comunicazioni interne visibili solo ai soci, con allegati riservati.
+
+### 05 · Comitato e sito
+
+- [Dati del comitato](05-comitato-e-sito/01-dati-del-comitato.md): denominazione, contatti, loghi e favicon, coordinate bancarie, social, statistiche.
+- [Informative privacy](05-comitato-e-sito/05-informative-privacy.md): le informative per i soci e per i corsi e come personalizzarle.
+- [Template email](05-comitato-e-sito/06-template-email.md): i testi delle email di sistema e come ripristinarli.
+
+### 06 · Configurazione
+
+- [Posta in uscita](06-configurazione/02-posta-in-uscita.md): server di invio delle email, email di prova e precedenza del file .env.
+- [Sicurezza moduli](06-configurazione/03-sicurezza-moduli.md): limiti di invio e protezione anti-bot (CAPTCHA) dei moduli pubblici.
+
+### 07 · Classificazioni
+
+- [Categorie](07-classificazioni/01-categorie.md): le categorie delle notizie.
+- [Aree Trasparenza](07-classificazioni/02-aree-trasparenza.md): le aree in cui si organizzano i documenti della Trasparenza.
+- [Categorie documenti](07-classificazioni/03-categorie-documenti.md): le categorie della libreria documenti.
+
+### 08 · Utenti e controllo
+
+- [Utenti](08-utenti-e-controllo/01-utenti.md): amministratori ed editor del pannello, permessi e modalità di accesso.
+- [Registro accessi](08-utenti-e-controllo/02-registro-accessi.md): chi è entrato nel pannello e nell'area soci, e quando.
 
 ## Organizzazione della cartella
 
-Cartelle e documenti sono numerati nell'ordine di lettura; per il pannello è lo stesso ordine del menu laterale.
+Un solo livello di cartelle numerate; dentro, i documenti numerati nell'ordine di lettura. Dalla `01` in poi ogni cartella è un gruppo del
+menu laterale del pannello e ogni documento una sua voce. I numeri mancanti corrispondono a guide non ancora scritte.
 
 ```
 docs/
-  README.md                       questo indice
-  01-installazione/               requisiti, installazione, .env, aggiornamento
-  02-configurazione-iniziale/     primo accesso e formati di immagini e file
-  03-pannello/                    una cartella per gruppo del menu laterale, un documento per voce
-    01-contenuti/
-    02-formazione/
-    03-organizzazione/
-    04-amministrazione/
-  immagini/                       schermate usate dalle guide, una cartella per documento
+  README.md                 questo indice
+  00-installazione/         requisiti, installazione, .env, aggiornamento, hosting condiviso, primo accesso
+  01-primi-passi/
+  02-contenuti/
+  03-formazione/
+  04-area-soci/
+  05-comitato-e-sito/
+  06-configurazione/
+  07-classificazioni/
+  08-utenti-e-controllo/
+  immagini/                 schermate usate dalle guide, una cartella per argomento
 ```
 
 Ogni argomento sta in un solo documento: gli altri rimandano con un collegamento.

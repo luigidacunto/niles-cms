@@ -37,7 +37,7 @@ non nel codice.
 
 PHP 8.4, MariaDB 10.11 (MySQL è supportato, ma provato in misura minore), Composer 2.10 e Node.js 24 con npm 11 (solo per compilare gli
 asset). Sono le versioni minime provate: con versioni precedenti il funzionamento non è garantito. L'elenco delle estensioni PHP, i limiti di
-caricamento e come controllare le versioni sono in [Requisiti](docs/01-installazione/01-requisiti.md).
+caricamento e come controllare le versioni sono in [Requisiti](docs/00-installazione/01-requisiti.md).
 
 ## Installazione su un server
 
@@ -58,10 +58,10 @@ php artisan config:cache && php artisan route:cache && php artisan view:cache
 
 Poi si apre `https://<dominio>/admin/login/password` e si accede con le credenziali del primo amministratore.
 
-La [guida all'installazione](docs/01-installazione/02-installazione-su-server.md) spiega la procedura completa, con i controlli passo per passo,
+La [guida all'installazione](docs/00-installazione/02-installazione-su-server.md) spiega la procedura completa, con i controlli passo per passo,
 l'utente con cui lanciare i comandi, la configurazione del server web e la soluzione dei problemi più comuni. Le variabili del file `.env` sono
-in [Configurazione del file .env](docs/01-installazione/03-configurazione-env.md); per gli aggiornamenti e i backup vedi
-[Aggiornamento e backup](docs/01-installazione/04-aggiornamento.md).
+in [Configurazione del file .env](docs/00-installazione/03-configurazione-env.md); per gli aggiornamenti e i backup vedi
+[Aggiornamento e backup](docs/00-installazione/04-aggiornamento.md).
 
 ## Sviluppo in locale
 

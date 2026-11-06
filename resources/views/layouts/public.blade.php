@@ -11,7 +11,7 @@
     // Dati/loghi del comitato (nav + footer).
     $committeeInfo ??= \App\Models\CommitteeInfo::current();
 
-    // Link personalizzabili della terza colonna del footer (Amministrazione → Link del footer).
+    // Link personalizzabili della terza colonna del footer (Comitato e sito → Link del footer).
     $footerLinks ??= \App\Models\FooterLink::ordered()->get();
 
     // Area soci: attiva da Funzioni attive; il menu "Area Soci" compare solo a un socio loggato. Le pagine future

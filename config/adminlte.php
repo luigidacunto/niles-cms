@@ -303,6 +303,8 @@ return [
     // Lo stato aperto/chiuso dei gruppi è ricordato nel browser (stesso file).
     'menu' => [
         ['text' => 'Dashboard', 'route' => 'admin.dashboard', 'icon' => 'fas fa-fw fa-tachometer-alt'],
+        // Per tutti gli utenti: i documenti di docs/ (App\Support\Guida). `active` tiene evidenziata la voce in ogni pagina della guida.
+        ['text' => 'Guida', 'route' => 'admin.guida.index', 'icon' => 'fas fa-fw fa-book', 'active' => ['admin/guida*']],
 
         ['header' => 'Lavoro quotidiano'],
         [

@@ -8,7 +8,7 @@ Versione attuale e funzioni già rilasciate: vedi il [changelog](CHANGELOG.md) e
 ## In lavorazione
 
 - **Installazione e aggiornamento su hosting condiviso: verifica sul campo.** L'installer a file singolo e l'aggiornamento dal
-  pannello esistono già (vedi [Installazione su hosting condiviso](docs/01-installazione/05-installazione-su-hosting-condiviso.md)).
+  pannello esistono già (vedi [Installazione su hosting condiviso](docs/00-installazione/05-installazione-su-hosting-condiviso.md)).
   Restano le prove su hosting reali: scaricamento diretto dell'installer dalle release, invio di posta dal wizard, primo
   aggiornamento completo dal pulsante «Aggiorna».
 

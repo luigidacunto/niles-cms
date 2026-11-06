@@ -4,6 +4,21 @@ Elenco delle modifiche di ogni versione, dalla più recente. Le versioni seguono
 incrementano la seconda cifra, le correzioni e i miglioramenti la terza. Le release complete, con i pacchetti scaricabili, sono su
 [GitHub](https://github.com/luigidacunto/niles-cms/releases). Le direzioni future sono nella [roadmap](ROADMAP.md).
 
+## 1.2.1 — 2026-11-05
+- **Guida nel pannello** (voce «Guida» del menu, per tutti gli utenti): mostra i documenti della cartella `docs/`, gli stessi pubblicati sul
+  repository, con indice, immagini e collegamenti tra le pagine; ogni pagina si scarica in PDF. I collegamenti a script e file fuori dalla
+  guida aprono il repository alla versione installata.
+- **Documentazione riorganizzata**: un livello di cartelle numerate, da `00-installazione` (con il primo accesso) ai gruppi del menu del
+  pannello, un documento per voce. La cartella `docs/` è ora inclusa nel pacchetto della release e viene sostituita dall'aggiornamento dal
+  pannello.
+- **Installazione su hosting condiviso**: la guida ha le schermate di ogni passaggio e due casi in più tra i problemi (pannelli con nginx
+  davanti ad Apache, pagina «504 Gateway Timeout» durante l'estrazione); la pagina finale dell'installer indica la posta in uscita nel menu
+  Configurazione.
+- **Backup automatico del database a ogni aggiornamento**: `scripts/deploy.sh` esegue `backup.sh` prima di scaricare il codice e di
+  aggiornare il database; se il backup non riesce, l'aggiornamento si ferma. `--quick` resta senza backup.
+- **`scripts/backup.sh` salva di default solo il database**; con `--all` aggiunge l'archivio dei file (`.env` e file caricati dal
+  pannello). Il vecchio `--only-db` è ancora accettato e non cambia nulla.
+
 ## 1.2.0 — 2026-11-05
 - **Gestione dei pagamenti dei corsi** (funzione facoltativa, da attivare in Funzioni attive): per ogni corso a pagamento una pagina elenca i
   blocchi di fatturazione, cioè una riga per ogni fattura da emettere, con intestatario, metodo di pagamento, iscritti coinvolti e importo
@@ -31,10 +46,6 @@ incrementano la seconda cifra, le correzioni e i miglioramenti la terza. Le rele
 - **Modulo pubblico di iscrizione**: dopo un errore di validazione tutti i dati inseriti restano compilati (nominativi, residenza, dati di
   nascita, fatturazione e metodo di pagamento), così si corregge solo il campo segnalato. Se Italia o estero non corrispondono al codice
   fiscale, il messaggio indica lo Stato scelto.
-- **Backup automatico del database a ogni aggiornamento**: `scripts/deploy.sh` esegue `backup.sh` prima di scaricare il codice e di
-  aggiornare il database; se il backup non riesce, l'aggiornamento si ferma. `--quick` resta senza backup.
-- **`scripts/backup.sh` salva di default solo il database**; con `--all` aggiunge l'archivio dei file (`.env` e file caricati dal
-  pannello). Il vecchio `--only-db` è ancora accettato e non cambia nulla.
 - **Persone** (anagrafica e consensi dei corsi): visibile solo a chi ha il permesso Corsi in scrittura; la sola lettura dà accesso a corsi
   e iscritti.
 - **Menu del pannello riorganizzato**: due titoli fissi, «Lavoro quotidiano» (Contenuti, Formazione, Area soci) e «Amministrazione»

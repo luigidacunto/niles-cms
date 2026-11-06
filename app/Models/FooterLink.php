@@ -6,7 +6,7 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 
 /**
- * Link della terza colonna del footer pubblico («Link utili»), gestiti da Amministrazione → Link del footer.
+ * Link della terza colonna del footer pubblico («Link utili»), gestiti da Comitato e sito → Link del footer.
  * Nessun valore predefinito: la colonna compare solo se c'è almeno un link.
  */
 class FooterLink extends Model
