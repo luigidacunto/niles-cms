@@ -1,14 +1,14 @@
 # Utenti
 
-In **Utenti** (menu *Amministrazione*) si gestiscono le persone che accedono al pannello: **amministratori** ed **editor**. La sezione è
+In **Utenti** (menu *Utenti e controllo*) si gestiscono le persone che accedono al pannello: **amministratori** ed **editor**. La sezione è
 riservata agli amministratori.
 
 ## Amministratori ed editor
 
 - **Amministratore**: accesso completo a tutte le sezioni del pannello.
 - **Editor**: vede e modifica solo ciò che gli viene assegnato, tramite i **permessi** per sezione e le **categorie di competenza** (vedi
-  sotto). Non vede le sezioni di configurazione: Struttura organizzativa, Dati del comitato, Categorie, Aree Trasparenza, Categorie
-  documenti, Tipologie corso, Utenti, Sicurezza moduli, Informative privacy e Template email.
+  sotto). Non vede la parte *Amministrazione* del menu (Comitato e sito, Configurazione, Classificazioni, Utenti e controllo) né
+  Struttura organizzativa e Tipologie corso, riservate agli amministratori.
 
 Non c'entrano con gli utenti dell'**area soci**, che sono i soci e accedono con il codice via email dopo essere stati inseriti in
 [Membri](../04-area-soci/01-membri.md).
@@ -34,8 +34,9 @@ non si può eliminare e il suo ruolo non si può cambiare (nome, email e passwor
 
 ### Permessi
 
-Solo per gli editor (un amministratore ha tutto). Per ogni sezione si sceglie **Lettura** (vede ma non cambia) e/o **Scrittura** (crea,
-modifica, elimina):
+Solo per gli editor (un amministratore ha tutto). Il modulo ha due tabelle.
+
+**Sezioni con un solo interruttore «Lettura e scrittura»**: chi ha il permesso vede e modifica la sezione.
 
 | Permesso | Cosa consente |
 |---|---|
@@ -43,10 +44,18 @@ modifica, elimina):
 | Pagine | le [pagine](../02-contenuti/02-pagine.md): testo, estratto, ordine e pubblicazione (struttura e codice embed restano agli amministratori) |
 | Trasparenza | i documenti della sezione [Trasparenza](../02-contenuti/04-trasparenza.md) |
 | Documenti | la [libreria documenti](../02-contenuti/05-libreria-documenti.md) |
-| Corsi | i [corsi](../03-formazione/01-corsi.md), i loro iscritti e le [persone](../03-formazione/02-persone.md) |
-| Comunicazioni soci, Membri | un unico permesso «Lettura e scrittura» per ciascuna delle due sezioni dell'area soci (le voci compaiono solo con l'area attiva) |
+| Comunicazioni soci | le [comunicazioni](../04-area-soci/02-comunicazioni-soci.md), i [documenti riservati](../04-area-soci/03-documenti-riservati.md) e le [categorie riservate](../04-area-soci/04-categorie-riservate.md) (solo con l'area soci attiva) |
+| Membri | l'elenco dei [membri](../04-area-soci/01-membri.md) (solo con l'area soci attiva) |
+| Pagamenti corsi | la [gestione dei pagamenti](../03-formazione/03-pagamenti-corsi.md) (solo con la funzione attiva); è indipendente dal permesso Corsi |
 
 Le righe **Immagini** e **File** sono previste per usi futuri e oggi non controllano nessuna funzione.
+
+**Corsi**, con lettura e scrittura separate:
+
+- **Lettura**: consulta [corsi](../03-formazione/01-corsi.md), iscritti ed elenchi, ed esporta;
+- **Scrittura**: crea e modifica i corsi, gestisce gli iscritti e vede anche le [persone](../03-formazione/02-persone.md).
+
+Attivando la scrittura si attiva anche la lettura; togliendo la lettura si toglie anche la scrittura.
 
 ### Categorie di competenza
 

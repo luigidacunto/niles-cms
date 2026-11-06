@@ -1,6 +1,6 @@
 # Informative privacy
 
-In **Informative privacy** (menu *Amministrazione*) si gestiscono i testi delle informative sul trattamento dei dati che il sito mostra a chi
+In **Informative privacy** (menu *Comitato e sito*) si gestiscono i testi delle informative sul trattamento dei dati che il sito mostra a chi
 compila un modulo o usa un servizio. La sezione è riservata agli amministratori.
 
 > Le pagine generali **Privacy Policy** e **Cookie Policy**, linkate nel piè di pagina, sono invece normali pagine di sistema: si modificano

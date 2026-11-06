@@ -1,6 +1,6 @@
 # Categorie
 
-In **Categorie** (menu *Organizzazione*) si gestiscono le categorie delle notizie. Ogni [post](../02-contenuti/01-post.md) appartiene a una
+In **Categorie** (menu *Classificazioni*) si gestiscono le categorie delle notizie. Ogni [post](../02-contenuti/01-post.md) appartiene a una
 categoria, che compare nel suo indirizzo (`/<categoria>/<titolo-del-post>`), nell'archivio e, per le sezioni di *Cosa Facciamo*, nella
 pagina collegata. La sezione è riservata agli amministratori.
 

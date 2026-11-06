@@ -1,6 +1,6 @@
 # Categorie documenti
 
-In **Categorie documenti** (menu *Organizzazione*) si gestiscono le categorie della [Libreria documenti](../02-contenuti/05-libreria-documenti.md),
+In **Categorie documenti** (menu *Classificazioni*) si gestiscono le categorie della [Libreria documenti](../02-contenuti/05-libreria-documenti.md),
 che servono a ritrovare i file nell'elenco e a filtrarli. Non sono visibili ai visitatori del sito. La sezione è riservata agli
 amministratori.
 

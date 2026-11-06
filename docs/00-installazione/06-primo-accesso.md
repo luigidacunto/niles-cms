@@ -48,12 +48,13 @@ segnaposto **«Da completare»**: sostituiscilo con i dati reali.
 
 ## Ordine consigliato della configurazione
 
-1. [Dati del comitato](../05-comitato-e-sito/01-dati-del-comitato.md): denominazione, contatti, loghi e favicon, coordinate. Compaiono
+1. [Dati del comitato](../05-comitato-e-sito/01-dati-del-comitato.md), [Loghi e immagini](../05-comitato-e-sito/02-loghi-e-immagini.md) e
+   [Coordinate e pagamenti](../05-comitato-e-sito/03-coordinate-e-pagamenti.md): denominazione, contatti, loghi e favicon, IBAN. Compaiono
    subito nel sito.
 2. [Posta in uscita](../06-configurazione/02-posta-in-uscita.md): il server delle email, necessario per il codice di accesso e per le
    conferme di iscrizione ai corsi.
 3. [Utenti](../08-utenti-e-controllo/01-utenti.md): cambia la password iniziale e crea gli utenti che servono.
-4. *Funzioni attive* (menu *Configurazione*): accendi le funzioni facoltative che usi, come l'area soci e la gestione dei pagamenti
+4. [Funzioni attive](../06-configurazione/01-funzioni-attive.md): accendi le funzioni facoltative che usi, come l'area soci e la gestione dei pagamenti
    dei corsi.
 5. [Pagine](../02-contenuti/02-pagine.md): sostituisci i segnaposto, attiva le pagine che usi.
 6. [Struttura organizzativa](../02-contenuti/03-struttura-organizzativa.md) e [Trasparenza](../02-contenuti/04-trasparenza.md).

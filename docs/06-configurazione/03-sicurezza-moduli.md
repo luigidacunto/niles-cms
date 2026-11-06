@@ -1,6 +1,6 @@
 # Sicurezza moduli
 
-In **Sicurezza moduli** (menu *Amministrazione*) si regolano le protezioni anti-bot dei moduli che il pubblico può compilare. Oggi il modulo
+In **Sicurezza moduli** (menu *Configurazione*) si regolano le protezioni anti-bot dei moduli che il pubblico può compilare. Oggi il modulo
 pubblico è quello di [iscrizione ai corsi](../03-formazione/01-corsi.md). La sezione è riservata agli amministratori.
 
 ![Sicurezza moduli pubblici](../immagini/sicurezza-moduli/form.png)

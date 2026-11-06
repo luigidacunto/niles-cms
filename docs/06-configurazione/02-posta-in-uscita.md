@@ -1,8 +1,10 @@
 # Posta in uscita
 
-In **Posta in uscita** (menu *Amministrazione*) si configura il server con cui NILES spedisce le email: codice di accesso al pannello e all'area
+In **Posta in uscita** (menu *Configurazione*) si configura il server con cui NILES spedisce le email: codice di accesso al pannello e all'area
 soci, conferme di iscrizione ai corsi, comunicazioni. La sezione è riservata agli amministratori. Le impostazioni sono salvate nel database e la
 password è cifrata: non viene mai mostrata di nuovo.
+
+![Posta in uscita](../immagini/posta-in-uscita/pagina.png)
 
 ## Impostazioni
 
@@ -13,7 +15,17 @@ password è cifrata: non viene mai mostrata di nuovo.
 | Utente e password | credenziali della casella usata per l'invio. Con la password vuota si mantiene quella già salvata |
 | Indirizzo e nome mittente | indirizzo da cui partono le email; se vuoto si usa l'utente SMTP. Deve appartenere a un dominio autorizzato dal server |
 
+| Rispondi a | indirizzo reale, letto da una persona, a cui arrivano le risposte di chi preme «Rispondi» su una qualsiasi email del sito (anche il codice di accesso). Serve quando l'indirizzo mittente è tecnico o inesistente. Se vuoto si usa l'email indicata in [Dati del comitato](../05-comitato-e-sito/01-dati-del-comitato.md). Vale anche quando la posta è impostata nel `.env` |
+
 La pagina mostra data e utente dell'**ultima modifica** e riassume le **impostazioni attive**.
+
+## Avviso di nuova iscrizione ai corsi
+
+Nella sezione **Formazione — avviso di nuova iscrizione**, spuntando **Avvisa la segreteria a ogni nuova iscrizione a un corso** e
+indicando uno o più indirizzi (uno per riga, al massimo 10), parte un'email per ogni iscrizione fatta dal modulo pubblico, anche quando
+iscrive più persone; non per gli iscritti inseriti a mano dal pannello. L'avviso contiene il corso, gli iscritti (nome, email, telefono,
+senza codice fiscale) e il link all'elenco nel pannello. Il **primo indirizzo** dell'elenco è anche quello a cui arrivano le risposte di
+chi si iscrive ai corsi. Il testo si modifica in [Template email](../05-comitato-e-sito/06-template-email.md).
 
 ## Email di prova
 

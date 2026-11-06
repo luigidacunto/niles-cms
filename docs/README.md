@@ -53,12 +53,16 @@ stessa guida si consulta anche dal pannello, alla voce «Guida».
 
 ### 05 · Comitato e sito
 
-- [Dati del comitato](05-comitato-e-sito/01-dati-del-comitato.md): denominazione, contatti, loghi e favicon, coordinate bancarie, social, statistiche.
+- [Dati del comitato](05-comitato-e-sito/01-dati-del-comitato.md): denominazione, dati fiscali, contatti e social.
+- [Loghi e immagini](05-comitato-e-sito/02-loghi-e-immagini.md): logo, favicon e loghi istituzionali.
+- [Coordinate e pagamenti](05-comitato-e-sito/03-coordinate-e-pagamenti.md): IBAN e metodi di pagamento accettati per i corsi.
+- [Link del footer](05-comitato-e-sito/04-link-del-footer.md): la colonna «Link utili» del piè di pagina.
 - [Informative privacy](05-comitato-e-sito/05-informative-privacy.md): le informative per i soci e per i corsi e come personalizzarle.
 - [Template email](05-comitato-e-sito/06-template-email.md): i testi delle email di sistema e come ripristinarli.
 
 ### 06 · Configurazione
 
+- [Funzioni attive](06-configurazione/01-funzioni-attive.md): accendere o spegnere area soci, pagamenti dei corsi e statistiche.
 - [Posta in uscita](06-configurazione/02-posta-in-uscita.md): server di invio delle email, email di prova e precedenza del file .env.
 - [Sicurezza moduli](06-configurazione/03-sicurezza-moduli.md): limiti di invio e protezione anti-bot (CAPTCHA) dei moduli pubblici.
 

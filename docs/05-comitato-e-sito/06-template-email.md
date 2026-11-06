@@ -1,17 +1,21 @@
 # Template email
 
-In **Template email** (menu *Amministrazione*) si modificano i testi delle email di sistema che il sito invia a nome del comitato. La
+In **Template email** (menu *Comitato e sito*) si modificano i testi delle email di sistema che il sito invia a nome del comitato. La
 sezione è riservata agli amministratori. Perché le email partano davvero serve un server di posta configurato: vedi
-[Configurazione del file .env](../00-installazione/03-configurazione-env.md#posta-in-uscita).
+[Posta in uscita](../06-configurazione/02-posta-in-uscita.md).
 
 ![Elenco dei template email](../immagini/template-email/elenco.png)
 
-Le email di sistema sono due, entrambe legate alle iscrizioni ai [corsi](../03-formazione/01-corsi.md):
+Le email di sistema sono tre, tutte legate alle iscrizioni ai [corsi](../03-formazione/01-corsi.md):
 
 - **Iscrizione a un corso**: inviata a ogni persona iscritta (dal modulo pubblico o inserita a mano). Allega il promemoria per il
   calendario e invita ad aprire la pagina personale per vedere i dati e scegliere i consensi.
 - **Riepilogo per chi ha iscritto altre persone**: inviata a chi compila il modulo iscrivendo anche altri (non a chi si iscrive da solo).
   Elenca chi ha iscritto, i dati inseriti e, con la fatturazione unica, i dati di fatturazione e le coordinate per il bonifico.
+- **Avviso alla segreteria: nuova iscrizione**: inviata agli indirizzi indicati in
+  [Posta in uscita](../06-configurazione/02-posta-in-uscita.md#avviso-di-nuova-iscrizione-ai-corsi), se l'avviso è attivo, a ogni
+  iscrizione dal modulo pubblico. Segnaposto propri: `{corso}`, `{protocollo}`, `{periodo}`, `{numero_iscritti}`, `{elenco_iscritti}`
+  (tabella con nome, email e telefono), `{referente}` e `{link_iscritti}` (l'elenco iscritti nel pannello, da usare dentro un collegamento).
 
 Per ogni email l'elenco indica se è in uso il testo **Predefinito** o uno **Personalizzato**. Il testo predefinito è sempre disponibile e non
 viene mai perso.

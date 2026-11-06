@@ -16,6 +16,10 @@ incrementano la seconda cifra, le correzioni e i miglioramenti la terza. Le rele
 - **Guida, sezione Area soci**: Membri e Comunicazioni aggiornati (categorie riservate, copertina e galleria private, allegati scelti tra i
   documenti riservati); nuovi documenti «Documenti riservati», «Categorie riservate», «L'area soci vista dal socio» (accesso, pagine e
   domande frequenti dei soci) e «Registro download». In «Immagini e file» corretti i formati dei documenti riservati (solo PDF e immagini).
+- **Guida, sezioni Comitato e sito, Configurazione, Classificazioni, Utenti e controllo**: «Dati del comitato» diviso come le pagine del
+  pannello (Dati del comitato, Loghi e immagini, Coordinate e pagamenti); nuovi «Link del footer» e «Funzioni attive»; in «Posta in
+  uscita» il «Rispondi a» e l'avviso di nuova iscrizione; in «Template email» l'avviso alla segreteria; in «Utenti» i permessi della 1.2
+  (un solo interruttore per sezione, Corsi con lettura e scrittura, Pagamenti corsi); menu e schermate aggiornati.
 - **Guida, aggiornamento dal pannello**: procedura passo per passo con le schermate; schermate rifatte senza le indicazioni della versione
   dimostrativa.
 

@@ -1,6 +1,6 @@
 # Aree Trasparenza
 
-In **Aree Trasparenza** (menu *Organizzazione*) si definiscono le aree in cui è suddivisa la pagina [Trasparenza](../02-contenuti/04-trasparenza.md):
+In **Aree Trasparenza** (menu *Classificazioni*) si definiscono le aree in cui è suddivisa la pagina [Trasparenza](../02-contenuti/04-trasparenza.md):
 ogni documento appartiene a un'area. L'installazione ne crea quattro: **Albo**, **Sovvenzioni**, **Consiglio Direttivo** e
 **Assemblea Soci**.
 

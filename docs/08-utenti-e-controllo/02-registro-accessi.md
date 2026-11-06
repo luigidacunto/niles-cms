@@ -1,6 +1,6 @@
 # Registro accessi
 
-Il **Registro accessi** (menu *Amministrazione*) elenca gli accessi al pannello e all'area soci, riusciti e falliti. Serve a controllare chi è
+Il **Registro accessi** (menu *Utenti e controllo*) elenca gli accessi al pannello e all'area soci, riusciti e falliti. Serve a controllare chi è
 entrato e a notare tentativi sospetti. È in **sola lettura** e i dati sono conservati per **12 mesi**, poi cancellati automaticamente.
 
 ![Registro accessi](../immagini/registro-accessi/elenco.png)

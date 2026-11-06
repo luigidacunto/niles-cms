@@ -2,8 +2,8 @@
 
 Il file `.env`, nella cartella principale del progetto, contiene le impostazioni che dipendono dal server e dall'installazione:
 indirizzi, database, posta, statistiche. Si crea copiando il modello `.env.example` (`cp .env.example .env`), che contiene tutte le
-variabili con commenti. I dati del comitato (denominazione, contatti, IBAN, loghi) **non** si impostano qui ma dal pannello, in
-[Dati del comitato](../05-comitato-e-sito/01-dati-del-comitato.md).
+variabili con commenti. I dati del comitato (denominazione, contatti, IBAN, loghi) **non** si impostano qui ma dal pannello, nel gruppo *Comitato e sito*
+(vedi [Dati del comitato](../05-comitato-e-sito/01-dati-del-comitato.md)).
 
 > **Dopo ogni modifica al `.env` esegui `php artisan config:cache`**: senza, il sito continua a usare i valori vecchi.
 
@@ -63,7 +63,7 @@ Dopo aver configurato la posta, l'accesso con il codice via email (`/admin/login
 ## Statistiche (facoltative)
 
 Senza queste righe non viene caricata nessuna statistica. Il `.env` indica **quale strumento** usare; dal pannello, in
-[Dati del comitato](../05-comitato-e-sito/01-dati-del-comitato.md), si possono poi solo accendere o spegnere i due
+[Funzioni attive](../06-configurazione/01-funzioni-attive.md), si possono poi solo accendere o spegnere i due
 strumenti, e solo se sono definiti qui.
 
 ```ini
