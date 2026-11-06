@@ -35,8 +35,7 @@ Le indicazioni dettagliate sui margini dei loghi sono nel pannello, negli accord
 | Organigramma (Struttura Organizzativa) | pdf, doc, docx, ppt, pptx, xls, xlsx | 20 MB | scaricabile dalla pagina |
 | Libreria documenti | pdf, doc, docx, ppt, pptx, xls, xlsx, odt, ods, odp, txt, csv | 20 MB | allegabili a post e pagine |
 | Documenti di Trasparenza | solo PDF | 20 MB | elencati nella sezione Trasparenza |
-| Allegati delle comunicazioni ai soci | gli stessi della libreria documenti | 20 MB per file | scaricabili solo dall'area soci |
-| Documenti riservati (area soci) | gli stessi della libreria documenti | 20 MB | scaricabili solo dai soci delle categorie assegnate |
+| Documenti riservati (area soci), anche come allegati delle comunicazioni | solo PDF e immagini (JPG, PNG, WebP) | 20 MB | si aprono sempre in anteprima; visibili solo ai soci delle categorie assegnate |
 
 ## Elenco soci
 

@@ -13,6 +13,9 @@ incrementano la seconda cifra, le correzioni e i miglioramenti la terza. Le rele
 - Elenco iscritti: con il filtro «Dati mancanti» senza risultati il messaggio lo dice esplicitamente.
 - **Guida, sezione Formazione**: Corsi, Persone e Tipologie aggiornati alla 1.2; nuovi documenti «Pagamenti corsi» e «Iscrizione dal sito»
   (il modulo pubblico visto da chi si iscrive, con i messaggi di errore e le email, per dare indicazioni a chi chiede aiuto).
+- **Guida, sezione Area soci**: Membri e Comunicazioni aggiornati (categorie riservate, copertina e galleria private, allegati scelti tra i
+  documenti riservati); nuovi documenti «Documenti riservati», «Categorie riservate», «L'area soci vista dal socio» (accesso, pagine e
+  domande frequenti dei soci) e «Registro download». In «Immagini e file» corretti i formati dei documenti riservati (solo PDF e immagini).
 - **Guida, aggiornamento dal pannello**: procedura passo per passo con le schermate; schermate rifatte senza le indicazioni della versione
   dimostrativa.
 

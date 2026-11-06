@@ -1,12 +1,13 @@
 # Membri
 
-In **Membri** (menu *Amministrazione*) si tiene l'elenco dei soci del comitato: volontari, volontari in estensione e dipendenti. La voce
-compare solo se l'**area soci** è attiva (interruttore in [Dati del comitato](../05-comitato-e-sito/01-dati-del-comitato.md#area-soci)) e a chi ha il
-permesso «Membri» (vedi [Utenti](../08-utenti-e-controllo/01-utenti.md)).
+In **Membri** (menu *Area soci*) si tiene l'elenco dei soci del comitato: volontari, volontari in estensione e dipendenti. La voce
+compare solo se l'**area soci** è attiva (interruttore in *Configurazione → Funzioni attive*) e a chi ha il permesso «Membri» (vedi
+[Utenti](../08-utenti-e-controllo/01-utenti.md)).
 
 L'elenco ha due scopi: è l'anagrafica del comitato, e decide **chi può accedere all'area riservata**: ogni socio con un indirizzo email e
-non disabilitato riceve un **codice via email** per entrare e leggere le [comunicazioni](02-comunicazioni-soci.md). Non ci sono
-password per i soci.
+non disabilitato riceve un **codice via email** per entrare, leggere le [comunicazioni](02-comunicazioni-soci.md) e consultare i
+[documenti riservati](03-documenti-riservati.md). Non ci sono password per i soci. Che cosa vede il socio è descritto in
+[L'area soci vista dal socio](05-area-soci-dal-socio.md).
 
 ## L'elenco
 
@@ -32,6 +33,12 @@ I membri non si cancellano mai definitivamente: «rimosso» vuol dire nascosto e
 per il codice di accesso; unica), **Telefono principale** e **Altri numeri** (uno per riga). **Disabilitato** lascia il membro in anagrafica ma
 gli toglie l'accesso all'area riservata.
 
+![Modifica di un membro, con le categorie riservate](../immagini/membri/modifica.png)
+
+**Categorie riservate** decide quali documenti riservati vede il socio, oltre a quelli «Senza categoria», visibili a tutti: si spuntano
+le [categorie](04-categorie-riservate.md) che lo riguardano (per esempio «Protezione civile» per chi fa parte di quel gruppo). Il ruolo
+(volontario, dipendente) non conta: decidono solo le categorie assegnate. L'importazione da Excel non tocca mai le categorie.
+
 ## Importare l'elenco da Excel
 
 ![Importazione dei membri da Excel](../immagini/membri/importa.png)
@@ -43,7 +50,7 @@ Il file deve essere un `.xlsx` (fino a 5 MB) con queste colonne, riconosciute da
 
 | Colonna | Obbligatoria | Note |
 |---|---|---|
-| Codice Fiscale | sì | 16 caratteri; le righe con codice non valido o duplicato nel file vengono saltate |
+| Codice Fiscale | sì | 16 caratteri; le righe con codice non valido o duplicato nel file vengono saltate. Un codice che non torna con nome, cognome o data di nascita produce un avviso nell'anteprima, ma la riga viene importata |
 | Cognome, Nome | sì | |
 | Tipo Attuale | sì | `Dipendente`, `Volontario` o `Volontario in estensione`; deve essere coerente con l'elenco scelto |
 | Data di Nascita | no | nel formato `gg/mm/aaaa` |

@@ -45,8 +45,11 @@ stessa guida si consulta anche dal pannello, alla voce «Guida».
 
 ### 04 · Area soci
 
-- [Membri](04-area-soci/01-membri.md): elenco dei soci, importazione da Excel e accesso all'area soci.
-- [Comunicazioni soci](04-area-soci/02-comunicazioni-soci.md): comunicazioni interne visibili solo ai soci, con allegati riservati.
+- [Membri](04-area-soci/01-membri.md): elenco dei soci, importazione da Excel, accesso all'area soci e categorie riservate assegnate.
+- [Comunicazioni soci](04-area-soci/02-comunicazioni-soci.md): comunicazioni interne visibili solo ai soci, con copertina, galleria e allegati riservati.
+- [Documenti riservati](04-area-soci/03-documenti-riservati.md): documenti consultabili solo dai soci, divisi per categoria.
+- [Categorie riservate](04-area-soci/04-categorie-riservate.md): i gruppi che decidono quali soci vedono quali documenti.
+- [L'area soci vista dal socio](04-area-soci/05-area-soci-dal-socio.md): accesso, comunicazioni, documenti e «I miei dati», con le domande frequenti dei soci.
 
 ### 05 · Comitato e sito
 
@@ -69,6 +72,7 @@ stessa guida si consulta anche dal pannello, alla voce «Guida».
 
 - [Utenti](08-utenti-e-controllo/01-utenti.md): amministratori ed editor del pannello, permessi e modalità di accesso.
 - [Registro accessi](08-utenti-e-controllo/02-registro-accessi.md): chi è entrato nel pannello e nell'area soci, e quando.
+- [Registro download](08-utenti-e-controllo/03-registro-download.md): chi ha aperto o scaricato i documenti riservati dell'area soci.
 
 ## Organizzazione della cartella
 
