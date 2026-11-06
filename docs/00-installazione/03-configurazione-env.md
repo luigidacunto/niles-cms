@@ -48,8 +48,8 @@ MAIL_FROM_NAME="${APP_PUBLIC_NAME}"
 - L'indirizzo `MAIL_FROM_ADDRESS` deve appartenere a un dominio autorizzato dal server SMTP, altrimenti molti provider scartano
   i messaggi.
 - I testi delle email e le chiavi CAPTCHA non stanno nel `.env` ma nel pannello:
-  [Informative privacy ed email](../05-comitato-e-sito/06-template-email.md) e
-  [Sicurezza dei moduli pubblici](../06-configurazione/03-sicurezza-moduli.md).
+  [Template email](../05-comitato-e-sito/06-template-email.md) e
+  [Sicurezza moduli](../06-configurazione/03-sicurezza-moduli.md).
 
 Dopo aver configurato la posta, l'accesso con il codice via email (`/admin/login`) funziona; l'accesso con la password
 (`/admin/login/password`) resta sempre disponibile.

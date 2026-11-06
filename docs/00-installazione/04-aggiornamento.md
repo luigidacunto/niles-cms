@@ -61,6 +61,9 @@ Per un sito in produzione, sul ramo `main`, lo script esegue in ordine:
 Se l'aggiornamento non cambia librerie, struttura del database né contenuti (le note della versione lo dicono), `bash scripts/deploy.sh --quick`
 esegue solo il `git pull` e il rinnovo delle cache, in pochi secondi, senza backup.
 
+**Verifica:** lo script termina con «Deploy completato.»; aprendo il sito e la dashboard del pannello, la **versione corrente** è quella
+nuova.
+
 ### Aggiornare senza lo script
 
 Chi non usa `deploy.sh` (ad esempio perché il codice arriva in un altro modo) esegue gli stessi passi a mano, dalla cartella del sito
@@ -80,8 +83,7 @@ php artisan config:cache && php artisan route:cache && php artisan view:cache
 Il passo `php artisan niles:seeders` non va saltato: senza, i contenuti di aggiornamento previsti dalla nuova versione non vengono applicati. È
 sicuro rilanciarlo: se non c'è niente da eseguire, termina con «Nessun seeder da eseguire.».
 
-**Verifica:** lo script termina con «Deploy completato.»; aprendo il sito e la dashboard del pannello, la **versione corrente** è quella
-nuova.
+**Verifica:** aprendo il sito e la dashboard del pannello, la **versione corrente** è quella nuova.
 
 Note utili:
 

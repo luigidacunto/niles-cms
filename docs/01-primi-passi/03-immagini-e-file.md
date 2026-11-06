@@ -26,7 +26,7 @@ Dove si caricano immagini e documenti dal pannello, in che formato, con quali di
 | Immagine di una tipologia di corso | immagine | 5 MB | 1200×630 px, orizzontale | ridotta a 1600 px; mostrata in rapporto 1200:630 ritagliata al centro; usata anche come anteprima sui social |
 | Foto della Struttura Organizzativa (presidente, vice, membri) | immagine | 8 MB | verticale 3:4, ad esempio 600×800 px | ridotta a 800 px; mostrata in rapporto 3:4 ritagliata al centro |
 
-Le indicazioni dettagliate sui margini dei loghi sono nel pannello, negli accordion sopra ogni campo logo, in Dati del comitato.
+Le indicazioni dettagliate sui margini dei loghi sono nel pannello, negli accordion sopra ogni campo logo, in [Loghi e immagini](../05-comitato-e-sito/02-loghi-e-immagini.md).
 
 ## Documenti
 

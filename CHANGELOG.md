@@ -22,6 +22,8 @@ incrementano la seconda cifra, le correzioni e i miglioramenti la terza. Le rele
   (un solo interruttore per sezione, Corsi con lettura e scrittura, Pagamenti corsi); menu e schermate aggiornati.
 - **Guida, aggiornamento dal pannello**: procedura passo per passo con le schermate; schermate rifatte senza le indicazioni della versione
   dimostrativa.
+- **Guida, rilettura completa**: corretti i rimandi superati (hosting condiviso nei requisiti, posta configurata dal pannello, allegati
+  delle comunicazioni scelti tra i documenti riservati, indicazioni dei loghi in «Loghi e immagini») e una tabella di «Posta in uscita».
 
 ## 1.2.1 — 2026-11-06
 - **Correzione importante: modulo pubblico di iscrizione ai corsi.** Nella 1.2.0 un errore nello script della pagina bloccava il modulo

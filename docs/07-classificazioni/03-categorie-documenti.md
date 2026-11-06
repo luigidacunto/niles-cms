@@ -9,7 +9,7 @@ amministratori.
 L'elenco mostra l'**Ordine**, il **Nome**, lo **Slug** e il numero di **Documenti** di ogni categoria. L'installazione crea la categoria
 **Documenti** (quella generica) e **Organigramma**.
 
-## Categorie riservate
+## La categoria Organigramma
 
 La categoria **Organigramma** è **riservata** e creata dal sistema: non si può eliminare e non compare nel menu a tendina quando si
 carica un documento, perché ci finisce il file in automatico.
@@ -17,9 +17,9 @@ carica un documento, perché ci finisce il file in automatico.
 - **Organigramma**: contiene l'organigramma caricato dalla pagina [Struttura organizzativa](../02-contenuti/03-struttura-organizzativa.md),
   conservato come storico anche quando lo si toglie dalla pagina.
 
-I documenti riservati ai soci (gli allegati delle [comunicazioni ai soci](../04-area-soci/02-comunicazioni-soci.md)) non passano da qui: vengono
-caricati direttamente dalla comunicazione, si scaricano solo dopo l'accesso con il codice via email e non compaiono nella libreria
-né in questo elenco.
+I [documenti riservati](../04-area-soci/03-documenti-riservati.md) ai soci non passano da qui: hanno le proprie
+[categorie riservate](../04-area-soci/04-categorie-riservate.md), si aprono solo dopo l'accesso all'area soci e non compaiono nella
+libreria né in questo elenco.
 
 ## Creare o modificare una categoria
 

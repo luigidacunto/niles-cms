@@ -1,8 +1,8 @@
 # Requisiti
 
 NILES si installa su un server Linux (VPS, server dedicato o hosting con accesso SSH) con questi componenti. Le versioni indicate
-sono le **minime provate**: con versioni precedenti il funzionamento non è garantito. Gli hosting condivisi senza accesso SSH
-non sono al momento supportati.
+sono le **minime provate**: con versioni precedenti il funzionamento non è garantito. Su un hosting condiviso senza accesso SSH
+bastano PHP 8.4, con le stesse estensioni, e un database: vedi [Installazione su un hosting condiviso](05-installazione-su-hosting-condiviso.md).
 
 | Componente | Versione | Note |
 |---|---|---|

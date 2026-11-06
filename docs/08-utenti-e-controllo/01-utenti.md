@@ -30,7 +30,7 @@ non si può eliminare e il suo ruolo non si può cambiare (nome, email e passwor
 - **Account attivo**: se spento l'utente non può più entrare, ma l'account resta e si può riattivare.
 - **Abilita login con password**: di norma si entra solo con il **codice via email**. Con questa opzione l'utente può accedere anche da
   `/admin/login/password`; in questo caso va impostata una **Password** (in modifica, lasciare il campo vuoto la lascia invariata). Senza
-  un server di posta configurato l'accesso con la password è l'unico possibile: vedi [Configurazione del file .env](../00-installazione/03-configurazione-env.md).
+  un server di posta configurato l'accesso con la password è l'unico possibile: vedi [Posta in uscita](../06-configurazione/02-posta-in-uscita.md).
 
 ### Permessi
 

@@ -180,4 +180,4 @@ Da qui prosegui con [Primo accesso al pannello](06-primo-accesso.md).
 | Le immagini caricate non si vedono | Manca il collegamento: `php artisan storage:link`, poi controlla che esista `public/storage`. |
 | `php artisan migrate` si ferma con `SQLSTATE[HY000] [2002]` («connessione rifiutata») o con «Access denied» | I valori `DB_*` del `.env` non corrispondono al database creato al passo 1 (host, nome, utente o password), oppure il database non esiste. Correggi il `.env`, rilancia `php artisan config:cache` e poi `php artisan migrate --force`. |
 | La password del database non viene accettata | Contiene caratteri speciali e non è tra virgolette doppie nel `.env`. |
-| Il codice di accesso via email non arriva | Con `MAIL_MAILER=log` le email non vengono spedite: accedi con la password da `/admin/login/password`, oppure configura la posta in [Configurazione del file .env](03-configurazione-env.md). |
+| Il codice di accesso via email non arriva | Con `MAIL_MAILER=log` le email non vengono spedite: accedi con la password da `/admin/login/password`, oppure configura la posta dal pannello, in [Posta in uscita](../06-configurazione/02-posta-in-uscita.md). |

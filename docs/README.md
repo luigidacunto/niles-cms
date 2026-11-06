@@ -18,7 +18,8 @@ Per mettere NILES online e tenerlo aggiornato.
 
 ## Guida al pannello
 
-Dalla cartella `01` in poi, un documento per ogni voce del menu laterale del pannello, nello stesso ordine e con gli stessi gruppi. La
+Dalla cartella `01` in poi, un documento per ogni voce del menu laterale del pannello, nello stesso ordine e con gli stessi gruppi;
+Formazione e Area soci hanno in fondo un documento in più sul lato pubblico. La
 stessa guida si consulta anche dal pannello, alla voce «Guida».
 
 ### 01 · Primi passi
@@ -81,7 +82,7 @@ stessa guida si consulta anche dal pannello, alla voce «Guida».
 ## Organizzazione della cartella
 
 Un solo livello di cartelle numerate; dentro, i documenti numerati nell'ordine di lettura. Dalla `01` in poi ogni cartella è un gruppo del
-menu laterale del pannello e ogni documento una sua voce. I numeri mancanti corrispondono a guide non ancora scritte.
+menu laterale del pannello e ogni documento una sua voce, salvo i due sul lato pubblico in fondo a Formazione e Area soci.
 
 ```
 docs/

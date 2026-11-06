@@ -43,6 +43,6 @@ allegati di post e pagine.
 ## Allegare un documento
 
 Per allegare un documento a un post o a una pagina si apre il form corrispondente, nel riquadro **Allegati**, e si sceglie il documento
-tra quelli della libreria (anche più di uno, con l'ordine in cui compaiono). Le comunicazioni ai soci hanno invece un caricamento
-proprio, descritto in [Comunicazioni soci](../04-area-soci/02-comunicazioni-soci.md). Se il file non è ancora in libreria,
+tra quelli della libreria (anche più di uno, con l'ordine in cui compaiono). Le comunicazioni ai soci allegano invece i
+[documenti riservati](../04-area-soci/03-documenti-riservati.md), che non passano dalla libreria. Se il file non è ancora in libreria,
 va caricato prima qui. Sul sito gli allegati compaiono in fondo alla pagina, con un'icona per tipo di file e il peso.

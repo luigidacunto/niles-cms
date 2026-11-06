@@ -1,7 +1,7 @@
 # Posta in uscita
 
 In **Posta in uscita** (menu *Configurazione*) si configura il server con cui NILES spedisce le email: codice di accesso al pannello e all'area
-soci, conferme di iscrizione ai corsi, comunicazioni. La sezione è riservata agli amministratori. Le impostazioni sono salvate nel database e la
+soci, conferme di iscrizione ai corsi, avvisi alla segreteria. La sezione è riservata agli amministratori. Le impostazioni sono salvate nel database e la
 password è cifrata: non viene mai mostrata di nuovo.
 
 ![Posta in uscita](../immagini/posta-in-uscita/pagina.png)
@@ -14,7 +14,6 @@ password è cifrata: non viene mai mostrata di nuovo.
 | Server, porta, cifratura | dati forniti dal provider della posta; SSL di solito con la porta 465, TLS/STARTTLS con la 587 |
 | Utente e password | credenziali della casella usata per l'invio. Con la password vuota si mantiene quella già salvata |
 | Indirizzo e nome mittente | indirizzo da cui partono le email; se vuoto si usa l'utente SMTP. Deve appartenere a un dominio autorizzato dal server |
-
 | Rispondi a | indirizzo reale, letto da una persona, a cui arrivano le risposte di chi preme «Rispondi» su una qualsiasi email del sito (anche il codice di accesso). Serve quando l'indirizzo mittente è tecnico o inesistente. Se vuoto si usa l'email indicata in [Dati del comitato](../05-comitato-e-sito/01-dati-del-comitato.md). Vale anche quando la posta è impostata nel `.env` |
 
 La pagina mostra data e utente dell'**ultima modifica** e riassume le **impostazioni attive**.
