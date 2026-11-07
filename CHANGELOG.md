@@ -4,7 +4,7 @@ Elenco delle modifiche di ogni versione, dalla più recente. Le versioni seguono
 incrementano la seconda cifra, le correzioni e i miglioramenti la terza. Le release complete, con i pacchetti scaricabili, sono su
 [GitHub](https://github.com/luigidacunto/niles-cms/releases). Le direzioni future sono nella [roadmap](ROADMAP.md).
 
-## 1.2.2 — 2026-11-06
+## 1.2.2 — 2026-11-07
 - **Pagamenti corsi: incasso in eccesso.** Un importo incassato superiore al totale è segnalato come «In eccesso» (badge, filtro «In
   eccesso (da verificare)» e conteggio nell'elenco dei corsi), con la nota obbligatoria come per l'incasso parziale: si indica se è una
   donazione o una quota da rimborsare. Succede da solo anche quando un iscritto si ritira dopo aver pagato.
