@@ -5,13 +5,6 @@ priorità possono cambiare e le voci «da valutare» non sono impegni. Per propo
 
 Versione attuale e funzioni già rilasciate: vedi il [changelog](CHANGELOG.md) e le [release](https://github.com/luigidacunto/niles-cms/releases). Una voce completata esce da questa pagina.
 
-## In lavorazione
-
-- **Installazione e aggiornamento su hosting condiviso: verifica sul campo.** L'installer a file singolo e l'aggiornamento dal
-  pannello esistono già (vedi [Installazione su hosting condiviso](docs/00-installazione/05-installazione-su-hosting-condiviso.md)).
-  Restano le prove su hosting reali: scaricamento diretto dell'installer dalle release, invio di posta dal wizard, primo
-  aggiornamento completo dal pulsante «Aggiorna».
-
 ## In programma
 
 ### Installazione e aggiornamento
