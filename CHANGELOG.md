@@ -8,7 +8,8 @@ incrementano la seconda cifra, le correzioni e i miglioramenti la terza. Le rele
 - **Menu del sito pubblico**: le voci non vanno più a capo sugli schermi medi. Con un socio collegato, che ha in più la voce «Area
   Soci», sotto i 1100 px di larghezza il menu passa al pulsante «Menu» come su tablet; sotto i 1280 px le voci sono un po' più
   ravvicinate. Le tendine delle ultime voci si aprono verso sinistra e non escono più dalla finestra.
-- **Dashboard**: sugli schermi stretti i riquadri piccoli senza collegamento (per esempio «Post pubblicati») non si schiacciano più.
+- **Dashboard**: sugli schermi stretti i riquadri piccoli senza collegamento (per esempio «Post pubblicati») non si schiacciano più;
+  passando il mouse su un'etichetta accorciata con i puntini se ne legge il testo intero.
 
 ## 1.2.2 — 2026-11-07
 - **Pagamenti corsi: incasso in eccesso.** Un importo incassato superiore al totale è segnalato come «In eccesso» (badge, filtro «In

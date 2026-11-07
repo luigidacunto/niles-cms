@@ -10,7 +10,7 @@
     <div class="info-box">
         <span class="info-box-icon bg-{{ $colore }}"><i class="fas {{ $icona }}"></i></span>
         <div class="info-box-content">
-            <span class="info-box-text">{{ $testo }}</span>
+            <span class="info-box-text" title="{{ $testo }}">{{ $testo }}</span>
             <span class="info-box-number">{{ $numero }}</span>
         </div>
     </div>
