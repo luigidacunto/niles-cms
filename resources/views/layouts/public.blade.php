@@ -21,6 +21,13 @@
         ['Comunicazioni', route('soci.comunicazioni')],
         ['Documenti', route('soci.documenti')],
     ] : [];
+
+    // Da quale larghezza il menu principale è orizzontale (sotto: pulsante «Menu» e accordion). Con la voce «Area Soci» in più
+    // il menu di un socio non ci sta accanto al logo (300 px) tra 1024 e ~1080 px: per lui si passa al menu mobile prima che
+    // le voci vadano a capo. Classi scritte per intero perché Tailwind le trovi nel sorgente.
+    [$navDesktop, $navMobile] = $areaSociNav
+        ? ['hidden min-[1100px]:flex', 'min-[1100px]:hidden']
+        : ['hidden lg:flex', 'lg:hidden'];
 @endphp
 <!DOCTYPE html>
 <html lang="it">
@@ -168,7 +175,7 @@
                     @endif
                 </a>
 
-                <button type="button" class="lg:hidden text-gray-700 font-medium flex items-center gap-2 py-2"
+                <button type="button" class="{{ $navMobile }} text-gray-700 font-medium flex items-center gap-2 py-2"
                         @click="mobileNavOpen = !mobileNavOpen">
                     <span>Menu</span>
                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -176,12 +183,14 @@
                     </svg>
                 </button>
 
-                <ul class="hidden lg:flex items-center text-sm font-semibold uppercase tracking-wide text-gray-700">
+                {{-- Voci mai a capo; sotto 1280 px spaziatura più stretta. Le tendine delle ultime due voci si aprono verso
+                     sinistra, altrimenti escono dal bordo destro della finestra. --}}
+                <ul class="{{ $navDesktop }} items-center text-sm font-semibold uppercase tracking-normal xl:tracking-wide text-gray-700">
                     @foreach ($mainNav as $item)
                         <li class="group relative">
                             @if ($item->children->isNotEmpty())
                                 {{-- Voce con figli: solo trigger del dropdown, non punta a una pagina propria --}}
-                                <span class="flex items-center gap-1 px-2 py-3 cursor-default">
+                                <span class="flex items-center gap-1 px-1.5 xl:px-2 py-3 whitespace-nowrap cursor-default">
                                     {{ $item->title }}
                                     <svg class="w-3 h-3 text-gray-400 group-hover:text-[#cc0000]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M19 9l-7 7-7-7"/>
@@ -189,12 +198,12 @@
                                 </span>
                             @else
                                 <a href="{{ route('pages.show', $item) }}"
-                                   class="flex items-center gap-1 px-2 py-3 hover:text-[#cc0000] transition-colors">
+                                   class="flex items-center gap-1 px-1.5 xl:px-2 py-3 whitespace-nowrap hover:text-[#cc0000] transition-colors">
                                     {{ $item->title }}
                                 </a>
                             @endif
                             @if ($item->children->isNotEmpty())
-                                <ol class="hidden group-hover:block absolute left-0 top-full min-w-[220px] bg-white shadow-lg border-t-2 border-[#cc0000] py-1 normal-case font-normal tracking-normal">
+                                <ol class="hidden group-hover:block absolute {{ $loop->remaining < ($areaSociNav ? 1 : 2) ? 'right-0' : 'left-0' }} top-full min-w-[220px] bg-white shadow-lg border-t-2 border-[#cc0000] py-1 normal-case font-normal tracking-normal">
                                     @foreach ($item->children as $child)
                                         <li>
                                             <a href="{{ route('pages.show', $child) }}" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 hover:text-[#cc0000]">
@@ -208,13 +217,13 @@
                     @endforeach
                     @if ($areaSociNav)
                         <li class="group relative">
-                            <span class="flex items-center gap-1 px-2 py-3 cursor-default text-[#cc0000]">
+                            <span class="flex items-center gap-1 px-1.5 xl:px-2 py-3 whitespace-nowrap cursor-default text-[#cc0000]">
                                 Area Soci
                                 <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M19 9l-7 7-7-7"/>
                                 </svg>
                             </span>
-                            <ol class="hidden group-hover:block absolute left-0 top-full min-w-[220px] bg-white shadow-lg border-t-2 border-[#cc0000] py-1 normal-case font-normal tracking-normal">
+                            <ol class="hidden group-hover:block absolute right-0 top-full min-w-[220px] bg-white shadow-lg border-t-2 border-[#cc0000] py-1 normal-case font-normal tracking-normal">
                                 @foreach ($areaSociNav as [$titolo, $url])
                                     <li><a href="{{ $url }}" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 hover:text-[#cc0000]">{{ $titolo }}</a></li>
                                 @endforeach
@@ -225,7 +234,7 @@
             </div>
 
             {{-- Mobile: accordion --}}
-            <ul x-show="mobileNavOpen" x-cloak class="lg:hidden px-4 pb-3 text-sm font-semibold text-gray-700 border-t border-gray-100">
+            <ul x-show="mobileNavOpen" x-cloak class="{{ $navMobile }} px-4 pb-3 text-sm font-semibold text-gray-700 border-t border-gray-100">
                 @foreach ($mainNav as $item)
                     <li class="border-b border-gray-100" x-data="{ childOpen: false }">
                         <div class="flex items-center justify-between">

@@ -16,7 +16,7 @@ Il pulsante **Area soci**, in alto a destra in ogni pagina del sito, porta alla 
    ![Inserimento del codice](../immagini/area-soci-dal-sito/codice.png)
 
 Dopo l'accesso torna sul sito: in alto a destra compare il suo nome, con **I miei dati** ed **Esci**, e nel menu del sito la voce
-**Area Soci** con *Comunicazioni* e *Documenti*. Non ci sono password.
+**Area Soci** con *Comunicazioni* e *Documenti* (su schermi più stretti, dentro il pulsante **Menu**). Non ci sono password.
 
 Come per il pannello, la pagina risponde allo stesso modo anche se l'email non corrisponde a nessun socio: così non rivela chi è
 iscritto.

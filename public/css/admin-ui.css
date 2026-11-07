@@ -8,7 +8,7 @@
    grande la riempie, due piccoli impilati se la dividono; una card (Riepilogo, elenchi) si allunga come gli altri. */
 .dash-row > [class*="col-"] { display: flex; flex-direction: column; margin-bottom: 1rem; }
 .dash-row > [class*="col-"] > * + * { margin-top: .75rem; }
-.dash-row .small-box, .dash-row .info-box, .dash-row .card, .dash-row .dash-link { flex: 1 1 0; margin-bottom: 0; }
+.dash-row .small-box, .dash-row .info-box, .dash-row .card, .dash-row .dash-link { flex: 1 1 auto; margin-bottom: 0; }
 .dash-row .small-box { display: flex; flex-direction: column; }
 .dash-row .small-box > .inner { flex: 1 1 auto; }
 .dash-row .info-box { min-height: 0; align-items: center; }
