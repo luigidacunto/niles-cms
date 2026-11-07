@@ -44,7 +44,7 @@ class PersonaController extends Controller
                 ->orWhere('codice_fiscale', 'like', "%{$t}%")->orWhere('email', 'like', "%{$t}%")))
             ->when($f['cancellazione'] ?? null, fn ($q, $v) => $v === 'anonimizzate'
                 ? $q->whereNotNull('anonimizzata_at')
-                : $q->whereNotNull('richiesta_cancellazione_at')->whereNull('anonimizzata_at'),
+                : $q->cancellazioneInAttesa(),
                 fn ($q) => $q->whereNull('anonimizzata_at'))   // di base le anonimizzate non si mostrano
             ->orderBy('cognome')->orderBy('nome');
 
@@ -59,7 +59,7 @@ class PersonaController extends Controller
         return view('admin.persone.index', [
             'persone' => $persone->paginate(25)->withQueryString(),
             'filtri' => $f,
-            'richieste' => Persona::whereNotNull('richiesta_cancellazione_at')->whereNull('anonimizzata_at')->orderBy('richiesta_cancellazione_at')->get(),
+            'richieste' => Persona::cancellazioneInAttesa()->orderBy('richiesta_cancellazione_at')->get(),
             'totali' => [
                 'persone' => (clone $attive)->count(),
                 'newsletter' => (clone $attive)->conConsenso('newsletter')->count(),

@@ -192,6 +192,12 @@ class Persona extends Model
         });
     }
 
+    /** Richieste di cancellazione dei dati non ancora eseguite (in attesa di anonimizzazione da parte di un amministratore). */
+    public function scopeCancellazioneInAttesa(Builder $query): void
+    {
+        $query->whereNotNull('richiesta_cancellazione_at')->whereNull('anonimizzata_at');
+    }
+
     /** Persone a cui si può scrivere per questa finalità (consenso attuale `confermato`). */
     public function scopeConConsenso(Builder $query, string $finalita): void
     {

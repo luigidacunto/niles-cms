@@ -15,16 +15,7 @@ class PagamentoCorsoController extends Controller
         $corsi = Corso::with('tipologia')->where('costo', '>', 0)->orderByDesc('data_inizio')->paginate(20);
 
         // Per ogni corso della pagina: blocchi da fatturare / da incassare (gli stati si ricavano dai blocchi).
-        $riepilogo = $corsi->getCollection()->mapWithKeys(function (Corso $corso) {
-            $blocchi = $corso->blocchiPagamento();
-
-            return [$corso->id => [
-                'blocchi' => $blocchi->count(),
-                'da_fatturare' => $blocchi->filter(fn ($r) => ! $r['blocco']->fatturaEmessa())->count(),
-                'da_incassare' => $blocchi->filter(fn ($r) => $r['blocco']->daIncassare($r['totale_cent']))->count(),
-                'eccesso' => $blocchi->filter(fn ($r) => $r['blocco']->statoIncasso($r['totale_cent']) === 'eccesso')->count(),
-            ]];
-        });
+        $riepilogo = $corsi->getCollection()->mapWithKeys(fn (Corso $corso) => [$corso->id => $corso->riepilogoPagamenti()]);
 
         return view('admin.pagamenti-corsi.index', compact('corsi', 'riepilogo'));
     }

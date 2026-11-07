@@ -22,6 +22,11 @@ incrementano la seconda cifra, le correzioni e i miglioramenti la terza. Le rele
   (un solo interruttore per sezione, Corsi con lettura e scrittura, Pagamenti corsi); menu e schermate aggiornati.
 - **Guida, aggiornamento dal pannello**: procedura passo per passo con le schermate; schermate rifatte senza le indicazioni della versione
   dimostrativa.
+- **Dashboard più completa**: un riquadro «Da fare» con le richieste in attesa (cancellazione dei dati degli iscritti, disattivazione
+  dei soci); per la formazione corsi aperti, iscritti ai prossimi corsi, iscrizioni della settimana e prossimi corsi; con i pagamenti
+  attivi i pagamenti da fatturare e da incassare; con l'area soci attiva membri per ruolo, membri senza email, comunicazioni e
+  documenti riservati e, per gli amministratori, accessi e documenti aperti negli ultimi 30 giorni. Ogni parte compare solo a chi ha il
+  permesso e solo se la funzione è attiva; la guida «Il pannello in breve» lo descrive.
 - **Guida, rilettura completa**: corretti i rimandi superati (hosting condiviso nei requisiti, posta configurata dal pannello, allegati
   delle comunicazioni scelti tra i documenti riservati, indicazioni dei loghi in «Loghi e immagini») e una tabella di «Posta in uscita».
 

@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Foundation\Auth\User as Authenticatable;
@@ -57,6 +58,12 @@ class Member extends Authenticatable
         }
 
         return $category->isGenerale() || $this->categorieRiservate->contains('id', $category->id);
+    }
+
+    /** Soci che hanno chiesto di disattivare il proprio accesso, richiesta non ancora evasa da un amministratore. */
+    public function scopeRichiestaDisattivazione(Builder $query): void
+    {
+        $query->whereNotNull('richiesta_disattivazione_at')->where('disabilitato', false);
     }
 
     public function ruoloLabel(): string

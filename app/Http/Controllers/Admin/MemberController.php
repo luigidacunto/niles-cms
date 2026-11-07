@@ -44,7 +44,7 @@ class MemberController extends Controller
         }
         match ($filters['presenza']) {
             'disabilitati' => $members->where('disabilitato', true),
-            'richieste' => $members->whereNotNull('richiesta_disattivazione_at')->where('disabilitato', false),
+            'richieste' => $members->richiestaDisattivazione(),
             'rimossi' => $members->onlyTrashed(),
             'tutti' => $members->withTrashed(),
             default => $members->where('disabilitato', false),

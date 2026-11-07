@@ -4,13 +4,200 @@
 
 @section('content_header')
     <h1>Ciao, {{ Str::of($admin->name)->explode(' ')->first() }} 👋</h1>
-    <p class="text-muted mb-0">Riepilogo dei contenuti del sito.</p>
+    <p class="text-muted mb-0">Riepilogo delle attività e dei contenuti del sito.</p>
 @stop
 
 @php($canWritePosts = $admin->hasPermission('posts', 'write'))
 @php($postLink = fn ($p) => $canWritePosts ? route('admin.posts.edit', $p) : route('admin.posts.show', $p))
 
 @section('content')
+
+    {{-- Richieste in attesa (solo se ce ne sono, solo a chi le gestisce) --}}
+    @if ($daFare)
+        <div class="callout callout-warning">
+            <h5><i class="fas fa-bell mr-1"></i> Da fare</h5>
+            <ul class="list-unstyled mb-0">
+                @foreach ($daFare as $voce)
+                    <li class="py-1">
+                        <i class="fas {{ $voce['icona'] }} fa-fw text-muted mr-1"></i>
+                        <a href="{{ $voce['url'] }}">{{ $voce['testo'] }}</a>
+                        <span class="badge badge-warning ml-1">{{ $voce['numero'] }}</span>
+                    </li>
+                @endforeach
+            </ul>
+        </div>
+    @endif
+
+    {{-- Formazione (permesso Corsi) e pagamenti (funzione attiva + permesso) --}}
+    @if ($formazione || $pagamenti)
+        <h5 class="mb-2"><i class="fas fa-chalkboard-teacher mr-1"></i> Formazione</h5>
+        <div class="row">
+            @if ($formazione)
+                <div class="col-lg-3 col-6">
+                    <div class="small-box bg-primary">
+                        <div class="inner">
+                            <h3>{{ $formazione['aperti'] }}</h3>
+                            <p>Corsi con iscrizioni aperte</p>
+                        </div>
+                        <div class="icon"><i class="fas fa-door-open"></i></div>
+                        <a href="{{ route('admin.corsi.index') }}" class="small-box-footer">
+                            Corsi <i class="fas fa-arrow-circle-right"></i>
+                        </a>
+                    </div>
+                </div>
+                <div class="col-lg-3 col-6">
+                    <div class="info-box">
+                        <span class="info-box-icon bg-primary"><i class="fas fa-user-check"></i></span>
+                        <div class="info-box-content">
+                            <span class="info-box-text">Iscritti ai prossimi corsi</span>
+                            <span class="info-box-number">{{ $formazione['iscrittiFuturi'] }}</span>
+                        </div>
+                    </div>
+                    <div class="info-box">
+                        <span class="info-box-icon bg-info"><i class="fas fa-calendar-plus"></i></span>
+                        <div class="info-box-content">
+                            <span class="info-box-text">Iscrizioni negli ultimi 7 giorni</span>
+                            <span class="info-box-number">{{ $formazione['iscrizioniSettimana'] }}</span>
+                        </div>
+                    </div>
+                </div>
+            @endif
+            @if ($pagamenti)
+                <div class="col-lg-3 col-6">
+                    <div class="small-box bg-warning">
+                        <div class="inner">
+                            <h3>{{ $pagamenti['da_fatturare'] }}</h3>
+                            <p>Pagamenti da fatturare</p>
+                        </div>
+                        <div class="icon"><i class="fas fa-file-invoice"></i></div>
+                        <a href="{{ route('admin.pagamenti-corsi.index') }}" class="small-box-footer">
+                            Pagamenti corsi <i class="fas fa-arrow-circle-right"></i>
+                        </a>
+                    </div>
+                </div>
+                <div class="col-lg-3 col-6">
+                    <div class="small-box bg-secondary">
+                        <div class="inner">
+                            <h3>{{ $pagamenti['da_incassare'] }}</h3>
+                            <p>Pagamenti da incassare</p>
+                        </div>
+                        <div class="icon"><i class="fas fa-hand-holding-usd"></i></div>
+                        <a href="{{ route('admin.pagamenti-corsi.index') }}" class="small-box-footer">
+                            Pagamenti corsi <i class="fas fa-arrow-circle-right"></i>
+                        </a>
+                    </div>
+                </div>
+            @endif
+        </div>
+
+        @if ($formazione)
+            <div class="card">
+                <div class="card-header">
+                    <h3 class="card-title"><i class="fas fa-calendar-alt mr-1"></i> Prossimi corsi</h3>
+                </div>
+                <div class="card-body p-0">
+                    @if ($formazione['prossimi']->isEmpty())
+                        <p class="text-muted p-3 mb-0">Nessun corso in programma.</p>
+                    @else
+                        <table class="table table-sm mb-0">
+                            <thead>
+                                <tr><th>Data</th><th>Protocollo</th><th>Tipologia</th><th class="text-right">Iscritti</th><th></th></tr>
+                            </thead>
+                            <tbody>
+                                @foreach ($formazione['prossimi'] as $corso)
+                                    <tr>
+                                        <td>{{ $corso->data_inizio->format('d/m/Y H:i') }}</td>
+                                        <td>{{ $corso->protocollo }}</td>
+                                        <td>{{ $corso->tipologia->nome }}</td>
+                                        <td class="text-right">{{ $corso->attivi_count }}@if ($corso->posti_max) / {{ $corso->posti_max }}@endif</td>
+                                        <td class="text-right">
+                                            <a href="{{ route('admin.corsi.iscritti.index', $corso) }}" class="btn btn-xs btn-outline-primary"
+                                               title="Iscritti"><i class="fas fa-users"></i></a>
+                                        </td>
+                                    </tr>
+                                @endforeach
+                            </tbody>
+                        </table>
+                    @endif
+                </div>
+            </div>
+        @endif
+    @endif
+
+    {{-- Area soci (funzione attiva): ogni parte con il suo permesso, l'attività solo agli amministratori --}}
+    @if ($soci)
+        <h5 class="mb-2"><i class="fas fa-id-card mr-1"></i> Area soci</h5>
+        <div class="row">
+            @isset($soci['membri'])
+                <div class="col-lg-3 col-6">
+                    <div class="small-box bg-teal">
+                        <div class="inner">
+                            <h3>{{ $soci['membri']['totale'] }}</h3>
+                            <p>Membri attivi</p>
+                        </div>
+                        <div class="icon"><i class="fas fa-id-card"></i></div>
+                        <a href="{{ route('admin.membri.index') }}" class="small-box-footer">
+                            Membri <i class="fas fa-arrow-circle-right"></i>
+                        </a>
+                    </div>
+                </div>
+                <div class="col-lg-3 col-6">
+                    <div class="card mb-3">
+                        <div class="card-body py-2">
+                            @foreach (\App\Models\Member::RUOLI as $ruolo => $etichetta)
+                                <div class="d-flex justify-content-between py-1">
+                                    <span>{{ $etichetta }}</span><strong>{{ $soci['membri']['perRuolo'][$ruolo] ?? 0 }}</strong>
+                                </div>
+                            @endforeach
+                            <div class="d-flex justify-content-between py-1 border-top {{ $soci['membri']['senzaEmail'] ? 'text-danger' : 'text-muted' }}">
+                                <span>Senza email (non possono accedere)</span><strong>{{ $soci['membri']['senzaEmail'] }}</strong>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            @endisset
+            @isset($soci['contenuti'])
+                <div class="col-lg-3 col-6">
+                    <div class="info-box">
+                        <span class="info-box-icon bg-teal"><i class="fas fa-bullhorn"></i></span>
+                        <div class="info-box-content">
+                            <span class="info-box-text">Comunicazioni pubblicate</span>
+                            <span class="info-box-number">{{ $soci['contenuti']['comunicazioni'] }}</span>
+                        </div>
+                    </div>
+                    <div class="info-box">
+                        <span class="info-box-icon bg-teal"><i class="fas fa-lock"></i></span>
+                        <div class="info-box-content">
+                            <span class="info-box-text">Documenti riservati pubblicati</span>
+                            <span class="info-box-number">{{ $soci['contenuti']['documenti'] }}</span>
+                        </div>
+                    </div>
+                </div>
+            @endisset
+            @isset($soci['attivita'])
+                <div class="col-lg-3 col-6">
+                    <div class="info-box">
+                        <span class="info-box-icon bg-secondary"><i class="fas fa-sign-in-alt"></i></span>
+                        <div class="info-box-content">
+                            <span class="info-box-text">Soci entrati (30 giorni)</span>
+                            <span class="info-box-number">{{ $soci['attivita']['sociEntrati'] }}</span>
+                        </div>
+                    </div>
+                    <div class="info-box">
+                        <span class="info-box-icon bg-secondary"><i class="fas fa-file-download"></i></span>
+                        <div class="info-box-content">
+                            <span class="info-box-text">Documenti aperti (30 giorni)</span>
+                            <span class="info-box-number">{{ $soci['attivita']['documentiAperti'] }}</span>
+                        </div>
+                    </div>
+                </div>
+            @endisset
+        </div>
+    @endif
+
+    @if ($daFare || $formazione || $pagamenti || $soci)
+        <h5 class="mb-2"><i class="fas fa-globe mr-1"></i> Contenuti del sito</h5>
+    @endif
 
     {{-- KPI principali --}}
     <div class="row">

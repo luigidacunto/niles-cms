@@ -4,11 +4,23 @@ Come è fatto il pannello e come si usano gli elementi che compaiono in tutte le
 
 ## La dashboard
 
-All'ingresso compare la dashboard, un riepilogo dei contenuti del sito.
+All'ingresso compare la dashboard, un riepilogo delle attività e dei contenuti del sito. Ognuno vede solo le parti per cui ha il
+permesso, e le parti delle funzioni facoltative (pagamenti dei corsi, area soci) solo se sono attive in *Configurazione → Funzioni attive*.
 
 ![Dashboard del pannello](../immagini/primo-accesso/dashboard.png)
 
-- **Riquadri in alto**: numero di post, pagine, documenti e foto nelle gallerie, ciascuno con il collegamento a «Gestisci».
+- **Da fare**: compare solo quando c'è qualcosa in attesa, a chi lo può gestire: le **richieste di cancellazione dei dati** arrivate
+  dalla pagina personale degli iscritti ai corsi (vedi [Persone](../03-formazione/02-persone.md)) e le **richieste di disattivazione**
+  dei soci (vedi [Membri](../04-area-soci/01-membri.md)). Ogni riga apre l'elenco già filtrato; la voce sparisce quando la richiesta è
+  gestita.
+- **Formazione**, con il permesso Corsi: corsi con iscrizioni aperte, iscritti ai prossimi corsi, iscrizioni degli ultimi 7 giorni e
+  l'elenco dei **prossimi corsi** con iscritti e posti. Con i pagamenti attivi e il relativo permesso, anche il numero di pagamenti
+  **da fatturare** e **da incassare** su tutti i corsi (i dettagli, compresi gli incassi in eccesso, sono in
+  [Pagamenti corsi](../03-formazione/03-pagamenti-corsi.md)).
+- **Area soci**, se attiva: con il permesso Membri i membri attivi divisi per ruolo e quanti sono **senza email** (non possono entrare
+  nell'area riservata); con il permesso Comunicazioni soci le comunicazioni e i documenti riservati pubblicati; agli amministratori
+  anche i soci entrati e i documenti aperti negli ultimi 30 giorni.
+- **Contenuti del sito**, sotto: numero di post, pagine, documenti e foto nelle gallerie, ciascuno con il collegamento a «Gestisci».
 - **Indicatori**: post pubblicati, bozze, post senza copertina e pagine fuori dal menu.
 - **Ultimi post** e **Post per categoria**: cosa è stato pubblicato di recente e come sono distribuiti i contenuti.
 - **Riepilogo**: versione di NILES installata; agli amministratori, se il controllo è attivo, anche se ne esiste una più recente.

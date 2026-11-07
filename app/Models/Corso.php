@@ -84,6 +84,24 @@ class Corso extends Model
             ->values();
     }
 
+    /**
+     * Conteggi dei blocchi di fatturazione del corso: totali, senza fattura, da incassare (anche in parte), incassati più del dovuto.
+     * Usati dall'elenco dei pagamenti e dalla dashboard.
+     *
+     * @return array{blocchi: int, da_fatturare: int, da_incassare: int, eccesso: int}
+     */
+    public function riepilogoPagamenti(): array
+    {
+        $blocchi = $this->blocchiPagamento();
+
+        return [
+            'blocchi' => $blocchi->count(),
+            'da_fatturare' => $blocchi->filter(fn ($r) => ! $r['blocco']->fatturaEmessa())->count(),
+            'da_incassare' => $blocchi->filter(fn ($r) => $r['blocco']->daIncassare($r['totale_cent']))->count(),
+            'eccesso' => $blocchi->filter(fn ($r) => $r['blocco']->statoIncasso($r['totale_cent']) === 'eccesso')->count(),
+        ];
+    }
+
     /** La tipologia richiede data e luogo di nascita (anagrafica completa, per l'attestato). */
     public function richiedeAnagraficaCompleta(): bool
     {
