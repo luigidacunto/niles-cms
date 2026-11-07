@@ -9,10 +9,13 @@ permesso, e le parti delle funzioni facoltative (pagamenti dei corsi, area soci)
 
 ![Dashboard del pannello](../immagini/primo-accesso/dashboard.png)
 
-- **Da fare**: compare solo quando c'è qualcosa in attesa, a chi lo può gestire: le **richieste di cancellazione dei dati** arrivate
-  dalla pagina personale degli iscritti ai corsi (vedi [Persone](../03-formazione/02-persone.md)) e le **richieste di disattivazione**
-  dei soci (vedi [Membri](../04-area-soci/01-membri.md)). Ogni riga apre l'elenco già filtrato; la voce sparisce quando la richiesta è
-  gestita.
+- **Da fare**, in cima: compare solo quando c'è qualcosa in attesa, a chi lo può gestire: le **richieste di cancellazione dei dati**
+  arrivate dalla pagina personale degli iscritti ai corsi (vedi [Persone](../03-formazione/02-persone.md)) e le **richieste di
+  disattivazione** dei soci (vedi [Membri](../04-area-soci/01-membri.md)). Ogni riga apre l'elenco già filtrato; la voce sparisce quando
+  la richiesta è gestita.
+- **Contenuti del sito**: numero di post, pagine, documenti e foto nelle gallerie; post pubblicati, bozze, post senza copertina e pagine
+  fuori dal menu; accanto il **Riepilogo** con la versione di NILES installata e, agli amministratori, se il controllo è attivo, anche se
+  ne esiste una più recente.
 - **Formazione**, con il permesso Corsi: corsi con iscrizioni aperte, iscritti ai prossimi corsi, iscrizioni degli ultimi 7 giorni e
   l'elenco dei **prossimi corsi** con iscritti e posti. Con i pagamenti attivi e il relativo permesso, anche il numero di pagamenti
   **da fatturare** e **da incassare** su tutti i corsi (i dettagli, compresi gli incassi in eccesso, sono in
@@ -20,10 +23,7 @@ permesso, e le parti delle funzioni facoltative (pagamenti dei corsi, area soci)
 - **Area soci**, se attiva: con il permesso Membri i membri attivi divisi per ruolo e quanti sono **senza email** (non possono entrare
   nell'area riservata); con il permesso Comunicazioni soci le comunicazioni e i documenti riservati pubblicati; agli amministratori
   anche i soci entrati e i documenti aperti negli ultimi 30 giorni.
-- **Contenuti del sito**, sotto: numero di post, pagine, documenti e foto nelle gallerie, ciascuno con il collegamento a «Gestisci».
-- **Indicatori**: post pubblicati, bozze, post senza copertina e pagine fuori dal menu.
-- **Ultimi post** e **Post per categoria**: cosa è stato pubblicato di recente e come sono distribuiti i contenuti.
-- **Riepilogo**: versione di NILES installata; agli amministratori, se il controllo è attivo, anche se ne esiste una più recente.
+- In fondo, **Ultimi post**, **Post per categoria** e **Bozze da rivedere**: cosa è stato pubblicato di recente e come sono distribuiti i contenuti.
 
 ## Il menu laterale
 

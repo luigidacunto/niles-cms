@@ -29,7 +29,8 @@ Da qui si creano anche gli altri utenti del pannello: vedi [Utenti](../08-utenti
 
 ## La dashboard e il menu
 
-All'ingresso compare la dashboard, con il riepilogo dei contenuti del sito; a sinistra il menu con tutte le sezioni del pannello. Come sono
+All'ingresso compare la dashboard, con il riepilogo dei contenuti del sito, della formazione e dell'area soci (le ultime due solo se
+usate); a sinistra il menu con tutte le sezioni del pannello. Come sono
 organizzati, e come si usano elenchi e moduli, è spiegato in [Il pannello in breve](../01-primi-passi/02-il-pannello-in-breve.md).
 
 ## Cosa trovi già pronto

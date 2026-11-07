@@ -28,64 +28,94 @@
         </div>
     @endif
 
+    {{-- Contenuti del sito e Riepilogo --}}
+    @if ($formazione || $pagamenti || $soci)
+        <h5 class="mb-2"><i class="fas fa-globe mr-1"></i> Contenuti del sito</h5>
+    @endif
+    <div class="row dash-row">
+        <div class="col-lg-3 col-6">
+            <x-admin.riquadro :numero="$stats['posts']" testo="Post" icona="fa-newspaper" colore="danger" :url="route('admin.posts.index')" />
+        </div>
+        @if ($canPages)
+            <div class="col-lg-3 col-6">
+                <x-admin.riquadro :numero="$stats['pages']" testo="Pagine" icona="fa-file-alt" colore="info" :url="route('admin.pages.index')" />
+            </div>
+        @endif
+        <div class="col-lg-3 col-6">
+            <x-admin.riquadro :numero="$stats['documents']" testo="Documenti" icona="fa-folder-open"
+                              :url="$canDocs ? route('admin.documents.index') : null" />
+        </div>
+        <div class="col-lg-3 col-6">
+            <x-admin.riquadro :numero="$stats['galleryPhotos']" testo="Foto nelle gallerie" icona="fa-images" colore="success" />
+        </div>
+    </div>
+
+    <div class="row dash-row">
+        <div class="col-lg-3 col-sm-6">
+            <x-admin.riquadro piccolo :numero="$stats['postsPublished']" testo="Post pubblicati" icona="fa-check" colore="success" />
+            <x-admin.riquadro piccolo :numero="$stats['postsDraft']" testo="Bozze" icona="fa-pen" colore="warning"
+                              :url="route('admin.posts.index', ['stato' => 'bozze'])" />
+        </div>
+        <div class="col-lg-3 col-sm-6">
+            <x-admin.riquadro piccolo :numero="$stats['postsNoCover']" testo="Post senza copertina" icona="fa-image" />
+            @if ($canPages)
+                <x-admin.riquadro piccolo :numero="$stats['pagesOutOfMenu']" testo="Pagine fuori dal menu" icona="fa-eye-slash"
+                                  :url="route('admin.pages.index', ['menu' => 'no'])" />
+            @endif
+        </div>
+        <div class="col-lg-6">
+            <div class="card">
+                <div class="card-header">
+                    <h3 class="card-title"><i class="fas fa-info-circle mr-1"></i> Riepilogo</h3>
+                </div>
+                <ul class="list-group list-group-flush">
+                    <li class="list-group-item d-flex justify-content-between align-items-center">
+                        <span>Versione NILES corrente</span>
+                        <span class="badge badge-primary">{{ $versione }}</span>
+                    </li>
+                    @if ($verificaAggiornamenti)
+                        <li class="list-group-item d-flex justify-content-between align-items-center">
+                            <span>Versione NILES disponibile</span>
+                            <span id="niles-disponibile" class="badge badge-light" data-url="{{ route('admin.aggiornamenti') }}">Verifica…</span>
+                        </li>
+                        <li class="list-group-item d-flex justify-content-between align-items-center">
+                            <span>Stato</span>
+                            <span>
+                                <span id="niles-stato" class="badge"></span>
+                                @if ($aggiornamentoDalPannello)
+                                    {{-- Compare solo se c'è una versione più recente (vedi lo script sotto). --}}
+                                    <a id="niles-aggiorna" href="{{ route('admin.aggiornamento.index') }}" class="btn btn-xs btn-primary ml-1 d-none">Aggiorna</a>
+                                @endif
+                            </span>
+                        </li>
+                    @endif
+                </ul>
+            </div>
+        </div>
+    </div>
+
     {{-- Formazione (permesso Corsi) e pagamenti (funzione attiva + permesso) --}}
     @if ($formazione || $pagamenti)
         <h5 class="mb-2"><i class="fas fa-chalkboard-teacher mr-1"></i> Formazione</h5>
-        <div class="row">
+        <div class="row dash-row">
             @if ($formazione)
                 <div class="col-lg-3 col-6">
-                    <div class="small-box bg-primary">
-                        <div class="inner">
-                            <h3>{{ $formazione['aperti'] }}</h3>
-                            <p>Corsi con iscrizioni aperte</p>
-                        </div>
-                        <div class="icon"><i class="fas fa-door-open"></i></div>
-                        <a href="{{ route('admin.corsi.index') }}" class="small-box-footer">
-                            Corsi <i class="fas fa-arrow-circle-right"></i>
-                        </a>
-                    </div>
+                    <x-admin.riquadro :numero="$formazione['aperti']" testo="Corsi con iscrizioni aperte" icona="fa-door-open"
+                                      colore="primary" :url="route('admin.corsi.index')" link="Corsi" />
                 </div>
                 <div class="col-lg-3 col-6">
-                    <div class="info-box">
-                        <span class="info-box-icon bg-primary"><i class="fas fa-user-check"></i></span>
-                        <div class="info-box-content">
-                            <span class="info-box-text">Iscritti ai prossimi corsi</span>
-                            <span class="info-box-number">{{ $formazione['iscrittiFuturi'] }}</span>
-                        </div>
-                    </div>
-                    <div class="info-box">
-                        <span class="info-box-icon bg-info"><i class="fas fa-calendar-plus"></i></span>
-                        <div class="info-box-content">
-                            <span class="info-box-text">Iscrizioni negli ultimi 7 giorni</span>
-                            <span class="info-box-number">{{ $formazione['iscrizioniSettimana'] }}</span>
-                        </div>
-                    </div>
+                    <x-admin.riquadro piccolo :numero="$formazione['iscrittiFuturi']" testo="Iscritti ai prossimi corsi" icona="fa-user-check" colore="primary" />
+                    <x-admin.riquadro piccolo :numero="$formazione['iscrizioniSettimana']" testo="Iscrizioni negli ultimi 7 giorni" icona="fa-calendar-plus" colore="info" />
                 </div>
             @endif
             @if ($pagamenti)
                 <div class="col-lg-3 col-6">
-                    <div class="small-box bg-warning">
-                        <div class="inner">
-                            <h3>{{ $pagamenti['da_fatturare'] }}</h3>
-                            <p>Pagamenti da fatturare</p>
-                        </div>
-                        <div class="icon"><i class="fas fa-file-invoice"></i></div>
-                        <a href="{{ route('admin.pagamenti-corsi.index') }}" class="small-box-footer">
-                            Pagamenti corsi <i class="fas fa-arrow-circle-right"></i>
-                        </a>
-                    </div>
+                    <x-admin.riquadro :numero="$pagamenti['da_fatturare']" testo="Pagamenti da fatturare" icona="fa-file-invoice"
+                                      colore="warning" :url="route('admin.pagamenti-corsi.index')" link="Pagamenti corsi" />
                 </div>
                 <div class="col-lg-3 col-6">
-                    <div class="small-box bg-secondary">
-                        <div class="inner">
-                            <h3>{{ $pagamenti['da_incassare'] }}</h3>
-                            <p>Pagamenti da incassare</p>
-                        </div>
-                        <div class="icon"><i class="fas fa-hand-holding-usd"></i></div>
-                        <a href="{{ route('admin.pagamenti-corsi.index') }}" class="small-box-footer">
-                            Pagamenti corsi <i class="fas fa-arrow-circle-right"></i>
-                        </a>
-                    </div>
+                    <x-admin.riquadro :numero="$pagamenti['da_incassare']" testo="Pagamenti da incassare" icona="fa-hand-holding-usd"
+                                      :url="route('admin.pagamenti-corsi.index')" link="Pagamenti corsi" />
                 </div>
             @endif
         </div>
@@ -94,6 +124,9 @@
             <div class="card">
                 <div class="card-header">
                     <h3 class="card-title"><i class="fas fa-calendar-alt mr-1"></i> Prossimi corsi</h3>
+                    <div class="card-tools">
+                        <a href="{{ route('admin.corsi.index') }}" class="btn btn-tool" title="Corsi"><i class="fas fa-list"></i></a>
+                    </div>
                 </div>
                 <div class="card-body p-0">
                     @if ($formazione['prossimi']->isEmpty())
@@ -110,7 +143,7 @@
                                         <td>{{ $corso->protocollo }}</td>
                                         <td>{{ $corso->tipologia->nome }}</td>
                                         <td class="text-right">{{ $corso->attivi_count }}@if ($corso->posti_max) / {{ $corso->posti_max }}@endif</td>
-                                        <td class="text-right">
+                                        <td class="text-right" style="width:1%">
                                             <a href="{{ route('admin.corsi.iscritti.index', $corso) }}" class="btn btn-xs btn-outline-primary"
                                                title="Iscritti"><i class="fas fa-users"></i></a>
                                         </td>
@@ -127,23 +160,15 @@
     {{-- Area soci (funzione attiva): ogni parte con il suo permesso, l'attività solo agli amministratori --}}
     @if ($soci)
         <h5 class="mb-2"><i class="fas fa-id-card mr-1"></i> Area soci</h5>
-        <div class="row">
+        <div class="row dash-row">
             @isset($soci['membri'])
                 <div class="col-lg-3 col-6">
-                    <div class="small-box bg-teal">
-                        <div class="inner">
-                            <h3>{{ $soci['membri']['totale'] }}</h3>
-                            <p>Membri attivi</p>
-                        </div>
-                        <div class="icon"><i class="fas fa-id-card"></i></div>
-                        <a href="{{ route('admin.membri.index') }}" class="small-box-footer">
-                            Membri <i class="fas fa-arrow-circle-right"></i>
-                        </a>
-                    </div>
+                    <x-admin.riquadro :numero="$soci['membri']['totale']" testo="Membri attivi" icona="fa-id-card" colore="teal"
+                                      :url="route('admin.membri.index')" link="Membri" />
                 </div>
                 <div class="col-lg-3 col-6">
-                    <div class="card mb-3">
-                        <div class="card-body py-2">
+                    <div class="card">
+                        <div class="card-body py-2 d-flex flex-column justify-content-center">
                             @foreach (\App\Models\Member::RUOLI as $ruolo => $etichetta)
                                 <div class="d-flex justify-content-between py-1">
                                     <span>{{ $etichetta }}</span><strong>{{ $soci['membri']['perRuolo'][$ruolo] ?? 0 }}</strong>
@@ -157,152 +182,26 @@
                 </div>
             @endisset
             @isset($soci['contenuti'])
-                <div class="col-lg-3 col-6">
-                    <div class="info-box">
-                        <span class="info-box-icon bg-teal"><i class="fas fa-bullhorn"></i></span>
-                        <div class="info-box-content">
-                            <span class="info-box-text">Comunicazioni pubblicate</span>
-                            <span class="info-box-number">{{ $soci['contenuti']['comunicazioni'] }}</span>
-                        </div>
-                    </div>
-                    <div class="info-box">
-                        <span class="info-box-icon bg-teal"><i class="fas fa-lock"></i></span>
-                        <div class="info-box-content">
-                            <span class="info-box-text">Documenti riservati pubblicati</span>
-                            <span class="info-box-number">{{ $soci['contenuti']['documenti'] }}</span>
-                        </div>
-                    </div>
+                <div class="col-lg-3 col-sm-6">
+                    <x-admin.riquadro piccolo :numero="$soci['contenuti']['comunicazioni']" testo="Comunicazioni pubblicate" icona="fa-bullhorn"
+                                      colore="teal" :url="route('admin.comunicazioni-soci.index')" />
+                    <x-admin.riquadro piccolo :numero="$soci['contenuti']['documenti']" testo="Documenti riservati pubblicati" icona="fa-lock"
+                                      colore="teal" :url="route('admin.documenti-riservati.index')" />
                 </div>
             @endisset
             @isset($soci['attivita'])
-                <div class="col-lg-3 col-6">
-                    <div class="info-box">
-                        <span class="info-box-icon bg-secondary"><i class="fas fa-sign-in-alt"></i></span>
-                        <div class="info-box-content">
-                            <span class="info-box-text">Soci entrati (30 giorni)</span>
-                            <span class="info-box-number">{{ $soci['attivita']['sociEntrati'] }}</span>
-                        </div>
-                    </div>
-                    <div class="info-box">
-                        <span class="info-box-icon bg-secondary"><i class="fas fa-file-download"></i></span>
-                        <div class="info-box-content">
-                            <span class="info-box-text">Documenti aperti (30 giorni)</span>
-                            <span class="info-box-number">{{ $soci['attivita']['documentiAperti'] }}</span>
-                        </div>
-                    </div>
+                <div class="col-lg-3 col-sm-6">
+                    <x-admin.riquadro piccolo :numero="$soci['attivita']['sociEntrati']" testo="Soci entrati (30 giorni)" icona="fa-sign-in-alt"
+                                      :url="route('admin.registro-accessi')" />
+                    <x-admin.riquadro piccolo :numero="$soci['attivita']['documentiAperti']" testo="Documenti aperti (30 giorni)" icona="fa-file-download"
+                                      :url="route('admin.registro-download')" />
                 </div>
             @endisset
         </div>
     @endif
 
-    @if ($daFare || $formazione || $pagamenti || $soci)
-        <h5 class="mb-2"><i class="fas fa-globe mr-1"></i> Contenuti del sito</h5>
-    @endif
-
-    {{-- KPI principali --}}
-    <div class="row">
-        <div class="col-lg-3 col-6">
-            <div class="small-box bg-danger">
-                <div class="inner">
-                    <h3>{{ $stats['posts'] }}</h3>
-                    <p>Post</p>
-                </div>
-                <div class="icon"><i class="fas fa-newspaper"></i></div>
-                <a href="{{ route('admin.posts.index') }}" class="small-box-footer">
-                    Gestisci <i class="fas fa-arrow-circle-right"></i>
-                </a>
-            </div>
-        </div>
-
-        @if ($canPages)
-            <div class="col-lg-3 col-6">
-                <div class="small-box bg-info">
-                    <div class="inner">
-                        <h3>{{ $stats['pages'] }}</h3>
-                        <p>Pagine</p>
-                    </div>
-                    <div class="icon"><i class="fas fa-file-alt"></i></div>
-                    <a href="{{ route('admin.pages.index') }}" class="small-box-footer">
-                        Gestisci <i class="fas fa-arrow-circle-right"></i>
-                    </a>
-                </div>
-            </div>
-        @endif
-
-        <div class="col-lg-3 col-6">
-            <div class="small-box bg-secondary">
-                <div class="inner">
-                    <h3>{{ $stats['documents'] }}</h3>
-                    <p>Documenti</p>
-                </div>
-                <div class="icon"><i class="fas fa-folder-open"></i></div>
-                @if ($canDocs)
-                    <a href="{{ route('admin.documents.index') }}" class="small-box-footer">
-                        Gestisci <i class="fas fa-arrow-circle-right"></i>
-                    </a>
-                @endif
-            </div>
-        </div>
-
-        <div class="col-lg-3 col-6">
-            <div class="small-box bg-success">
-                <div class="inner">
-                    <h3>{{ $stats['galleryPhotos'] }}</h3>
-                    <p>Foto nelle gallerie</p>
-                </div>
-                <div class="icon"><i class="fas fa-images"></i></div>
-            </div>
-        </div>
-    </div>
-
-    {{-- Metriche secondarie / cose da sistemare --}}
-    <div class="row">
-        <div class="col-md-3 col-sm-6">
-            <div class="info-box">
-                <span class="info-box-icon bg-success"><i class="fas fa-check"></i></span>
-                <div class="info-box-content">
-                    <span class="info-box-text">Post pubblicati</span>
-                    <span class="info-box-number">{{ $stats['postsPublished'] }}</span>
-                </div>
-            </div>
-        </div>
-        <div class="col-md-3 col-sm-6">
-            <a href="{{ route('admin.posts.index', ['stato' => 'bozze']) }}" class="text-dark">
-                <div class="info-box">
-                    <span class="info-box-icon bg-warning"><i class="fas fa-pen"></i></span>
-                    <div class="info-box-content">
-                        <span class="info-box-text">Bozze</span>
-                        <span class="info-box-number">{{ $stats['postsDraft'] }}</span>
-                    </div>
-                </div>
-            </a>
-        </div>
-        <div class="col-md-3 col-sm-6">
-            <div class="info-box">
-                <span class="info-box-icon bg-secondary"><i class="fas fa-image"></i></span>
-                <div class="info-box-content">
-                    <span class="info-box-text">Post senza copertina</span>
-                    <span class="info-box-number">{{ $stats['postsNoCover'] }}</span>
-                </div>
-            </div>
-        </div>
-        @if ($canPages)
-            <div class="col-md-3 col-sm-6">
-                <a href="{{ route('admin.pages.index', ['menu' => 'no']) }}" class="text-dark">
-                    <div class="info-box">
-                        <span class="info-box-icon bg-secondary"><i class="fas fa-eye-slash"></i></span>
-                        <div class="info-box-content">
-                            <span class="info-box-text">Pagine fuori dal menu</span>
-                            <span class="info-box-number">{{ $stats['pagesOutOfMenu'] }}</span>
-                        </div>
-                    </div>
-                </a>
-            </div>
-        @endif
-    </div>
-
-    <div class="row">
-        {{-- Ultimi post --}}
+    {{-- Elenchi dei contenuti --}}
+    <div class="row dash-row">
         <div class="col-lg-8">
             <div class="card">
                 <div class="card-header">
@@ -338,37 +237,7 @@
             </div>
         </div>
 
-        {{-- Colonna destra: Riepilogo (con versione NILES) sopra Post per categoria --}}
         <div class="col-lg-4">
-            {{-- Riepilogo --}}
-            <div class="card">
-                <div class="card-header">
-                    <h3 class="card-title"><i class="fas fa-info-circle mr-1"></i> Riepilogo</h3>
-                </div>
-                <ul class="list-group list-group-flush">
-                    <li class="list-group-item d-flex justify-content-between align-items-center">
-                        <span>Versione NILES corrente</span>
-                        <span class="badge badge-primary">{{ $versione }}</span>
-                    </li>
-                    @if ($verificaAggiornamenti)
-                        <li class="list-group-item d-flex justify-content-between align-items-center">
-                            <span>Versione NILES disponibile</span>
-                            <span id="niles-disponibile" class="badge badge-light" data-url="{{ route('admin.aggiornamenti') }}">Verifica…</span>
-                        </li>
-                        <li class="list-group-item d-flex justify-content-between align-items-center">
-                            <span>Stato</span>
-                            <span>
-                                <span id="niles-stato" class="badge"></span>
-                                @if ($aggiornamentoDalPannello)
-                                    {{-- Compare solo se c'è una versione più recente (vedi lo script sotto). --}}
-                                    <a id="niles-aggiorna" href="{{ route('admin.aggiornamento.index') }}" class="btn btn-xs btn-primary ml-1 d-none">Aggiorna</a>
-                                @endif
-                            </span>
-                        </li>
-                    @endif
-                </ul>
-            </div>
-
             <div class="card">
                 <div class="card-header">
                     <h3 class="card-title"><i class="fas fa-tags mr-1"></i> Post per categoria</h3>
@@ -394,34 +263,29 @@
         </div>
     </div>
 
-    <div class="row">
-        {{-- Bozze da rivedere --}}
-        <div class="col-12">
-            <div class="card">
-                <div class="card-header">
-                    <h3 class="card-title"><i class="fas fa-pen-nib mr-1"></i> Bozze da rivedere</h3>
-                </div>
-                <div class="card-body p-0">
-                    @if ($draftPosts->isEmpty())
-                        <p class="text-success text-center py-4 mb-0">
-                            <i class="fas fa-check-circle"></i> Nessuna bozza in sospeso: tutto pubblicato.
-                        </p>
-                    @else
-                        <table class="table table-sm mb-0">
-                            <tbody>
-                                @foreach ($draftPosts as $post)
-                                    <tr>
-                                        <td><a href="{{ $postLink($post) }}">{{ $post->title }}</a></td>
-                                        <td class="text-nowrap text-muted text-right" style="width:1%">
-                                            {{ optional($post->category)->name ?? '—' }}
-                                        </td>
-                                    </tr>
-                                @endforeach
-                            </tbody>
-                        </table>
-                    @endif
-                </div>
-            </div>
+    <div class="card">
+        <div class="card-header">
+            <h3 class="card-title"><i class="fas fa-pen-nib mr-1"></i> Bozze da rivedere</h3>
+        </div>
+        <div class="card-body p-0">
+            @if ($draftPosts->isEmpty())
+                <p class="text-success text-center py-4 mb-0">
+                    <i class="fas fa-check-circle"></i> Nessuna bozza in sospeso: tutto pubblicato.
+                </p>
+            @else
+                <table class="table table-sm mb-0">
+                    <tbody>
+                        @foreach ($draftPosts as $post)
+                            <tr>
+                                <td><a href="{{ $postLink($post) }}">{{ $post->title }}</a></td>
+                                <td class="text-nowrap text-muted text-right" style="width:1%">
+                                    {{ optional($post->category)->name ?? '—' }}
+                                </td>
+                            </tr>
+                        @endforeach
+                    </tbody>
+                </table>
+            @endif
         </div>
     </div>
 
