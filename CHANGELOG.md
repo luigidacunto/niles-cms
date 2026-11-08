@@ -10,6 +10,8 @@ incrementano la seconda cifra, le correzioni e i miglioramenti la terza. Le rele
   ravvicinate. Le tendine delle ultime voci si aprono verso sinistra e non escono più dalla finestra.
 - **Dashboard**: sugli schermi stretti i riquadri piccoli senza collegamento (per esempio «Post pubblicati») non si schiacciano più;
   passando il mouse su un'etichetta accorciata con i puntini se ne legge il testo intero.
+- **Versione dimostrativa**: inviando un modulo del sito pubblico (per esempio l'accesso all'area soci) la striscia gialla in alto
+  avvisa che nulla è stato salvato, invece di ricaricare la pagina senza spiegazioni.
 
 ## 1.2.2 — 2026-11-07
 - **Pagamenti corsi: incasso in eccesso.** Un importo incassato superiore al totale è segnalato come «In eccesso» (badge, filtro «In

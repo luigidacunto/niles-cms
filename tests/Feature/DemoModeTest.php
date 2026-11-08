@@ -66,6 +66,17 @@ class DemoModeTest extends TestCase
             ->assertSessionHasErrors('demo');
     }
 
+    public function test_demo_public_form_shows_the_notice_in_the_demo_strip(): void
+    {
+        config(['app.demo' => true]);
+
+        $this->from(route('home'))->followingRedirects()
+            ->post(route('soci.login.send'), ['email' => 'a@example.test'])
+            ->assertOk()
+            ->assertSee('Versione dimostrativa: le modifiche non vengono salvate.')
+            ->assertDontSee('contenuti di esempio, nulla viene salvato né inviato.');
+    }
+
     public function test_demo_keeps_login_and_logout_working(): void
     {
         config(['app.demo' => true]);

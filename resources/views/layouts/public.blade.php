@@ -99,8 +99,9 @@
 <body class="min-h-screen flex flex-col bg-[#efefef] text-[#4b4b51]" x-data="{ mobileNavOpen: false }">
 
     @if (config('app.demo'))
-        <div class="bg-yellow-400 text-black text-center text-sm font-semibold px-4 py-2 leading-snug">
-            Versione dimostrativa di NILES — contenuti di esempio, nulla viene salvato né inviato.
+        <div class="bg-yellow-400 text-black text-center text-sm font-semibold px-4 py-2 leading-snug" @error('demo') role="alert" @enderror>
+            {{-- Un modulo bloccato dalla demo (BlockWritesInDemo) torna qui con l'errore 'demo': lo si mostra al posto del testo fisso. --}}
+            @error('demo') {{ $message }} @else Versione dimostrativa di NILES — contenuti di esempio, nulla viene salvato né inviato. @enderror
         </div>
     @endif
 
