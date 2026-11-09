@@ -17,6 +17,9 @@
     @if (session('status'))
         <div class="alert alert-success">{{ session('status') }}</div>
     @endif
+    @error('elimina')
+        <div class="alert alert-danger">{{ $message }}</div>
+    @enderror
 
     <form method="GET" class="form-row align-items-end mb-3">
         <div class="col-md-4 mb-2">
@@ -143,7 +146,7 @@
                                         <input type="hidden" name="motivo" id="annulla-motivo-{{ $corso->id }}">
                                     </form>
                                     <form id="elimina-{{ $corso->id }}" method="POST" action="{{ route('admin.corsi.destroy', $corso) }}"
-                                        onsubmit="return confirm('Eliminare questo corso? Possibile solo se non ha ancora iscritti.');" hidden>@csrf @method('DELETE')</form>
+                                        onsubmit="return confirm('Eliminare questo corso? Possibile solo senza iscritti attivi e senza pagamenti registrati: le eventuali iscrizioni ritirate vengono cancellate definitivamente.');" hidden>@csrf @method('DELETE')</form>
                                 @endif
                             </td>
                         </tr>

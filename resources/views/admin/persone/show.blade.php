@@ -130,7 +130,7 @@
                     </form>
                 @else
                     <p class="mb-0 text-muted">Non si può eliminare finché è collegata a delle iscrizioni (come partecipante o referente): correggi prima quelle
-                        (<em>Correggi</em> nell'elenco iscritti del corso, o «Sostituisci referente» qui sopra).</p>
+                        (<em>Correggi</em> nell'elenco iscritti del corso, o «Sostituisci referente» qui sopra), oppure elimina il corso se ha solo iscrizioni ritirate e nessun pagamento registrato.</p>
                 @endif
             </div>
         </div>

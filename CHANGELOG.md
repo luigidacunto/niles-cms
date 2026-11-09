@@ -4,6 +4,12 @@ Elenco delle modifiche di ogni versione, dalla più recente. Le versioni seguono
 incrementano la seconda cifra, le correzioni e i miglioramenti la terza. Le release complete, con i pacchetti scaricabili, sono su
 [GitHub](https://github.com/luigidacunto/niles-cms/releases). Le direzioni future sono nella [roadmap](ROADMAP.md).
 
+## 1.2.4 — 2026-11-09
+- **Corsi: eliminazione di un corso con soli iscritti ritirati.** Un corso senza iscritti attivi e senza fatture, ricevute o incassi
+  registrati si può eliminare anche se ha iscrizioni ritirate: queste vengono cancellate definitivamente insieme ai dati di
+  fatturazione rimasti senza iscrizioni. Se l'eliminazione non è possibile, un avviso nell'elenco ne spiega il motivo (prima compariva
+  una pagina di errore). Dopo l'eliminazione, le persone che non hanno altre iscrizioni si possono cancellare da «Persone».
+
 ## 1.2.3 — 2026-11-08
 - **Menu del sito pubblico**: le voci non vanno più a capo sugli schermi medi. Con un socio collegato, che ha in più la voce «Area
   Soci», sotto i 1100 px di larghezza il menu passa al pulsante «Menu» come su tablet; sotto i 1280 px le voci sono un po' più

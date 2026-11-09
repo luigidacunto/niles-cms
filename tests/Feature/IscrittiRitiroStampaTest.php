@@ -70,6 +70,30 @@ class IscrittiRitiroStampaTest extends TestCase
         $this->assertNull($mario->fresh()->nota_ritiro);
     }
 
+    public function test_corso_con_soli_ritirati_si_elimina_e_libera_la_persona(): void
+    {
+        $mario = $this->iscrivi('RSSMRA80A01H501U', 'Mario', 'Rossi');
+        $a = $this->actingAs($this->admin, 'admin');
+
+        // Attivo: bloccato, con messaggio leggibile (non un 422 grezzo).
+        $a->delete(route('admin.corsi.destroy', $this->corso))->assertRedirect(route('admin.corsi.index'))->assertSessionHasErrors('elimina');
+        $this->assertNotNull(Corso::find($this->corso->id));
+
+        $mario->update(['ritirata_at' => now()]);
+        $a->delete(route('admin.corsi.destroy', $this->corso))->assertSessionHas('status');
+        $this->assertSame(0, Corso::count() + IscrizioneCorso::count() + DatiFatturazioneCorso::count());
+        $this->assertTrue(Persona::find($mario->persona_id)->eliminabile());
+    }
+
+    public function test_corso_con_ritirati_ma_incasso_registrato_non_si_elimina(): void
+    {
+        $fatt = DatiFatturazioneCorso::create(['tipo' => 'privato', 'nome' => 'Mario', 'cognome' => 'Rossi', 'metodo_pagamento' => 'Bonifico', 'incassato_importo' => 35, 'incassato_at' => now()]);
+        $this->iscrivi('RSSMRA80A01H501U', 'Mario', 'Rossi', 'Bonifico', $fatt)->update(['ritirata_at' => now()]);
+
+        $this->actingAs($this->admin, 'admin')->delete(route('admin.corsi.destroy', $this->corso))->assertSessionHasErrors('elimina');
+        $this->assertSame(1, IscrizioneCorso::count());
+    }
+
     public function test_permessi_e_iscrizione_di_un_altro_corso(): void
     {
         $mario = $this->iscrivi('RSSMRA80A01H501U', 'Mario', 'Rossi');

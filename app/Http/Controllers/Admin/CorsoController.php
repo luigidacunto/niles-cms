@@ -11,6 +11,7 @@ use App\Models\TipologiaCorso;
 use App\Support\IvaCorso;
 use Illuminate\Database\QueryException;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
 
 class CorsoController extends Controller
 {
@@ -107,12 +108,15 @@ class CorsoController extends Controller
 
     public function destroy(Request $request, Corso $corso)
     {
-        $this->authorizeWrite($request);
+        $admin = $this->authorizeWrite($request);
 
-        $count = $corso->iscrizioni()->count();
-        abort_if($count > 0, 422, "Non puoi eliminare questo corso: ha già {$count} iscritti.");
+        if ($motivo = $corso->motivoNonEliminabile()) {
+            return redirect()->route('admin.corsi.index')->withErrors(['elimina' => $motivo]);
+        }
 
-        $corso->delete();
+        $protocollo = $corso->protocollo;
+        $ritirate = $corso->eliminaConRitirate();
+        Log::info('Corso eliminato', ['admin' => $admin->email, 'corso_id' => $corso->id, 'protocollo' => $protocollo, 'iscrizioni_ritirate_eliminate' => $ritirate]);
 
         return redirect()->route('admin.corsi.index')->with('status', 'Corso eliminato.');
     }

@@ -8,6 +8,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\DB;
 
 class Corso extends Model
 {
@@ -58,6 +59,40 @@ class Corso extends Model
     public function iscrizioni(): HasMany
     {
         return $this->hasMany(IscrizioneCorso::class);
+    }
+
+    /**
+     * Motivo per cui il corso non si può eliminare, null se si può: serve nessun iscritto attivo e nessuna fattura,
+     * ricevuta o incasso registrati sui blocchi di fatturazione. Le iscrizioni ritirate non bloccano (vedi eliminaConRitirate()).
+     */
+    public function motivoNonEliminabile(): ?string
+    {
+        $attive = $this->iscrizioni()->attive()->count();
+        if ($attive > 0) {
+            return "Non puoi eliminare questo corso: ha {$attive} iscritti attivi.";
+        }
+
+        $conPagamenti = DatiFatturazioneCorso::whereIn('id', $this->iscrizioni()->select('dati_fatturazione_corso_id'))
+            ->where(fn ($q) => $q->whereNotNull('fattura_numero')->orWhereNotNull('ricevuta_numero')->orWhereNotNull('incassato_at'))
+            ->exists();
+
+        return $conPagamenti ? 'Non puoi eliminare questo corso: ci sono fatture, ricevute o incassi registrati.' : null;
+    }
+
+    /**
+     * Elimina il corso insieme alle sue iscrizioni ritirate e ai blocchi di fatturazione che restano orfani.
+     * Chiamare solo se motivoNonEliminabile() è null. Ritorna il numero di iscrizioni ritirate cancellate.
+     */
+    public function eliminaConRitirate(): int
+    {
+        return DB::transaction(function () {
+            $blocchi = $this->iscrizioni()->pluck('dati_fatturazione_corso_id')->filter()->unique();
+            $n = $this->iscrizioni()->delete();
+            DatiFatturazioneCorso::whereIn('id', $blocchi)->whereDoesntHave('iscrizioni')->delete();
+            $this->delete();
+
+            return $n;
+        });
     }
 
     /**
