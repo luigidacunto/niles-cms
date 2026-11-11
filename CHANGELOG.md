@@ -4,11 +4,15 @@ Elenco delle modifiche di ogni versione, dalla più recente. Le versioni seguono
 incrementano la seconda cifra, le correzioni e i miglioramenti la terza. Le release complete, con i pacchetti scaricabili, sono su
 [GitHub](https://github.com/luigidacunto/niles-cms/releases). Le direzioni future sono nella [roadmap](ROADMAP.md).
 
-## 1.2.4 — 2026-11-09
+## 1.2.4 — 2026-11-11
 - **Corsi: eliminazione di un corso con soli iscritti ritirati.** Un corso senza iscritti attivi e senza fatture, ricevute o incassi
   registrati si può eliminare anche se ha iscrizioni ritirate: queste vengono cancellate definitivamente insieme ai dati di
   fatturazione rimasti senza iscrizioni. Se l'eliminazione non è possibile, un avviso nell'elenco ne spiega il motivo (prima compariva
   una pagina di errore). Dopo l'eliminazione, le persone che non hanno altre iscrizioni si possono cancellare da «Persone».
+- **Aggiornamento dal pannello (hosting condiviso)**: se un comando di aggiornamento falliva, il programma mostrava «Undefined variable
+  $cmd» al posto dell'errore vero. Ora il messaggio è quello reale, con il dettaglio tecnico.
+- **Pannello di amministrazione**: la paginazione degli elenchi di membri, pagamenti corsi, registro accessi e registro download
+  compariva senza stile (frecce enormi) quando i risultati superavano una pagina; ora usa lo stesso aspetto delle altre liste.
 
 ## 1.2.3 — 2026-11-08
 - **Menu del sito pubblico**: le voci non vanno più a capo sugli schermi medi. Con un socio collegato, che ha in più la voce «Area

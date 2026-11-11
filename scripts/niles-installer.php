@@ -486,9 +486,9 @@ function nilesRunArtisan(string $dir, array $comandi): array
         $log .= "> $cmd\n".$kernel->output()."\n";
         if ($code !== 0) {
             if ($bloccante) {
-                throw new RuntimeException("Il comando «$cmd» è fallito.\n\n$log");
+                throw new RuntimeException("Il comando «{$cmd}» è fallito.\n\n$log");
             }
-            $avvisi[] = "il comando «$cmd» non è andato a buon fine (vedi i dettagli tecnici)";
+            $avvisi[] = "il comando «{$cmd}» non è andato a buon fine (vedi i dettagli tecnici)";
         }
     }
 

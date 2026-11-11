@@ -108,7 +108,7 @@
             </table>
         </div>
         @if ($members->hasPages())
-            <div class="card-footer">{{ $members->links() }}</div>
+            <div class="card-footer">{{ $members->links('pagination::bootstrap-4') }}</div>
         @endif
     </div>
 @stop

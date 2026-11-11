@@ -44,7 +44,7 @@
             </table>
         </div>
         @if ($corsi->hasPages())
-            <div class="card-footer">{{ $corsi->links() }}</div>
+            <div class="card-footer">{{ $corsi->links('pagination::bootstrap-4') }}</div>
         @endif
     </div>
 @stop
