@@ -3,15 +3,20 @@
 **N**ews & **I**nformation **L**ightweight **E**ditorial **S**ystem
 
 CMS leggero e open source per i comitati locali della Croce Rossa Italiana: sito pubblico, pannello di
-amministrazione, iscrizioni online ai corsi rivolti alla popolazione e un'area riservata ai soci per comunicazioni interne o materiali destinati ai soli soci. Un'installazione per comitato, pensata
-per girare anche su qualsiasi tipo di hosting.
+amministrazione, iscrizioni online ai corsi rivolti alla popolazione e un'area riservata ai soci per comunicazioni interne o materiali destinati ai soli soci. Un'installazione per comitato.
+
+**Si installa in due modi**: su un **server con accesso da riga di comando (SSH)**, oppure su un **comune hosting condiviso con solo
+accesso FTP e un database MySQL**, senza comandi, Composer o Node: basta caricare un file e seguire la procedura guidata dal browser.
+Vedi [Installazione](#installazione).
 
 > Progetto indipendente, non è un prodotto ufficiale della Croce Rossa Italiana, ma è sviluppato da un volontario ormai di lunga data.
 
 **Demo online**: <https://demo.niles.luigidacunto.com> — sito e pannello di prova con contenuti inventati. Le credenziali sono
 indicate nella pagina di accesso del pannello (`/admin/login`); le modifiche non vengono salvate.
 
-**Documentazione**: guida all'installazione, alla configurazione iniziale e a ogni sezione del pannello in [docs/](docs/README.md).
+**Documentazione**: guida all'installazione (su [server](docs/00-installazione/02-installazione-su-server.md) o su
+[hosting condiviso](docs/00-installazione/05-installazione-su-hosting-condiviso.md)), alla configurazione iniziale e a ogni sezione
+del pannello in [docs/](docs/README.md).
 
 ## Funzionalità
 
@@ -35,11 +40,33 @@ non nel codice.
 
 ## Requisiti
 
-PHP 8.4, MariaDB 10.11 (MySQL è supportato, ma provato in misura minore), Composer 2.10 e Node.js 24 con npm 11 (solo per compilare gli
-asset). Sono le versioni minime provate: con versioni precedenti il funzionamento non è garantito. L'elenco delle estensioni PHP, i limiti di
-caricamento e come controllare le versioni sono in [Requisiti](docs/00-installazione/01-requisiti.md).
+Comuni a entrambe le installazioni: PHP 8.4 con le estensioni indicate nei [Requisiti](docs/00-installazione/01-requisiti.md) e un database
+MariaDB 10.11 o MySQL (MariaDB è la più provata). Sono le versioni minime provate: con versioni precedenti il funzionamento non è garantito.
 
-## Installazione su un server
+- **Server con SSH**: in più Composer 2.10 e Node.js 24 con npm 11 (solo per compilare gli asset).
+- **Hosting condiviso**: Apache con `.htaccess` e `mod_rewrite` attivi, un dominio o sottodominio **dedicato** a NILES con HTTPS (l'installazione
+  in una sottocartella non è supportata) e un database vuoto. Composer e Node **non servono**.
+
+L'elenco delle estensioni PHP, i limiti di caricamento e come controllare le versioni sono in [Requisiti](docs/00-installazione/01-requisiti.md).
+
+## Installazione
+
+### Hosting condiviso (solo FTP e database)
+
+Per un hosting che offre solo l'accesso ai file (FTP o file manager) e un database, senza SSH. Tempo previsto: circa un quarto d'ora.
+
+1. Nel pannello del provider scegliere **PHP 8.4** per il dominio e creare un **database vuoto** (servono host, nome, utente e password).
+2. Dalla pagina **Releases** di questo repository scaricare il file **`niles-installer.php`** (tra gli *Assets* dell'ultima versione) e caricarlo
+   via FTP nella cartella servita dal dominio.
+3. Aprire `https://<dominio>/niles-installer.php` e seguire la procedura: controllo dei requisiti, download e installazione del pacchetto (circa
+   50 MB, uno o due minuti), poi dati del database, nome del comitato e primo amministratore. Al termine il file si cancella da solo.
+
+Poi si accede al pannello da `https://<dominio>/admin/login/password`. Gli aggiornamenti successivi si fanno **dal pannello**, con il pulsante
+*Aggiorna* in dashboard. Se l'hosting non permette di scaricare file da internet, il pacchetto `niles.zip` si carica a mano accanto all'installer.
+La [guida all'installazione su hosting condiviso](docs/00-installazione/05-installazione-su-hosting-condiviso.md) descrive ogni passo, con i
+controlli e la soluzione dei problemi più comuni.
+
+### Server con accesso SSH
 
 Riepilogo per un server Linux in produzione, con il dominio che punta alla cartella `public/` del progetto:
 
