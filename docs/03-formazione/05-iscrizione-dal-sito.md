@@ -58,7 +58,8 @@ Compare la pagina «Iscrizione registrata». Poi:
   causale. Il testo si personalizza in [Template email](../05-comitato-e-sito/06-template-email.md);
 - **la segreteria** riceve un avviso per ogni iscrizione, se l'ha attivato in [Posta in uscita](../06-configurazione/02-posta-in-uscita.md).
 
-Dalla **pagina personale** la persona conferma la propria presenza (nel pannello compare «Confermata»), rivede come pagare, sceglie o
+Dalla **pagina personale** la persona conferma la propria presenza (un'informazione che serve alla persona: la presenza effettiva al
+corso la registra l'operatore nell'[elenco degli iscritti](01-corsi.md#gli-iscritti)), rivede come pagare, sceglie o
 revoca i consensi e può chiedere la cancellazione dei propri dati (vedi [Persone](02-persone.md)). Se non trova l'email, conviene
 controllare la posta indesiderata: il link è personale e non si ricostruisce dal sito.
 

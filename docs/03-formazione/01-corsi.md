@@ -67,17 +67,21 @@ Dal pannello:
 
 **Iscritti** apre l'elenco di un corso, con **Nome**, **Email**, **Telefono**, **Codice fiscale**, **Presenza** e data di iscrizione. I dati
 di fatturazione e il metodo di pagamento non compaiono qui: si consultano in [Pagamenti corsi](03-pagamenti-corsi.md). I pulsanti
-**Attivi**, **Ritirati** e **Tutti** filtrano l'elenco; sopra compare il numero di posti indicati.
+**Attivi**, **Ritirati**, **Tutti**, **Presenti** e **Non presenti** filtrano l'elenco; sopra compare il numero di posti indicati.
 
-- **Presenza**: «Confermata» compare quando la persona, dalla propria pagina personale raggiunta dal link nell'email, conferma di
-  partecipare.
+- **Presenza**: il pulsante **Segna presente** registra che la persona ha frequentato il corso (è la presenza che conta per il
+  rilascio degli attestati) e diventa verde «Presente»; un secondo clic **annulla** la presenza, utile per un clic errato. Il
+  cambiamento è immediato, senza ricaricare la pagina, e i conteggi dei filtri si aggiornano. Si segna solo per gli iscritti attivi di
+  un corso non annullato, e serve il permesso di scrittura sui corsi: con la sola lettura si vede soltanto se la persona è presente.
+  La conferma che la persona dà dalla propria pagina personale non compare qui: serve a salvare i suoi consensi.
 - **Ritira** (icona a destra della riga): chiede un motivo facoltativo e segna l'iscritto come ritirato, senza cancellarlo; dai
   **Ritirati**, **Ripristina** lo rimette tra gli attivi. Un ritirato non conta più nei totali dei pagamenti: se aveva già pagato, il
   pagamento risulta «in eccesso» e va verificato (rimborso o donazione).
 - **Dati mancanti**: compare per i corsi di tipologie con *anagrafica completa* ed elenca chi non ha data o luogo di nascita (per esempio
   chi si è iscritto prima che la tipologia li richiedesse); accanto al nome c'è un'icona di avviso. Si completano con **Correggi**.
 - **CSV**, **Excel** e **PDF** esportano l'elenco secondo il filtro scelto; per i corsi con anagrafica completa CSV ed Excel hanno anche
-  data e luogo di nascita.
+  data e luogo di nascita. CSV ed Excel riportano la presenza segnata (**Presente** e **Presenza segnata il**); il PDF ha una colonna
+  **Firma** vuota, da usare se si vuole far firmare.
 - **Stampa elenco** apre una pagina da stampare con i soli iscritti attivi, in ordine di cognome, con le caselle **Pagato** e **Presente**
   da spuntare a mano e una colonna per le note. Sotto il nome di chi è iscritto con un pagamento unico compare «pagamento di gruppo» e
   l'intestatario.
