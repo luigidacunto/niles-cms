@@ -42,6 +42,8 @@ class CorsoIscrizioneController extends Controller
                 'attivi' => $corso->iscrizioni()->attive()->count(),
                 'ritirati' => $corso->iscrizioni()->ritirate()->count(),
                 'mancanti' => $corso->richiedeAnagraficaCompleta() ? $corso->iscrizioni()->datiNascitaMancanti()->count() : 0,
+                'presenti' => $corso->iscrizioni()->presenti()->count(),
+                'assenti' => $corso->iscrizioni()->assenti()->count(),
             ],
         ]);
     }
@@ -89,10 +91,33 @@ class CorsoIscrizioneController extends Controller
         return back()->with('status', "{$iscrizione->nome} {$iscrizione->cognome} è di nuovo iscritto al corso.");
     }
 
-    /** `attivi` (default) | `ritirati` | `tutti`: filtro di elenco ed export. */
+    /**
+     * Segna o toglie la presenza effettiva (`presente_at`). Lo stato voluto arriva dal form (`presente` = 1|0), non si inverte
+     * quello attuale: un doppio clic non la annulla. Togliendola si corregge un clic errato.
+     */
+    public function presenza(Request $request, Corso $corso, IscrizioneCorso $iscrizione)
+    {
+        $this->authorizeWrite($request);
+        abort_unless($iscrizione->corso_id === $corso->id, 404);
+
+        if (! $iscrizione->setRelation('corso', $corso)->presenzaSegnabile()) {
+            return back()->withErrors(['presenza' => 'La presenza non si può segnare per un iscritto ritirato o per un corso annullato.']);
+        }
+
+        $presente = $request->boolean('presente');
+        if ($presente !== ($iscrizione->presente_at !== null)) {
+            $iscrizione->forceFill(['presente_at' => $presente ? now() : null])->save();
+        }
+
+        return back()->with('status', $presente
+            ? "{$iscrizione->nome} {$iscrizione->cognome} è segnato presente."
+            : "Presenza di {$iscrizione->nome} {$iscrizione->cognome} annullata.");
+    }
+
+    /** `attivi` (default) | `ritirati` | `tutti` | `mancanti` | `presenti` | `assenti`: filtro di elenco ed export. */
     private function stato(Request $request): string
     {
-        return in_array($request->query('stato'), ['ritirati', 'tutti', 'mancanti'], true) ? $request->query('stato') : 'attivi';
+        return in_array($request->query('stato'), ['ritirati', 'tutti', 'mancanti', 'presenti', 'assenti'], true) ? $request->query('stato') : 'attivi';
     }
 
     private function elenco(Corso $corso, string $stato)
@@ -103,6 +128,8 @@ class CorsoIscrizioneController extends Controller
             'ritirati' => $q->ritirate(),
             'tutti' => $q,
             'mancanti' => $q->datiNascitaMancanti(),
+            'presenti' => $q->presenti(),
+            'assenti' => $q->assenti(),
             default => $q->attive(),
         };
     }
@@ -405,13 +432,14 @@ class CorsoIscrizioneController extends Controller
 
         return response()->streamDownload(function () use ($iscrizioni, $nascita) {
             $out = fopen('php://output', 'w');
-            fputcsv($out, ['Nome', 'Cognome', 'Email', 'Telefono', 'Codice fiscale', 'Presenza confermata', 'Ritirato il', 'Iscritto il', ...($nascita ? ['Data di nascita', 'Luogo di nascita'] : [])]);
+            fputcsv($out, ['Nome', 'Cognome', 'Email', 'Telefono', 'Codice fiscale', 'Presente', 'Presenza segnata il', 'Ritirato il', 'Iscritto il', ...($nascita ? ['Data di nascita', 'Luogo di nascita'] : [])]);
             foreach ($iscrizioni as $i) {
                 // Telefono: già ristretto a numeri e + ( ) . - (non può contenere formule); gli altri testi arrivano dal pubblico.
                 fputcsv($out, array_merge(array_map([CsvSicuro::class, 'cella'], [$i->nome, $i->cognome, $i->email]), [$i->telefono], array_map([CsvSicuro::class, 'cella'], [
                     $i->codice_fiscale,
                 ]), [
-                    $i->presenza_confermata_at?->format('d/m/Y H:i'),
+                    $i->presente_at ? 'Sì' : 'No',
+                    $i->presente_at?->format('d/m/Y H:i'),
                     $i->ritirata_at?->format('d/m/Y H:i'),
                     $i->created_at->format('d/m/Y H:i'),
                 ], $nascita ? [$i->data_nascita?->format('d/m/Y'), CsvSicuro::cella((string) $i->luogoNascita())] : []));

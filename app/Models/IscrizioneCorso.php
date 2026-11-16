@@ -25,6 +25,7 @@ class IscrizioneCorso extends Model
             'privacy_accettata_at' => 'datetime',
             'autodichiarazione_terzi_at' => 'datetime',
             'presenza_confermata_at' => 'datetime',
+            'presente_at' => 'datetime',
             'ritirata_at' => 'datetime',
         ];
     }
@@ -57,6 +58,24 @@ class IscrizioneCorso extends Model
     public function scopeRitirate(Builder $query): void
     {
         $query->whereNotNull('ritirata_at');
+    }
+
+    /** Attivi segnati presenti dall'operatore (`presente_at`). */
+    public function scopePresenti(Builder $query): void
+    {
+        $query->whereNull('ritirata_at')->whereNotNull('presente_at');
+    }
+
+    /** Attivi non (ancora) segnati presenti. */
+    public function scopeAssenti(Builder $query): void
+    {
+        $query->whereNull('ritirata_at')->whereNull('presente_at');
+    }
+
+    /** La presenza effettiva si segna per gli iscritti attivi di un corso non annullato (anche a corso concluso, per correggere). */
+    public function presenzaSegnabile(): bool
+    {
+        return ! $this->ritirata() && ! $this->corso->annullato();
     }
 
     /** La presenza si può confermare finché il corso non si è svolto né annullato e l'iscritto non si è ritirato. */

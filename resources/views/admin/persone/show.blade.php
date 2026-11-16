@@ -68,7 +68,7 @@
                     <tr>
                         <td>{{ $i->corso->tipologia->nome }} <code>{{ $i->corso->protocollo }}</code></td>
                         <td>{{ $i->corso->periodoLabel() }}</td>
-                        <td>@if ($i->ritirata()) <span class="badge badge-secondary">ritirato dal corso</span> @elseif ($i->presenza_confermata_at) <span class="badge badge-success">presenza confermata</span> @endif
+                        <td>@if ($i->ritirata()) <span class="badge badge-secondary">ritirato dal corso</span> @elseif ($i->presente_at) <span class="badge badge-success">presente</span> @endif
                             @if ($i->referente) <span class="text-muted small">iscritta da {{ $i->referente->nome }} {{ $i->referente->cognome }}</span> @endif</td>
                     </tr>
                 @empty

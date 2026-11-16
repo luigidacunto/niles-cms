@@ -21,7 +21,7 @@
                 <th>Email</th>
                 <th>Telefono</th>
                 <th>Codice fiscale</th>
-                <th>Presenza</th>
+                <th style="width: 20%">Firma</th>
                 <th>Iscritto il</th>
             </tr>
         </thead>
@@ -32,7 +32,7 @@
                     <td>{{ $iscrizione->email }}</td>
                     <td>{{ $iscrizione->telefono }}</td>
                     <td>{{ $iscrizione->codice_fiscale }}</td>
-                    <td>{{ $iscrizione->presenza_confermata_at ? 'Confermata '.$iscrizione->presenza_confermata_at->format('d/m') : '—' }}</td>
+                    <td></td>
                     <td>{{ $iscrizione->created_at->format('d/m/Y H:i') }}</td>
                 </tr>
             @endforeach

@@ -329,6 +329,7 @@ Route::prefix('admin')->name('admin.')->group(function () {
                 Route::get('stampa', [CorsoIscrizioneController::class, 'stampa'])->name('stampa');
                 Route::put('{iscrizione}/ritira', [CorsoIscrizioneController::class, 'ritira'])->name('ritira');
                 Route::put('{iscrizione}/ripristina', [CorsoIscrizioneController::class, 'ripristina'])->name('ripristina');
+                Route::put('{iscrizione}/presenza', [CorsoIscrizioneController::class, 'presenza'])->name('presenza');
                 Route::get('{iscrizione}/correggi', [CorsoIscrizioneController::class, 'correggi'])->middleware('admin.role')->name('correggi');
                 Route::put('{iscrizione}/correggi', [CorsoIscrizioneController::class, 'aggiorna'])->middleware('admin.role')->name('aggiorna');
                 Route::post('/', [CorsoIscrizioneController::class, 'store'])->name('store');

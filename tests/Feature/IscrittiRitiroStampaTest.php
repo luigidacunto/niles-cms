@@ -127,15 +127,64 @@ class IscrittiRitiroStampaTest extends TestCase
         $this->assertTrue($mario->fresh()->ritirata());
     }
 
-    public function test_presenza_con_data_nel_tooltip_e_non_nella_pillola(): void
+    public function test_il_clic_della_persona_sul_link_non_compare_nel_pannello(): void
     {
         $mario = $this->iscrivi('RSSMRA80A01H501U', 'Mario', 'Rossi');
-        $mario->update(['presenza_confermata_at' => now()->setDate(2026, 10, 6)->setTime(14, 30)]);
+        $mario->update(['presenza_confermata_at' => now()]);
 
-        $r = $this->actingAs($this->admin, 'admin')->get(route('admin.corsi.iscritti.index', $this->corso));
+        $this->actingAs($this->admin, 'admin')->get(route('admin.corsi.iscritti.index', $this->corso))
+            ->assertDontSee('Confermata')->assertSee('Segna presente');
+    }
 
-        $r->assertSee('>Confermata</span>', false)->assertSee('title="Confermata il 06/10/2026 alle 14:30"', false);
-        $r->assertDontSee('Confermata 06/10');
+    public function test_segna_e_annulla_la_presenza_con_filtri_ed_export(): void
+    {
+        $mario = $this->iscrivi('RSSMRA80A01H501U', 'Mario', 'Rossi');
+        $this->iscrivi('VRDNNA85M41F205Z', 'Anna', 'Verdi');
+        $a = $this->actingAs($this->admin, 'admin');
+        $url = route('admin.corsi.iscritti.presenza', [$this->corso, $mario]);
+
+        $a->put($url, ['presente' => 1])->assertSessionHas('status');
+        $this->assertNotNull($mario->fresh()->presente_at);
+        $this->assertNull($mario->fresh()->presenza_confermata_at);                       // campo del clic della persona: intatto
+
+        $primo = $mario->fresh()->presente_at;
+        $a->put($url, ['presente' => 1]);                                                  // doppio clic: stato voluto, nessuna inversione
+        $this->assertEquals($primo, $mario->fresh()->presente_at);
+
+        $a->get(route('admin.corsi.iscritti.index', [$this->corso, 'stato' => 'presenti']))->assertSee('Rossi')->assertDontSee('Verdi');
+        $a->get(route('admin.corsi.iscritti.index', [$this->corso, 'stato' => 'assenti']))->assertSee('Verdi')->assertDontSee('Rossi');
+        $csv = $a->get(route('admin.corsi.iscritti.export', [$this->corso, 'csv']))->streamedContent();
+        $this->assertStringContainsString('Presente,"Presenza segnata il"', $csv);
+        $this->assertMatchesRegularExpression('/Mario.*,Sì,/', $csv);
+
+        $a->put($url, ['presente' => 0]);                                                  // clic errato annullato
+        $this->assertNull($mario->fresh()->presente_at);
+        $this->assertSame(2, $this->corso->iscrizioni()->assenti()->count());
+    }
+
+    public function test_presenza_negata_a_ritirati_corsi_annullati_e_a_chi_non_scrive(): void
+    {
+        $mario = $this->iscrivi('RSSMRA80A01H501U', 'Mario', 'Rossi');
+        $anna = $this->iscrivi('VRDNNA85M41F205Z', 'Anna', 'Verdi');
+        $a = $this->actingAs($this->admin, 'admin');
+
+        $mario->update(['ritirata_at' => now()]);
+        $a->put(route('admin.corsi.iscritti.presenza', [$this->corso, $mario]), ['presente' => 1])->assertSessionHasErrors('presenza');
+        $this->assertNull($mario->fresh()->presente_at);
+
+        $altro = Corso::create([
+            'tipologia_corso_id' => $this->corso->tipologia_corso_id, 'slug' => 'b2', 'protocollo' => 'B2', 'admin_id' => $this->admin->id,
+            'costo' => 0, 'pubblicato' => true, 'data_inizio' => now()->addDays(9), 'data_fine' => now()->addDays(9)->addHours(4),
+        ]);
+        $a->put(route('admin.corsi.iscritti.presenza', [$altro, $anna]), ['presente' => 1])->assertNotFound();   // iscritto di un altro corso
+
+        $this->corso->forceFill(['annullato_at' => now()])->save();
+        $a->put(route('admin.corsi.iscritti.presenza', [$this->corso, $anna]), ['presente' => 1])->assertSessionHasErrors('presenza');
+        $this->assertNull($anna->fresh()->presente_at);
+
+        $this->corso->forceFill(['annullato_at' => null])->save();
+        $lettore = Admin::create(['name' => 'L', 'email' => 'l@example.test', 'password' => 'x', 'role' => 'editor', 'active' => true, 'permissions' => ['corsi' => ['read']]]);
+        $this->actingAs($lettore, 'admin')->put(route('admin.corsi.iscritti.presenza', [$this->corso, $anna]), ['presente' => 1])->assertForbidden();
     }
 
     public function test_elenco_da_stampare_solo_iscritti_attivi_con_caselle_e_pagamento(): void

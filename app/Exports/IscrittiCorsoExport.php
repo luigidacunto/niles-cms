@@ -19,6 +19,8 @@ class IscrittiCorsoExport implements FromCollection, WithHeadings
             'ritirati' => $q->ritirate(),
             'tutti' => null,
             'mancanti' => $q->datiNascitaMancanti(),
+            'presenti' => $q->presenti(),
+            'assenti' => $q->assenti(),
             default => $q->attive(),
         };
 
@@ -32,7 +34,8 @@ class IscrittiCorsoExport implements FromCollection, WithHeadings
             'Telefono' => $i->telefono,
             'Codice fiscale' => $s($i->codice_fiscale),
             'Indirizzo' => trim("{$i->via}, {$i->cap} {$i->comune}".($i->provincia ? " ({$i->provincia})" : ''), ' ,'),
-            'Presenza confermata' => $i->presenza_confermata_at?->format('d/m/Y H:i'),
+            'Presente' => $i->presente_at ? 'Sì' : 'No',
+            'Presenza segnata il' => $i->presente_at?->format('d/m/Y H:i'),
             'Ritirato il' => $i->ritirata_at?->format('d/m/Y H:i'),
             'Iscritto il' => $i->created_at->format('d/m/Y H:i'),
             // Tipologie con anagrafica completa: data e luogo di nascita (per compilare gli attestati).
@@ -47,7 +50,7 @@ class IscrittiCorsoExport implements FromCollection, WithHeadings
     {
         return [
             'Nome', 'Cognome', 'Email', 'Telefono', 'Codice fiscale', 'Indirizzo',
-            'Presenza confermata', 'Ritirato il', 'Iscritto il',
+            'Presente', 'Presenza segnata il', 'Ritirato il', 'Iscritto il',
             ...($this->corso->richiedeAnagraficaCompleta() ? ['Data di nascita', 'Luogo di nascita'] : []),
         ];
     }

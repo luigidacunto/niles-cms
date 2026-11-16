@@ -42,6 +42,8 @@
             <a href="{{ route('admin.corsi.iscritti.index', $corso) }}" class="btn btn-sm {{ $stato === 'attivi' ? 'btn-primary' : 'btn-outline-primary' }}">Attivi ({{ $conteggi['attivi'] }})</a>
             <a href="{{ route('admin.corsi.iscritti.index', [$corso, 'stato' => 'ritirati']) }}" class="btn btn-sm {{ $stato === 'ritirati' ? 'btn-primary' : 'btn-outline-primary' }}">Ritirati ({{ $conteggi['ritirati'] }})</a>
             <a href="{{ route('admin.corsi.iscritti.index', [$corso, 'stato' => 'tutti']) }}" class="btn btn-sm {{ $stato === 'tutti' ? 'btn-primary' : 'btn-outline-primary' }}">Tutti ({{ $conteggi['attivi'] + $conteggi['ritirati'] }})</a>
+            <a href="{{ route('admin.corsi.iscritti.index', [$corso, 'stato' => 'presenti']) }}" class="btn btn-sm {{ $stato === 'presenti' ? 'btn-success' : 'btn-outline-success' }}" title="Attivi segnati presenti al corso">Presenti ({{ $conteggi['presenti'] }})</a>
+            <a href="{{ route('admin.corsi.iscritti.index', [$corso, 'stato' => 'assenti']) }}" class="btn btn-sm {{ $stato === 'assenti' ? 'btn-secondary' : 'btn-outline-secondary' }}" title="Attivi non segnati presenti">Non presenti ({{ $conteggi['assenti'] }})</a>
             @if ($corso->richiedeAnagraficaCompleta())
                 <a href="{{ route('admin.corsi.iscritti.index', [$corso, 'stato' => 'mancanti']) }}" class="btn btn-sm {{ $stato === 'mancanti' ? 'btn-warning' : 'btn-outline-warning' }}" title="Attivi senza data o luogo di nascita">Dati mancanti ({{ $conteggi['mancanti'] }})</a>
             @endif
@@ -80,9 +82,20 @@
                             <td>{{ $iscrizione->telefono }}</td>
                             <td><code>{{ $iscrizione->codice_fiscale }}</code></td>
                             <td>
-                                @if ($iscrizione->presenza_confermata_at)
-                                    {{-- Data e ora della conferma nel tooltip (nativo) della pillola. --}}
-                                    <span class="badge badge-success" title="Confermata il {{ $iscrizione->presenza_confermata_at->format('d/m/Y \a\l\l\e H:i') }}">Confermata</span>
+                                {{-- Presenza effettiva segnata dall'operatore (presente_at). Un secondo clic la toglie (clic errato).
+                                     `presenza_confermata_at` (clic della persona sul link dell'email) non si mostra. --}}
+                                @if ($canWrite && ! $iscrizione->ritirata() && ! $corso->annullato()) {{-- = IscrizioneCorso::presenzaSegnabile() senza ricaricare il corso a ogni riga --}}
+                                    <form method="POST" action="{{ route('admin.corsi.iscritti.presenza', [$corso, $iscrizione]) }}" class="d-inline">
+                                        @csrf @method('PUT')
+                                        <input type="hidden" name="presente" value="{{ $iscrizione->presente_at ? 0 : 1 }}">
+                                        @if ($iscrizione->presente_at)
+                                            <button class="btn btn-sm btn-success" title="Presente dal {{ $iscrizione->presente_at->format('d/m/Y \a\l\l\e H:i') }}. Clic per annullare la presenza"><i class="fas fa-check"></i> Presente</button>
+                                        @else
+                                            <button class="btn btn-sm btn-outline-secondary" title="Segna come presente al corso"><i class="far fa-square"></i> Segna presente</button>
+                                        @endif
+                                    </form>
+                                @elseif ($iscrizione->presente_at)
+                                    <span class="badge badge-success" title="Presente dal {{ $iscrizione->presente_at->format('d/m/Y \a\l\l\e H:i') }}">Presente</span>
                                 @else
                                     <span class="text-muted">—</span>
                                 @endif
@@ -113,7 +126,7 @@
                     @empty
                         <tr>
                             <td colspan="{{ $canWrite ? 7 : 6 }}" class="text-center text-muted py-4">
-                                {{ match ($stato) { 'ritirati' => 'Nessun iscritto ritirato.', 'mancanti' => 'Nessun iscritto con dati di nascita mancanti.', default => 'Nessun iscritto ancora.' } }}
+                                {{ match ($stato) { 'ritirati' => 'Nessun iscritto ritirato.', 'mancanti' => 'Nessun iscritto con dati di nascita mancanti.', 'presenti' => 'Nessun iscritto segnato presente.', 'assenti' => 'Tutti gli iscritti attivi sono segnati presenti.', default => 'Nessun iscritto ancora.' } }}
                             </td>
                         </tr>
                     @endforelse
