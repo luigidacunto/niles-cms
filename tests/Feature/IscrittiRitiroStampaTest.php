@@ -187,6 +187,37 @@ class IscrittiRitiroStampaTest extends TestCase
         $this->actingAs($lettore, 'admin')->put(route('admin.corsi.iscritti.presenza', [$this->corso, $anna]), ['presente' => 1])->assertForbidden();
     }
 
+    public function test_presenza_asincrona_risponde_in_json_con_i_conteggi(): void
+    {
+        $mario = $this->iscrivi('RSSMRA80A01H501U', 'Mario', 'Rossi');
+        $this->iscrivi('VRDNNA85M41F205Z', 'Anna', 'Verdi');
+        $url = route('admin.corsi.iscritti.presenza', [$this->corso, $mario]);
+        $a = $this->actingAs($this->admin, 'admin');
+
+        $a->putJson($url, ['presente' => 1])->assertOk()
+            ->assertJsonPath('presente', true)->assertJsonPath('conteggi.presenti', 1)->assertJsonPath('conteggi.assenti', 1)
+            ->assertJsonStructure(['quando']);
+        $a->putJson($url, ['presente' => 0])->assertOk()
+            ->assertJsonPath('presente', false)->assertJsonPath('quando', null)->assertJsonPath('conteggi.presenti', 0);
+
+        $mario->update(['ritirata_at' => now()]);
+        $a->putJson($url, ['presente' => 1])->assertStatus(422)->assertJsonStructure(['message']);
+        $this->assertNull($mario->fresh()->presente_at);
+    }
+
+    public function test_presenza_asincrona_richiede_sessione_e_permesso(): void
+    {
+        $mario = $this->iscrivi('RSSMRA80A01H501U', 'Mario', 'Rossi');
+        $url = route('admin.corsi.iscritti.presenza', [$this->corso, $mario]);
+
+        $this->putJson($url, ['presente' => 1])->assertUnauthorized();                      // sessione assente o scaduta
+        $this->assertNull($mario->fresh()->presente_at);
+
+        $lettore = Admin::create(['name' => 'L', 'email' => 'l@example.test', 'password' => 'x', 'role' => 'editor', 'active' => true, 'permissions' => ['corsi' => ['read']]]);
+        $this->actingAs($lettore, 'admin')->putJson($url, ['presente' => 1])->assertForbidden();
+        $this->assertNull($mario->fresh()->presente_at);
+    }
+
     public function test_elenco_da_stampare_solo_iscritti_attivi_con_caselle_e_pagamento(): void
     {
         $azienda = DatiFatturazioneCorso::create(['tipo' => 'azienda', 'ragione_sociale' => 'ACME srl', 'partita_iva' => '12345678901', 'metodo_pagamento' => 'Bonifico']);

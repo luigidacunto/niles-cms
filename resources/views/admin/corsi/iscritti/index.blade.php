@@ -36,14 +36,15 @@
     @if ($errors->any())
         <div class="alert alert-danger"><ul class="mb-0">@foreach ($errors->all() as $e)<li>{{ $e }}</li>@endforeach</ul></div>
     @endif
+    <div id="presenza-errore" class="alert alert-danger" style="display: none"></div>
 
     <div class="d-flex justify-content-between align-items-center flex-wrap mb-2">
         <div class="btn-group" role="group" aria-label="Filtro iscritti">
             <a href="{{ route('admin.corsi.iscritti.index', $corso) }}" class="btn btn-sm {{ $stato === 'attivi' ? 'btn-primary' : 'btn-outline-primary' }}">Attivi ({{ $conteggi['attivi'] }})</a>
             <a href="{{ route('admin.corsi.iscritti.index', [$corso, 'stato' => 'ritirati']) }}" class="btn btn-sm {{ $stato === 'ritirati' ? 'btn-primary' : 'btn-outline-primary' }}">Ritirati ({{ $conteggi['ritirati'] }})</a>
             <a href="{{ route('admin.corsi.iscritti.index', [$corso, 'stato' => 'tutti']) }}" class="btn btn-sm {{ $stato === 'tutti' ? 'btn-primary' : 'btn-outline-primary' }}">Tutti ({{ $conteggi['attivi'] + $conteggi['ritirati'] }})</a>
-            <a href="{{ route('admin.corsi.iscritti.index', [$corso, 'stato' => 'presenti']) }}" class="btn btn-sm {{ $stato === 'presenti' ? 'btn-success' : 'btn-outline-success' }}" title="Attivi segnati presenti al corso">Presenti ({{ $conteggi['presenti'] }})</a>
-            <a href="{{ route('admin.corsi.iscritti.index', [$corso, 'stato' => 'assenti']) }}" class="btn btn-sm {{ $stato === 'assenti' ? 'btn-secondary' : 'btn-outline-secondary' }}" title="Attivi non segnati presenti">Non presenti ({{ $conteggi['assenti'] }})</a>
+            <a href="{{ route('admin.corsi.iscritti.index', [$corso, 'stato' => 'presenti']) }}" class="btn btn-sm {{ $stato === 'presenti' ? 'btn-success' : 'btn-outline-success' }}" title="Attivi segnati presenti al corso">Presenti (<span data-conta="presenti">{{ $conteggi['presenti'] }}</span>)</a>
+            <a href="{{ route('admin.corsi.iscritti.index', [$corso, 'stato' => 'assenti']) }}" class="btn btn-sm {{ $stato === 'assenti' ? 'btn-secondary' : 'btn-outline-secondary' }}" title="Attivi non segnati presenti">Non presenti (<span data-conta="assenti">{{ $conteggi['assenti'] }}</span>)</a>
             @if ($corso->richiedeAnagraficaCompleta())
                 <a href="{{ route('admin.corsi.iscritti.index', [$corso, 'stato' => 'mancanti']) }}" class="btn btn-sm {{ $stato === 'mancanti' ? 'btn-warning' : 'btn-outline-warning' }}" title="Attivi senza data o luogo di nascita">Dati mancanti ({{ $conteggi['mancanti'] }})</a>
             @endif
@@ -85,7 +86,7 @@
                                 {{-- Presenza effettiva segnata dall'operatore (presente_at). Un secondo clic la toglie (clic errato).
                                      `presenza_confermata_at` (clic della persona sul link dell'email) non si mostra. --}}
                                 @if ($canWrite && ! $iscrizione->ritirata() && ! $corso->annullato()) {{-- = IscrizioneCorso::presenzaSegnabile() senza ricaricare il corso a ogni riga --}}
-                                    <form method="POST" action="{{ route('admin.corsi.iscritti.presenza', [$corso, $iscrizione]) }}" class="d-inline">
+                                    <form method="POST" action="{{ route('admin.corsi.iscritti.presenza', [$corso, $iscrizione]) }}" class="d-inline js-presenza">
                                         @csrf @method('PUT')
                                         <input type="hidden" name="presente" value="{{ $iscrizione->presente_at ? 0 : 1 }}">
                                         @if ($iscrizione->presente_at)
@@ -136,4 +137,61 @@
     </div>
 
     <a href="{{ route('admin.corsi.index') }}" class="btn btn-link">Torna ai corsi</a>
+@stop
+
+@section('js')
+<script>
+    // Presenza senza ricaricare la pagina: stessa PUT del form (sessione admin + token CSRF del form), risposta JSON.
+    // Senza JavaScript il form funziona comunque con il redirect.
+    (function () {
+        var errore = document.getElementById('presenza-errore');
+
+        function mostraErrore(testo) {
+            errore.textContent = testo;
+            errore.style.display = '';
+        }
+
+        function aggiorna(form, dati) {
+            var bottone = form.querySelector('button');
+            form.elements.presente.value = dati.presente ? 0 : 1;
+            bottone.className = dati.presente ? 'btn btn-sm btn-success' : 'btn btn-sm btn-outline-secondary';
+            bottone.title = dati.presente ? 'Presente dal ' + dati.quando + '. Clic per annullare la presenza' : 'Segna come presente al corso';
+            bottone.innerHTML = dati.presente ? '<i class="fas fa-check"></i> Presente' : '<i class="far fa-square"></i> Segna presente';
+            Object.keys(dati.conteggi).forEach(function (k) {
+                var el = document.querySelector('[data-conta="' + k + '"]');
+                if (el) { el.textContent = dati.conteggi[k]; }
+            });
+        }
+
+        document.querySelectorAll('form.js-presenza').forEach(function (form) {
+            form.addEventListener('submit', function (e) {
+                e.preventDefault();
+                var bottone = form.querySelector('button');
+                errore.style.display = 'none';
+                bottone.disabled = true;
+                fetch(form.action, {
+                    method: 'POST', // il campo _method=PUT del form è letto da Laravel
+                    body: new FormData(form),
+                    headers: { 'Accept': 'application/json', 'X-Requested-With': 'XMLHttpRequest' },
+                    credentials: 'same-origin',
+                }).then(function (r) {
+                    if (r.status === 401 || r.status === 419) { // sessione scaduta: si torna al login
+                        window.location.reload();
+                        return null;
+                    }
+                    return r.json().then(function (dati) {
+                        if (!r.ok) { throw new Error(dati.message || 'Operazione non riuscita.'); }
+                        return dati;
+                    });
+                }).then(function (dati) {
+                    if (dati) { aggiorna(form, dati); }
+                }).catch(function (err) {
+                    mostraErrore(err.message || 'Operazione non riuscita: riprova.');
+                }).finally(function () {
+                    bottone.disabled = false;
+                });
+            });
+        });
+    })();
+</script>
 @stop

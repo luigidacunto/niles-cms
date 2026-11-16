@@ -7,8 +7,8 @@ incrementano la seconda cifra, le correzioni e i miglioramenti la terza. Le rele
 ## 1.2.5 — 2026-11-16
 - **Corsi: presenza effettiva degli iscritti.** Nell'elenco degli iscritti la colonna «Presenza» non mostra più la conferma data
   dalla persona con il link dell'email (serve solo a salvare le sue preferenze): ora c'è un pulsante «Segna presente» che
-  l'operatore usa per registrare chi ha davvero frequentato, utile per il rilascio degli attestati. Un secondo clic annulla la
-  presenza in caso di errore. Nuovi filtri «Presenti» e «Non presenti»; la presenza si può segnare solo per iscritti attivi di corsi
+  l'operatore usa per registrare chi ha davvero frequentato, utile per il rilascio degli attestati. Il pulsante aggiorna la riga e i
+  conteggi senza ricaricare la pagina; un secondo clic annulla la presenza in caso di errore. Nuovi filtri «Presenti» e «Non presenti»; la presenza si può segnare solo per iscritti attivi di corsi
   non annullati. Negli export CSV ed Excel compaiono le colonne «Presente» e «Presenza segnata il»; nel PDF la colonna diventa una
   «Firma» vuota. Nella scheda della persona il badge «presente» sostituisce «presenza confermata». Serve eseguire le migrazioni.
 

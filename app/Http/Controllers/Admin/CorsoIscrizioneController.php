@@ -101,12 +101,28 @@ class CorsoIscrizioneController extends Controller
         abort_unless($iscrizione->corso_id === $corso->id, 404);
 
         if (! $iscrizione->setRelation('corso', $corso)->presenzaSegnabile()) {
-            return back()->withErrors(['presenza' => 'La presenza non si può segnare per un iscritto ritirato o per un corso annullato.']);
+            $errore = 'La presenza non si può segnare per un iscritto ritirato o per un corso annullato.';
+
+            return $request->wantsJson()
+                ? response()->json(['message' => $errore], 422)
+                : back()->withErrors(['presenza' => $errore]);
         }
 
         $presente = $request->boolean('presente');
         if ($presente !== ($iscrizione->presente_at !== null)) {
             $iscrizione->forceFill(['presente_at' => $presente ? now() : null])->save();
+        }
+
+        // Chiamata asincrona della griglia: stato aggiornato e conteggi dei filtri, senza ricaricare la pagina.
+        if ($request->wantsJson()) {
+            return response()->json([
+                'presente' => $iscrizione->presente_at !== null,
+                'quando' => $iscrizione->presente_at?->format('d/m/Y \a\l\l\e H:i'),
+                'conteggi' => [
+                    'presenti' => $corso->iscrizioni()->presenti()->count(),
+                    'assenti' => $corso->iscrizioni()->assenti()->count(),
+                ],
+            ]);
         }
 
         return back()->with('status', $presente
