@@ -4,12 +4,6 @@ Elenco delle modifiche di ogni versione, dalla più recente. Le versioni seguono
 incrementano la seconda cifra, le correzioni e i miglioramenti la terza. Le release complete, con i pacchetti scaricabili, sono su
 [GitHub](https://github.com/luigidacunto/niles-cms/releases). Le direzioni future sono nella [roadmap](ROADMAP.md).
 
-## 1.2.6 — 2026-11-16
-- **Loghi in formato SVG.** In *Comitato e sito → Loghi e immagini* i campi dei loghi (orizzontale, verticale, I.F.R.C. e «Un'Italia che
-  aiuta») accettano anche un file SVG, per esempio i loghi ufficiali «con area di rispetto». Il browser lo converte in PNG a sfondo
-  trasparente (fino a 1200 px sul lato lungo) appena si sceglie il file e mostra un'anteprima: al salvataggio il server riceve solo il
-  PNG, quindi nessun SVG viene conservato o pubblicato. L'SVG deve avere un `viewBox` oppure `width` e `height`. La favicon resta solo PNG.
-
 ## 1.2.5 — 2026-11-16
 - **Corsi: presenza effettiva degli iscritti.** Nell'elenco degli iscritti la colonna «Presenza» non mostra più la conferma data
   dalla persona con il link dell'email (serve solo a salvare le sue preferenze): ora c'è un pulsante «Segna presente» che

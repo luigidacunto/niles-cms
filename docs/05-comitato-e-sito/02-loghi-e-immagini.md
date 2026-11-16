@@ -22,11 +22,6 @@ aprendole compaiono dimensioni e margini da rispettare.
 **Il logo orizzontale va preparato con il margine vuoto indicato**, perché l'intestazione lo ingrandisce e ritaglia il bordo: un logo
 disegnato fino ai bordi verrebbe tagliato.
 
-**SVG.** I campi dei loghi (non la favicon) accettano anche un file SVG, per esempio i loghi ufficiali «con area di rispetto». Appena
-si sceglie il file il browser lo converte in PNG a sfondo trasparente (fino a 1200 px sul lato lungo, stesse proporzioni) e mostra
-un'anteprima sotto il campo: al salvataggio parte il PNG, mai l'SVG, che quindi non viene conservato né pubblicato. L'SVG deve avere un
-`viewBox` oppure `width` e `height`; i margini da rispettare sono gli stessi del PNG.
-
 Per rimuovere un'immagine spunta **rimuovi** accanto all'anteprima e salva.
 
 ## Loghi istituzionali
