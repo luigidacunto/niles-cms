@@ -22,6 +22,11 @@
                             <ul class="mb-0">
                                 <li>Formato: PNG con sfondo trasparente, circa 700&times;220 px (rapporto 3:1&ndash;3,2:1).</li>
                                 <li>
+                                    Si può caricare anche un file <strong>SVG</strong>: il browser lo converte in PNG (fino a 1200 px sul lato lungo,
+                                    sfondo trasparente) prima dell'invio, quindi sul sito non arriva mai un SVG. Valgono gli stessi margini:
+                                    con i loghi ufficiali «con area di rispetto» sono già corretti.
+                                </li>
+                                <li>
                                     Simbolo e scritte nell'area centrale, lasciando libero almeno il
                                     <strong>30% in alto, il 20% in basso e l'8% a destra e a sinistra</strong>
                                     (su 700&times;220 px: 66 px sopra, 44 px sotto, 56 px per lato; area utile circa 588&times;110 px).
@@ -39,7 +44,7 @@
                             <label class="mb-0"><input type="checkbox" name="remove_logo_orizzontale" value="1"> rimuovi</label>
                         </div>
                     @endif
-                    <input type="file" name="logo_orizzontale" accept="image/*" class="form-control-file">
+                    <input type="file" name="logo_orizzontale" accept="image/*,.svg" data-svg-png class="form-control-file">
                 </div>
                 <div class="form-group col-md-6">
                     <details class="mb-2">
@@ -67,7 +72,7 @@
                             <label class="mb-0"><input type="checkbox" name="remove_logo_verticale" value="1"> rimuovi</label>
                         </div>
                     @endif
-                    <input type="file" name="logo_verticale" accept="image/*" class="form-control-file">
+                    <input type="file" name="logo_verticale" accept="image/*,.svg" data-svg-png class="form-control-file">
                 </div>
                 <div class="form-group col-md-6">
                     <label>Favicon <small class="text-muted">icona nella scheda del browser; PNG quadrato, consigliato 256&times;256px. Senza file vale l'icona generica</small></label>
@@ -100,7 +105,7 @@
                             <label class="mb-0"><input type="checkbox" name="remove_logo_ifrc" value="1"> rimuovi</label>
                         </div>
                     @endif
-                    <input type="file" name="logo_ifrc" accept="image/*" class="form-control-file">
+                    <input type="file" name="logo_ifrc" accept="image/*,.svg" data-svg-png class="form-control-file">
                 </div>
                 <div class="form-group col-md-6">
                     <label>Un'Italia che aiuta <small class="text-muted">mostrato nel piè di pagina</small></label>
@@ -110,9 +115,92 @@
                             <label class="mb-0"><input type="checkbox" name="remove_logo_un_italia" value="1"> rimuovi</label>
                         </div>
                     @endif
-                    <input type="file" name="logo_un_italia" accept="image/*" class="form-control-file">
+                    <input type="file" name="logo_un_italia" accept="image/*,.svg" data-svg-png class="form-control-file">
                 </div>
             </div>
         </div>
     </div>
+@endsection
+
+@section('js')
+<script>
+// Un SVG scelto in un campo logo viene disegnato su un canvas e sostituito da un PNG prima dell'invio:
+// il server riceve solo PNG, mai un SVG. Nel browser l'SVG è un'immagine inerte (nessuno script viene eseguito).
+(function () {
+    var MAX = 1200;
+
+    function messaggio(input, testo, errore) {
+        var box = input.parentNode.querySelector('.svg-png-msg');
+        if (!box) {
+            box = document.createElement('div');
+            box.className = 'svg-png-msg small mt-1';
+            input.parentNode.appendChild(box);
+        }
+        box.className = 'svg-png-msg small mt-1 ' + (errore ? 'text-danger' : 'text-success');
+        box.innerHTML = '';
+        box.appendChild(document.createTextNode(testo));
+        return box;
+    }
+
+    function dimensioni(svg) {
+        var vb = (svg.getAttribute('viewBox') || '').trim().split(/[\s,]+/).map(parseFloat);
+        if (vb.length === 4 && vb[2] > 0 && vb[3] > 0) return { w: vb[2], h: vb[3] };
+        var w = parseFloat(svg.getAttribute('width')), h = parseFloat(svg.getAttribute('height'));
+        return (w > 0 && h > 0) ? { w: w, h: h } : null;
+    }
+
+    function converti(input, file) {
+        var lettore = new FileReader();
+        lettore.onerror = function () { messaggio(input, 'File non leggibile.', true); input.value = ''; };
+        lettore.onload = function () {
+            var doc = new DOMParser().parseFromString(lettore.result, 'image/svg+xml');
+            var svg = doc.documentElement;
+            var d = (svg && svg.nodeName.toLowerCase() === 'svg' && !doc.querySelector('parsererror')) ? dimensioni(svg) : null;
+            if (!d) {
+                messaggio(input, 'SVG non valido: servono un viewBox oppure width e height.', true);
+                input.value = '';
+                return;
+            }
+            var scala = MAX / Math.max(d.w, d.h);
+            var w = Math.round(d.w * scala), h = Math.round(d.h * scala);
+            svg.setAttribute('width', w);
+            svg.setAttribute('height', h);
+            var url = URL.createObjectURL(new Blob([new XMLSerializer().serializeToString(svg)], { type: 'image/svg+xml' }));
+            var img = new Image();
+            img.onerror = function () { URL.revokeObjectURL(url); messaggio(input, 'Impossibile disegnare l\'SVG.', true); input.value = ''; };
+            img.onload = function () {
+                var canvas = document.createElement('canvas');
+                canvas.width = w;
+                canvas.height = h;
+                canvas.getContext('2d').drawImage(img, 0, 0, w, h);
+                URL.revokeObjectURL(url);
+                canvas.toBlob(function (blob) {
+                    if (!blob) { messaggio(input, 'Conversione non riuscita.', true); input.value = ''; return; }
+                    var nome = file.name.replace(/\.svg$/i, '') + '.png';
+                    var dt = new DataTransfer();
+                    dt.items.add(new File([blob], nome, { type: 'image/png' }));
+                    input.files = dt.files;
+                    var box = messaggio(input, 'Convertito in PNG (' + w + '×' + h + ' px): ', false);
+                    var anteprima = document.createElement('img');
+                    anteprima.src = URL.createObjectURL(blob);
+                    anteprima.alt = '';
+                    anteprima.style.cssText = 'max-height:70px;display:block;margin-top:.25rem;background:#eee';
+                    box.appendChild(anteprima);
+                }, 'image/png');
+            };
+            img.src = url;
+        };
+        lettore.readAsText(file);
+    }
+
+    document.querySelectorAll('input[data-svg-png]').forEach(function (input) {
+        input.addEventListener('change', function () {
+            var vecchio = input.parentNode.querySelector('.svg-png-msg');
+            if (vecchio) vecchio.remove();
+            var file = input.files && input.files[0];
+            if (file && (file.type === 'image/svg+xml' || /\.svg$/i.test(file.name))) converti(input, file);
+        });
+    });
+})();
+</script>
 @endsection
